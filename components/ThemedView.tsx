@@ -15,10 +15,10 @@ export function ThemedView({
   invert,
   ...otherProps
 }: ThemedViewProps) {
-  const backgroundColor = useThemeColor(
-    { light: lightColor, dark: darkColor },
-    invert ? "text" : "background"
-  );
+  const backgroundColor = useThemeColor(invert ? "text" : "background", {
+    light: lightColor,
+    dark: darkColor,
+  });
 
   return <View style={[{ backgroundColor }, style]} {...otherProps} />;
 }
