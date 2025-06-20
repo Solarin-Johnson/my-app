@@ -1,7 +1,7 @@
 import React from "react";
 import Container from "@/components/Container";
 import { ThemedText } from "@/components/ThemedText";
-import BottomBar from "./BottomBar";
+import BottomBar from "../../components/BottomBar";
 
 export default function KeyboardCtrl() {
   return (
