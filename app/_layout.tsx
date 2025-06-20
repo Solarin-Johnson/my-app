@@ -11,6 +11,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Head from "expo-router/head";
 import { Colors } from "@/constants/Colors";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -28,25 +29,29 @@ export default function RootLayout() {
       <Head>
         <meta name="color-scheme" content="light dark" />
       </Head>
-      <SafeAreaProvider>
-        <ThemeProvider
-          value={{
-            ...(colorScheme === "dark" ? DarkTheme : DefaultTheme),
-            colors: {
-              ...DefaultTheme.colors,
-              background: Colors[colorScheme ?? "light"].background,
-            },
-          }}
-        >
-          <Stack
-            initialRouteName="keyboard-ctrl"
-            screenOptions={{ headerShown: false }}
+      <KeyboardProvider>
+        <SafeAreaProvider>
+          <ThemeProvider
+            value={{
+              ...(colorScheme === "dark" ? DarkTheme : DefaultTheme),
+              colors: {
+                ...(colorScheme === "dark"
+                  ? DarkTheme.colors
+                  : DefaultTheme.colors),
+                background: Colors[colorScheme ?? "light"].background,
+              },
+            }}
           >
-            <Stack.Screen name="index" />
-          </Stack>
-          <StatusBar style="auto" />
-        </ThemeProvider>
-      </SafeAreaProvider>
+            <Stack
+              initialRouteName="keyboard-ctrl"
+              screenOptions={{ headerShown: false }}
+            >
+              <Stack.Screen name="index" />
+            </Stack>
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        </SafeAreaProvider>
+      </KeyboardProvider>
     </>
   );
 }

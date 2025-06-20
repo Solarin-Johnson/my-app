@@ -2,6 +2,7 @@
   "expo": {
     "name": "[my-app]",
     "slug": "my-app",
+    "owner": "solarin",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,7 +16,9 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#181818"
-      }
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.solarin.myapp"
     },
     "web": {
       "bundler": "metro",
@@ -28,8 +31,7 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon-light.png",
-          "imageWidth": 150,
-          "resizeMode": "contain",
+          "imageWidth": 200,
           "backgroundColor": "#F5F5F7",
           "dark": {
             "image": "./assets/images/splash-icon-dark.png",
@@ -45,6 +47,9 @@
     "extra": {
       "router": {
         "origin": false
+      },
+      "eas": {
+        "projectId": "9efc0bb6-df7f-44a9-9544-9e52e73553bb"
       }
     }
   }

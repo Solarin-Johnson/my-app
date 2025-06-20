@@ -6,20 +6,29 @@ import {
   ViewStyle,
   useWindowDimensions,
   BackHandler,
+  TextInput,
+  ScrollView,
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
+  runOnJS,
   SharedValue,
+  useAnimatedReaction,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { ClockFading, LucideProps, Search, Star } from "lucide-react-native";
+import { ClockFading, LucideProps, Search, Star, X } from "lucide-react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText } from "@/components/ThemedText";
+import {
+  KeyboardAvoidingView,
+  KeyboardGestureArea,
+  useKeyboardHandler,
+} from "react-native-keyboard-controller";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -154,12 +163,7 @@ const BarIcon = ({
         onPressOut={() => {
           scale.value = 1;
         }}
-        style={[
-          styles.barIcon,
-          styles.rounded,
-          { backgroundColor: text + "15" },
-          style,
-        ]}
+        style={[styles.barIcon, { backgroundColor: text + "15" }, style]}
         onPress={onPress}
       >
         {children}
@@ -195,9 +199,14 @@ const Underlay = ({
 };
 
 const SearchWindow = ({ isVisible }: { isVisible: SharedValue<boolean> }) => {
-  const { height } = useWindowDimensions();
+  const { height: windowHeight } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
   const bg = useThemeColor("barColor");
+  const text = useThemeColor("text");
+  const input = useSharedValue("");
+  const inputRef = useRef<TextInput>(null);
+  const progress = useSharedValue(0);
+  const height = useSharedValue(0);
 
   useEffect(() => {
     const backHandler = () =>
@@ -210,23 +219,149 @@ const SearchWindow = ({ isVisible }: { isVisible: SharedValue<boolean> }) => {
     return () => subscription.remove();
   }, []);
 
+  const focus = () => {
+    if (inputRef.current) {
+      inputRef.current?.focus();
+    }
+  };
+
+  const blurInput = () => {
+    if (inputRef.current) {
+      inputRef.current?.blur();
+      inputRef.current?.clear();
+      input.value = "";
+    }
+  };
+
+  useAnimatedReaction(
+    () => isVisible.value,
+    (isVisible) => {
+      if (isVisible) {
+        runOnJS(focus)();
+      } else {
+        runOnJS(blurInput)();
+      }
+    }
+  );
+
   const animatedStyle = useAnimatedStyle(() => {
     return {
       top: top + 40,
-      bottom: bottom + 40,
+      bottom: bottom + 40 + height.value,
       backgroundColor: bg,
       transform: [
         {
-          translateY: withSpring(isVisible.value ? 0 : height, SPRING_CONFIG),
+          translateY: withSpring(
+            isVisible.value ? 0 : windowHeight,
+            SPRING_CONFIG
+          ),
+        },
+        {
+          scale: withSpring(isVisible.value ? 1 : 0.8, {
+            ...SPRING_CONFIG,
+            stiffness: 240,
+          }),
         },
       ],
     };
   });
 
+  useKeyboardHandler(
+    {
+      onMove: (e) => {
+        "worklet";
+        progress.value = e.progress;
+        height.value = e.height;
+      },
+
+      onInteractive: (e) => {
+        "worklet";
+        progress.value = e.progress;
+        height.value = e.height;
+      },
+    },
+
+    []
+  );
+
   return (
     <Animated.View style={[styles.searchWindow, animatedStyle]}>
-      <Text>Search Window</Text>
+      <SearchInput input={input} inputRef={inputRef} isVisible={isVisible} />
+      <KeyboardGestureArea interpolator="ios" style={{ flex: 1 }} offset={50}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={{ padding: 8, gap: 8 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {Array.from({ length: 15 }).map((_, index) => (
+            <Cluster key={index} />
+          ))}
+        </ScrollView>
+      </KeyboardGestureArea>
     </Animated.View>
+  );
+};
+
+const SearchInput = memo(
+  ({
+    input,
+    inputRef,
+    isVisible,
+  }: {
+    input: SharedValue<string>;
+    inputRef: React.RefObject<TextInput | null>;
+    isVisible: SharedValue<boolean>;
+  }) => {
+    const text = useThemeColor("text");
+
+    const handleClearOrClose = () => {
+      if (input.value.length > 0) {
+        inputRef.current?.clear();
+        input.value = "";
+      } else {
+        isVisible.value = false;
+      }
+    };
+
+    return (
+      <View style={styles.inputBox}>
+        <TextInput
+          placeholder="Search for people and places"
+          placeholderTextColor={`${text}80`}
+          style={[
+            styles.texInput,
+            {
+              color: text,
+            },
+          ]}
+          ref={inputRef}
+          onChangeText={(value) => {
+            input.value = value;
+          }}
+        />
+        <Pressable
+          onPress={handleClearOrClose}
+          style={styles.button}
+          hitSlop={8}
+        >
+          <X size={15} strokeWidth={2.4} color="#ffffff" />
+        </Pressable>
+      </View>
+    );
+  }
+);
+
+const Cluster = () => {
+  const text = useThemeColor("text");
+  const bg = useThemeColor("background");
+
+  const itemStyle = { backgroundColor: text + "14" };
+
+  return (
+    <View style={styles.cluster}>
+      <View style={[styles.clusterCircle, itemStyle]} />
+      <View style={[styles.clusterBar, itemStyle]} />
+    </View>
   );
 };
 
@@ -250,6 +385,7 @@ const styles = StyleSheet.create({
   rounded: {
     borderRadius: 36,
     overflow: "hidden",
+    borderCurve: "continuous",
   },
   frame: {
     boxShadow: "-0.5px -0.5px 1px #ffffff30",
@@ -269,9 +405,54 @@ const styles = StyleSheet.create({
   searchWindow: {
     position: "absolute",
     width: "90%",
-    // bottom: 0,
     alignSelf: "center",
     borderRadius: 16,
-    padding: 16,
+    borderCurve: "continuous",
+    boxShadow: "0 0 20px #00000010",
+    borderWidth: 1,
+    borderColor: "#ffffff0F",
+    overflow: "hidden",
+  },
+  inputBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderColor: "#88888830",
+    height: 52,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  button: {
+    marginRight: 12,
+    padding: 4,
+    borderRadius: 24,
+    borderCurve: "continuous",
+    backgroundColor: "#88888888",
+  },
+  texInput: {
+    fontSize: 15,
+    paddingHorizontal: 12,
+    height: "100%",
+    flex: 1,
+    fontFamily: "InterMedium",
+  },
+  cluster: {
+    height: 54,
+    width: "100%",
+    flexDirection: "row",
+    gap: 8,
+  },
+  clusterCircle: {
+    height: "100%",
+    aspectRatio: 1,
+    borderRadius: "50%",
+  },
+  clusterBar: {
+    height: "100%",
+    flex: 1,
+    borderRadius: 8,
+    backgroundColor: "blue",
+    borderCurve: "continuous",
   },
 });

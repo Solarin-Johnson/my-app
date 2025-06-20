@@ -2,13 +2,10 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
+import { Redirect } from "expo-router";
 
 export default function Index() {
-  return (
-    <ThemedView style={styles.container}>
-      <ThemedText style={styles.text}>We go again!</ThemedText>
-    </ThemedView>
-  );
+  return <Redirect href="/keyboard-ctrl" />;
 }
 
 const styles = StyleSheet.create({
