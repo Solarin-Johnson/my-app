@@ -163,7 +163,7 @@ const BarIcon = ({
         onPressOut={() => {
           scale.value = 1;
         }}
-        style={[styles.barIcon, { backgroundColor: text + "15" }, style]}
+        style={[styles.barIcon, { backgroundColor: text + "12" }, style]}
         onPress={onPress}
       >
         {children}
@@ -287,11 +287,12 @@ const SearchWindow = ({ isVisible }: { isVisible: SharedValue<boolean> }) => {
   return (
     <Animated.View style={[styles.searchWindow, animatedStyle]}>
       <SearchInput input={input} inputRef={inputRef} isVisible={isVisible} />
-      <KeyboardGestureArea interpolator="ios" style={{ flex: 1 }} offset={50}>
+      <KeyboardGestureArea interpolator="ios" style={{ flex: 1 }} offset={80}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={{ padding: 8, gap: 8 }}
           showsVerticalScrollIndicator={false}
+          decelerationRate={0.99}
         >
           {Array.from({ length: 15 }).map((_, index) => (
             <Cluster key={index} />
@@ -335,6 +336,7 @@ const SearchInput = memo(
             },
           ]}
           ref={inputRef}
+          selectionColor={text + "90"}
           onChangeText={(value) => {
             input.value = value;
           }}

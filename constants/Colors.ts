@@ -11,12 +11,14 @@ export const Colors = {
     text: "#181818",
     background: "#F5F5F7",
     barColor: "#FFFFFF",
+    card: "#F5F5F7",
     tint: tintColorLight,
   },
   dark: {
     text: "#F5F5F7",
-    background: "#181818",
-    barColor: "#1F1F1F",
+    background: "#121212",
+    card: "#121212",
+    barColor: "#1A1A1A",
     tint: tintColorDark,
   },
 };
