@@ -8,7 +8,7 @@ import { ThemedText } from "./ThemedText";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const DrawerContent = memo((props: DrawerContentComponentProps) => {
-  const { descriptors, navigation, state } = props;
+  const { navigation } = props;
   return (
     <SafeAreaView edges={["top", "bottom"]} style={{ flex: 1 }}>
       <View>
