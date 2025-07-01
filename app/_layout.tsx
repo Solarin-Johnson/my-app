@@ -53,6 +53,12 @@ export default function RootLayout() {
                 drawerLabel: "Keyboard Controller",
               }}
             />
+            <Drawer.Screen
+              name="gesture-nav"
+              options={{
+                drawerLabel: "Gesture Navigation",
+              }}
+            />
           </Drawer>
           <StatusBar style="auto" />
         </ThemeProvider>
