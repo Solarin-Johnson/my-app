@@ -7,7 +7,7 @@ export default function Logo() {
   const text = useThemeColor("text");
   return (
     <View>
-      <LogoIcon fill={text} size={72} />
+      <LogoIcon color={text} size={72} />
     </View>
   );
 }

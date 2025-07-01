@@ -27,7 +27,12 @@ export default function GestureNav() {
   const pan = Gesture.Pan()
     .onUpdate((e) => {
       translateX.value = e.translationX;
-      translateY.value = e.translationY;
+      // Apply a non-linear "stiffness" as translation increases
+      const damped = e.translationY * 0.7;
+      translateY.value = Math.max(
+        0,
+        damped - 0.0005 * Math.pow(Math.max(0, damped), 2)
+      );
     })
     .onEnd(() => {
       translateX.value = 0;
