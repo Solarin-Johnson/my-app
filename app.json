@@ -10,7 +10,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.solarin.myapp"
     },
     "android": {
       "adaptiveIcon": {
@@ -31,7 +32,7 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon-light.png",
-          "imageWidth": 200,
+          "imageWidth": 250,
           "backgroundColor": "#F5F5F7",
           "dark": {
             "image": "./assets/images/splash-icon-dark.png",

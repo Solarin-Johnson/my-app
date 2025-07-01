@@ -26,9 +26,9 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Head>
+      {/* <Head>
         <meta name="color-scheme" content="light dark" />
-      </Head>
+      </Head> */}
       <SafeAreaProvider>
         <ThemeProvider value={colorScheme === "dark" ? DarkTheme : LightTheme}>
           <Drawer
