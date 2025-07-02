@@ -23,8 +23,12 @@ export default function GestureNav() {
   const barColor = useThemeColor("barColor");
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
+  const pressed = useSharedValue(false);
 
   const pan = Gesture.Pan()
+    .onBegin(() => {
+      pressed.value = true;
+    })
     .onUpdate((e) => {
       translateX.value = e.translationX;
       // Apply a non-linear "stiffness" as translation increases
@@ -35,8 +39,9 @@ export default function GestureNav() {
       );
     })
     .onEnd(() => {
-      translateX.value = 0;
+      translateX.value = withSpring(0, SPRING_CONFIG);
       translateY.value = withSpring(0, SPRING_CONFIG);
+      pressed.value = false;
     });
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -51,7 +56,11 @@ export default function GestureNav() {
           backgroundColor: text + "1A",
         }}
       >
-        <TopBar translateX={translateX} translateY={translateY} />
+        <TopBar
+          translateX={translateX}
+          translateY={translateY}
+          pressed={pressed}
+        />
         <Animated.View style={[{ flex: 1 }, animatedStyle]}>
           <View
             style={{
