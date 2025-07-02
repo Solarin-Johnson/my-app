@@ -150,7 +150,7 @@ const Actions = ({ translateX, translateY, pressed }: TopBarProps) => {
 
   const prevIndex = useSharedValue(1);
   const thresholdConfirmed = useDerivedValue(() => {
-    return translateY.value > DRAG_THRESHOLD;
+    return translateY.value > DRAG_THRESHOLD + BAR_HEIGHT / 2;
   });
 
   const activeIndex = useDerivedValue(() => {

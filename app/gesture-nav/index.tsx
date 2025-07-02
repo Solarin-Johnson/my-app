@@ -70,7 +70,14 @@ export default function GestureNav() {
               backgroundColor: barColor,
             }}
           >
-            <ThemedText type="defaultSemiBold">Pull Down</ThemedText>
+            <ThemedText
+              type="defaultSemiBold"
+              style={{
+                fontSize: 20,
+              }}
+            >
+              Pull Down
+            </ThemedText>
           </View>
         </Animated.View>
       </View>
