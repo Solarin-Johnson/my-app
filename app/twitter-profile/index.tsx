@@ -1,15 +1,9 @@
-import { ThemedText } from "@/components/ThemedText";
 import React from "react";
-import {
-  StyleSheet,
-  TouchableOpacity,
-  useWindowDimensions,
-} from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
   SharedValue,
-  useDerivedValue,
   useAnimatedReaction,
   interpolate,
   Extrapolation,
@@ -19,6 +13,14 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BlurView } from "expo-blur";
 import { Image } from "expo-image";
 import { ThemedView } from "@/components/ThemedView";
+import {
+  ArrowLeft,
+  Bell,
+  LucideIcon,
+  LucideProps,
+  Search,
+  Share,
+} from "lucide-react-native";
 
 const FULL_HEADER_HEIGHT = 160;
 const COLLAPSED_HEADER_HEIGHT = 50;
@@ -27,7 +29,6 @@ const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
 export default function TwitterProfile() {
   const scrollY = useSharedValue(0);
-  const { top } = useSafeAreaInsets();
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -41,7 +42,6 @@ export default function TwitterProfile() {
       <Animated.ScrollView
         style={styles.container}
         onScroll={scrollHandler}
-        // contentInsetAdjustmentBehavior={"automatic"}
         contentContainerStyle={{ paddingTop: FULL_HEADER_HEIGHT }}
       >
         <ThemedView
@@ -56,7 +56,6 @@ export default function TwitterProfile() {
 
 function Header({ scrollY }: { scrollY: SharedValue<number> }) {
   const { top } = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
   const intensity = useSharedValue<number | undefined>(0);
 
   useAnimatedReaction(
@@ -79,7 +78,21 @@ function Header({ scrollY }: { scrollY: SharedValue<number> }) {
         [FULL_HEADER_HEIGHT, COLLAPSED_HEADER_HEIGHT + top],
         Extrapolation.CLAMP
       ),
+      transform: [
+        {
+          scale: interpolate(
+            -scrollY.value,
+            [0, FULL_HEADER_HEIGHT],
+            [1, 1.2],
+            Extrapolation.CLAMP
+          ),
+        },
+      ],
     };
+  });
+
+  const headerImageAnimatedStyle = useAnimatedStyle(() => {
+    return {};
   });
 
   return (
@@ -94,8 +107,19 @@ function Header({ scrollY }: { scrollY: SharedValue<number> }) {
         ]}
         pointerEvents={"box-none"}
       >
-        <CoverImage intensity={intensity} />
+        <CoverImage intensity={intensity} style={headerImageAnimatedStyle} />
       </Animated.View>
+      <View
+        style={[styles.headerNav, { paddingTop: top }]}
+        pointerEvents="box-none"
+      >
+        <Button icon={ArrowLeft} />
+        <View style={styles.navCluster} pointerEvents="box-none">
+          <Button icon={Bell} />
+          <Button icon={Search} />
+          <Button icon={Share} />
+        </View>
+      </View>
     </>
   );
 }
@@ -134,6 +158,26 @@ const CoverImage = ({
   );
 };
 
+const Button = ({
+  onPress,
+  icon: Icon,
+  iconProps = {},
+}: {
+  onPress?: () => void;
+  icon: LucideIcon;
+  iconProps?: LucideProps;
+}) => {
+  return (
+    <TouchableOpacity
+      style={styles.button}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <Icon size={21} color="white" strokeWidth={2.1} {...iconProps} />
+    </TouchableOpacity>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -144,5 +188,26 @@ const styles = StyleSheet.create({
     top: 0,
     zIndex: 1,
     overflow: "hidden",
+  },
+  button: {
+    width: COLLAPSED_HEADER_HEIGHT - 10,
+    aspectRatio: 1,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    borderRadius: "50%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerNav: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    zIndex: 2,
+    marginHorizontal: 16,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  navCluster: {
+    flexDirection: "row",
+    gap: 16,
   },
 });
