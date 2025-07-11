@@ -6,10 +6,12 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Head from "expo-router/head";
 import { Drawer } from "expo-router/drawer";
-import { useWindowDimensions } from "react-native";
+import { Platform, useWindowDimensions } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { DarkTheme, LightTheme } from "@/constants/Theme";
 import DrawerContent from "@/components/DrawerContent";
+
+const isWeb = Platform.OS === "web";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -27,9 +29,11 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      {/* <Head>
-        <meta name="color-scheme" content="light dark" />
-      </Head> */}
+      {isWeb && (
+        <Head>
+          <meta name="color-scheme" content="light dark" />
+        </Head>
+      )}
       <SafeAreaProvider>
         <ThemeProvider value={colorScheme === "dark" ? DarkTheme : LightTheme}>
           <Drawer
