@@ -59,6 +59,12 @@ export default function RootLayout() {
                 drawerLabel: "Gesture Navigation",
               }}
             />
+            <Drawer.Screen
+              name="twitter-profile"
+              options={{
+                drawerLabel: "Twitter Profile",
+              }}
+            />
           </Drawer>
           <StatusBar style="auto" />
         </ThemeProvider>
