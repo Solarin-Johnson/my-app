@@ -41,7 +41,7 @@ export default function RootLayout() {
               headerShown: false,
               drawerType: "slide",
               swipeEdgeWidth: width,
-              swipeMinDistance: width * 0.33,
+              swipeMinDistance: width * 0.03,
             }}
             drawerContent={(props) => <DrawerContent {...props} />}
             initialRouteName="keyboard-ctrl"
