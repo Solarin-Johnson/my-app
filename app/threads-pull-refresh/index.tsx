@@ -27,7 +27,7 @@ export default function ThreadPullRefresh() {
       contentContainerStyle={{ paddingTop: top }}
       onScroll={scrollHandler}
     >
-      <RefreshLogo scrollY={scrollY} maxScrollY={100} d={path} inverted />
+      <RefreshLogo scrollY={scrollY} maxScrollY={100} d={path} />
     </Animated.ScrollView>
   );
 }
