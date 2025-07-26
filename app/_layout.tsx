@@ -70,6 +70,12 @@ export default function RootLayout() {
                 drawerLabel: "Twitter Profile",
               }}
             />
+            <Drawer.Screen
+              name="threads-pull-refresh"
+              options={{
+                drawerLabel: "Threads Pull Refresh",
+              }}
+            />
           </Drawer>
           <StatusBar style="auto" />
         </ThemeProvider>
