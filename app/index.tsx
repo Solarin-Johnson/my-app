@@ -24,7 +24,7 @@ export default function Index() {
           color={bg}
           style={{
             width: "80%",
-            padding: 14,
+            padding: 16,
             marginBottom: 24,
           }}
           onPress={() => navigation.openDrawer()}
