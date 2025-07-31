@@ -11,6 +11,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { DarkTheme, LightTheme } from "@/constants/Theme";
 import DrawerContent from "@/components/DrawerContent";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { ThemedTextWrapper } from "@/components/ThemedText";
+import { Home } from "lucide-react-native";
 
 const isWeb = Platform.OS === "web";
 
@@ -56,7 +58,7 @@ export function NavigationDrawer() {
         swipeEdgeWidth: width,
         swipeMinDistance: width * 0.03,
         drawerStyle: {
-          width: width * 0.86,
+          width: width * 0.85,
         },
         drawerLabelStyle: {
           fontFamily: "InterMedium",
@@ -68,13 +70,16 @@ export function NavigationDrawer() {
         },
         drawerActiveTintColor: text,
         drawerActiveBackgroundColor: `${text}10`,
+        drawerInactiveTintColor: text + "90",
       }}
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
         name="index"
+        initialParams={{ userId: "default-user", showBio: false }}
         options={{
           drawerLabel: "Home",
+          drawerItemStyle: { display: "none" },
         }}
       />
       <Drawer.Screen

@@ -1,5 +1,6 @@
 import { Text, type TextProps, StyleSheet } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { cloneElement, ReactElement } from "react";
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
@@ -15,22 +16,38 @@ export function ThemedText({
   ...rest
 }: ThemedTextProps) {
   const color = useThemeColor("text", { light: lightColor, dark: darkColor });
+  const variantKey = type as keyof typeof styles;
 
   return (
     <Text
-      style={[
-        { color, fontFamily: "InterMedium" },
-        type === "default" ? styles.default : undefined,
-        type === "title" ? styles.title : undefined,
-        type === "defaultSemiBold" ? styles.defaultSemiBold : undefined,
-        type === "subtitle" ? styles.subtitle : undefined,
-        type === "link" ? styles.link : undefined,
-        type === "bold" ? styles.bold : undefined,
-        style,
-      ]}
+      style={[{ color, fontFamily: "InterMedium" }, styles[variantKey], style]}
       {...rest}
     />
   );
+}
+
+export function ThemedTextWrapper({
+  children,
+  lightColor,
+  darkColor,
+  type = "default",
+  style,
+  ignoreStyle,
+  ...rest
+}: ThemedTextProps & { children: ReactElement<any>; ignoreStyle?: boolean }) {
+  const color = useThemeColor("text", { light: lightColor, dark: darkColor });
+  const variantKey = type as keyof typeof styles;
+
+  const combinedStyle = [
+    { color, fontFamily: "InterMedium" },
+    !ignoreStyle && styles[variantKey],
+    style,
+  ];
+
+  return cloneElement(children, {
+    style: [(children.props as any).style ?? {}, ...combinedStyle],
+    ...rest,
+  });
 }
 
 const styles = StyleSheet.create({
