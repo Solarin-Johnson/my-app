@@ -114,27 +114,9 @@ export function NavigationDrawer() {
       <Drawer.Screen
         name="grok-sidebar"
         options={{
-          title: "Grok",
-          headerShadowVisible: false,
-          headerShown: true,
           drawerLabel: "Grok Sidebar",
           drawerType: "front",
-          swipeMinDistance: width * 0.3,
-          headerTintColor: "white",
-          headerStyle: {
-            backgroundColor: "transparent",
-          },
-          headerTitleStyle: {
-            fontFamily: "InterSemiBold",
-          },
-          headerRight: () => (
-            <ThemedTextWrapper>
-              <Ghost size={21} />
-            </ThemedTextWrapper>
-          ),
-          headerRightContainerStyle: {
-            paddingRight: 16,
-          },
+          swipeMinDistance: width * 0.25,
           drawerStyle: {
             width: width,
             backgroundColor: "transparent",

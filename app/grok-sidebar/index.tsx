@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   StyleProp,
   ViewStyle,
+  useWindowDimensions,
 } from "react-native";
 import React from "react";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
@@ -17,35 +18,96 @@ import {
   AudioLines,
   Camera,
   File,
+  Ghost,
   ImagePlus,
   LucideIcon,
+  Menu,
   Paperclip,
   ScanSearch,
   Settings2,
   Zap,
 } from "lucide-react-native";
+import { BlurView } from "expo-blur";
+import Animated, {
+  useAnimatedReaction,
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
+import { useDrawerProgress } from "@react-navigation/drawer";
 
 const CHAT_BOX_HEIGHT = 100;
 const CHAT_BOX_MARGIN_V = 6;
 const RADIUS = 28;
+const BLUR_INTENSITY = 80;
+
+const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
 export default function GrokSidebar() {
+  const intensity = useSharedValue<number | undefined>(0);
+  const drawerProgress = useDrawerProgress();
+  const { width } = useWindowDimensions();
+
+  useAnimatedReaction(
+    () => drawerProgress.value,
+    (progress) => {
+      intensity.value = progress * BLUR_INTENSITY;
+    }
+  );
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateX: drawerProgress.value * (width / 3),
+      },
+    ],
+  }));
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         behavior="padding"
         style={{ flex: 1 }}
-        keyboardVerticalOffset={CHAT_BOX_HEIGHT + CHAT_BOX_MARGIN_V * 2}
+        keyboardVerticalOffset={CHAT_BOX_MARGIN_V}
       >
-        <ScrollView style={styles.screen}>
-          <Text style={{ fontSize: 24, fontWeight: "bold" }}>Grok</Text>
-        </ScrollView>
-        <SuggestionBox />
-        <ChatBox />
+        <Animated.View style={[styles.container, animatedStyle]}>
+          <Header />
+          <ScrollView style={styles.screen}>
+            <Text style={{ fontSize: 24, fontWeight: "bold" }}>Grok</Text>
+          </ScrollView>
+          <SuggestionBox />
+          <ChatBox />
+        </Animated.View>
       </KeyboardAvoidingView>
+      <AnimatedBlurView
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+        intensity={intensity}
+      />
     </SafeAreaView>
   );
 }
+
+const Header = () => {
+  return (
+    <View style={styles.header}>
+      <View style={styles.headerLeft}>
+        <ThemedTextWrapper>
+          <Menu size={21} />
+        </ThemedTextWrapper>
+      </View>
+      <View>
+        <ThemedText style={styles.headerTitle} type="defaultSemiBold">
+          Grok
+        </ThemedText>
+      </View>
+      <View style={styles.headerRight}>
+        <ThemedTextWrapper>
+          <Ghost size={21} />
+        </ThemedTextWrapper>
+      </View>
+    </View>
+  );
+};
 
 const ChatBox = () => {
   const text = useThemeColor("text");
@@ -233,5 +295,21 @@ const styles = StyleSheet.create({
     gap: 10,
     borderRadius: RADIUS,
     backgroundColor: "#f0f0f0",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headerTitle: {},
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 });

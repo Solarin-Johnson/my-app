@@ -45,7 +45,7 @@ const Header = ({ routes }: { routes: number }) => {
       style={[
         styles.header,
         {
-          borderColor: text + "20",
+          borderColor: text + "18",
         },
       ]}
     >
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     borderBottomWidth: 1,
-    paddingBottom: 8,
+    paddingBottom: 4,
   },
   footer: {
     padding: 16,
