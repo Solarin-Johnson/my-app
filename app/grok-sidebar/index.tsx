@@ -13,10 +13,21 @@ import React from "react";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
-import { AudioLines, Paperclip, Zap } from "lucide-react-native";
+import {
+  AudioLines,
+  Camera,
+  File,
+  ImagePlus,
+  LucideIcon,
+  Paperclip,
+  ScanSearch,
+  Settings2,
+  Zap,
+} from "lucide-react-native";
 
 const CHAT_BOX_HEIGHT = 100;
 const CHAT_BOX_MARGIN_V = 6;
+const RADIUS = 28;
 
 export default function GrokSidebar() {
   return (
@@ -29,6 +40,7 @@ export default function GrokSidebar() {
         <ScrollView style={styles.screen}>
           <Text style={{ fontSize: 24, fontWeight: "bold" }}>Grok</Text>
         </ScrollView>
+        <SuggestionBox />
         <ChatBox />
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -41,9 +53,9 @@ const ChatBox = () => {
     <View
       style={[
         styles.chatBox,
+        styles.round,
         {
           backgroundColor: text + "10",
-          borderWidth: 2,
           borderColor: text + "10",
         },
       ]}
@@ -109,6 +121,57 @@ const Button = ({
   );
 };
 
+type Suggestion = {
+  icon: LucideIcon;
+  title: string;
+};
+
+const suggestions: Suggestion[] = [
+  { icon: AudioLines, title: "Voice Mode" },
+  { icon: ImagePlus, title: "Create Images" },
+  { icon: Camera, title: "Open Camera" },
+  { icon: ScanSearch, title: "Edit Image" },
+  { icon: File, title: "Analyze Docs" },
+  { icon: Settings2, title: "Customize Grok" },
+];
+
+const SuggestionBox = () => {
+  return (
+    <View style={styles.suggestionBox}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.suggestionBoxContent}
+      >
+        {suggestions.map((suggestion, index) => (
+          <SuggestionCard key={index} {...suggestion} />
+        ))}
+      </ScrollView>
+    </View>
+  );
+};
+
+const SuggestionCard = ({ icon: Icon, title }: Suggestion) => {
+  const text = useThemeColor("text");
+  return (
+    <TouchableOpacity
+      style={[
+        styles.suggestionCard,
+        styles.round,
+        {
+          borderColor: text + "10",
+          backgroundColor: text + "10",
+        },
+      ]}
+      activeOpacity={0.8}
+      onPress={() => console.log(`Suggestion pressed: ${title}`)}
+    >
+      <Icon size={22} color={text} style={{ opacity: 0.8 }} />
+      <ThemedText colorName="text">{title}</ThemedText>
+    </TouchableOpacity>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -117,10 +180,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  round: {
+    borderRadius: RADIUS,
+    borderCurve: "continuous",
+    borderWidth: 2,
+  },
   chatBox: {
     minHeight: CHAT_BOX_HEIGHT,
-    borderRadius: 30,
-    borderCurve: "continuous",
     marginHorizontal: 12,
     marginVertical: CHAT_BOX_MARGIN_V,
     overflow: "hidden",
@@ -152,5 +218,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+  },
+  suggestionBox: {},
+  suggestionBoxContent: {
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: CHAT_BOX_MARGIN_V,
+    gap: 8,
+  },
+  suggestionCard: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+    padding: 16,
+    gap: 10,
+    borderRadius: RADIUS,
+    backgroundColor: "#f0f0f0",
   },
 });
