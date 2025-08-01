@@ -12,7 +12,8 @@ import { DarkTheme, LightTheme } from "@/constants/Theme";
 import DrawerContent from "@/components/DrawerContent";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedTextWrapper } from "@/components/ThemedText";
-import { Home } from "lucide-react-native";
+import { Ghost, Home } from "lucide-react-native";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
 const isWeb = Platform.OS === "web";
 
@@ -36,12 +37,16 @@ export default function RootLayout() {
           <meta name="color-scheme" content="light dark" />
         </Head>
       )}
-      <SafeAreaProvider>
-        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : LightTheme}>
-          <NavigationDrawer />
-          <StatusBar style="auto" />
-        </ThemeProvider>
-      </SafeAreaProvider>
+      <KeyboardProvider>
+        <SafeAreaProvider>
+          <ThemeProvider
+            value={colorScheme === "dark" ? DarkTheme : LightTheme}
+          >
+            <NavigationDrawer />
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        </SafeAreaProvider>
+      </KeyboardProvider>
     </GestureHandlerRootView>
   );
 }
@@ -109,8 +114,27 @@ export function NavigationDrawer() {
       <Drawer.Screen
         name="grok-sidebar"
         options={{
+          title: "Grok",
+          headerShadowVisible: false,
+          headerShown: true,
           drawerLabel: "Grok Sidebar",
           drawerType: "front",
+          swipeMinDistance: width * 0.3,
+          headerTintColor: "white",
+          headerStyle: {
+            backgroundColor: "transparent",
+          },
+          headerTitleStyle: {
+            fontFamily: "InterSemiBold",
+          },
+          headerRight: () => (
+            <ThemedTextWrapper>
+              <Ghost size={21} />
+            </ThemedTextWrapper>
+          ),
+          headerRightContainerStyle: {
+            paddingRight: 16,
+          },
           drawerStyle: {
             width: width,
             backgroundColor: "transparent",

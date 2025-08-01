@@ -1,21 +1,20 @@
 import { Text, type TextProps, StyleSheet } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { cloneElement, ReactElement } from "react";
+import { Colors } from "@/constants/Colors";
 
 export type ThemedTextProps = TextProps & {
-  lightColor?: string;
-  darkColor?: string;
   type?: "default" | "title" | "defaultSemiBold" | "subtitle" | "link" | "bold";
+  colorName?: keyof typeof Colors.light & keyof typeof Colors.dark;
 };
 
 export function ThemedText({
   style,
-  lightColor,
-  darkColor,
   type = "default",
+  colorName = "text",
   ...rest
 }: ThemedTextProps) {
-  const color = useThemeColor("text", { light: lightColor, dark: darkColor });
+  const color = useThemeColor(colorName);
   const variantKey = type as keyof typeof styles;
 
   return (
@@ -28,14 +27,13 @@ export function ThemedText({
 
 export function ThemedTextWrapper({
   children,
-  lightColor,
-  darkColor,
   type = "default",
+  colorName = "text",
   style,
   ignoreStyle,
   ...rest
 }: ThemedTextProps & { children: ReactElement<any>; ignoreStyle?: boolean }) {
-  const color = useThemeColor("text", { light: lightColor, dark: darkColor });
+  const color = useThemeColor(colorName);
   const variantKey = type as keyof typeof styles;
 
   const combinedStyle = [
