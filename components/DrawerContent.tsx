@@ -1,7 +1,8 @@
-import React, { memo } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import {
   DrawerContentComponentProps,
   DrawerItemList,
+  useDrawerStatus,
 } from "@react-navigation/drawer";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { ThemedText } from "./ThemedText";
@@ -12,16 +13,34 @@ import TextLink from "./ui/TextLink";
 import config from "@/constants/config.json";
 import { Home } from "lucide-react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
+import { Feedback } from "@/functions";
 
 const DrawerContent = memo((props: DrawerContentComponentProps) => {
   const demos = (props.state?.routes?.length || 0) - 3 || 0;
+  const status = useDrawerStatus();
+  const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    if (focused) {
+      Feedback.light();
+    }
+  }, [status]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setFocused(true);
+      return () => {
+        setFocused(false);
+      };
+    }, [])
+  );
 
   return (
-    <SafeAreaView edges={["top", "bottom"]} style={{ flex: 1 }}>
+    <SafeAreaView edges={["top", "bottom"]} style={styles.container}>
       <Header routes={demos} />
       <ScrollView
-        contentContainerStyle={{ padding: 12, gap: 6 }}
+        contentContainerStyle={styles.scrollViewContent}
         keyboardShouldPersistTaps="handled"
       >
         <DrawerItemList {...props} />
@@ -49,28 +68,15 @@ const Header = ({ routes }: { routes: number }) => {
         },
       ]}
     >
-      <Pressable
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          padding: 12,
-          gap: 8,
-        }}
-        onPress={handlePress}
-      >
-        <Home size={21} color={"#A0A0A0"} />
-        <ThemedText style={{ fontSize: 15, color: textColor }}>Home</ThemedText>
+      <Pressable style={styles.headerButton} onPress={handlePress}>
+        <Home size={20} color={"#A0A0A0"} />
+        <ThemedText style={[styles.headerText, { color: textColor }]}>
+          Home
+        </ThemedText>
       </Pressable>
       <ThemedText>
         {routes}
-        <Text
-          style={{
-            fontSize: 14,
-            opacity: 0.7,
-          }}
-        >
-          {routes > 1 ? " demos" : " demo"}
-        </Text>
+        <Text style={styles.demoText}>{routes > 1 ? " demos" : " demo"}</Text>
       </ThemedText>
     </View>
   );
@@ -101,6 +107,13 @@ const DrawerFooter = () => {
 export default DrawerContent;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    padding: 12,
+    gap: 6,
+  },
   header: {
     marginHorizontal: 12,
     paddingHorizontal: 2,
@@ -109,6 +122,19 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     borderBottomWidth: 1,
     paddingBottom: 4,
+  },
+  headerButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+    gap: 6,
+  },
+  headerText: {
+    fontSize: 15,
+  },
+  demoText: {
+    fontSize: 14,
+    opacity: 0.7,
   },
   footer: {
     padding: 16,

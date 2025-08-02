@@ -1,6 +1,5 @@
 import {
   View,
-  Text,
   StyleSheet,
   TextInput,
   SafeAreaView,
@@ -9,6 +8,7 @@ import {
   StyleProp,
   ViewStyle,
   useWindowDimensions,
+  Pressable,
 } from "react-native";
 import React from "react";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
@@ -33,7 +33,12 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { useDrawerProgress } from "@react-navigation/drawer";
+import {
+  DrawerNavigationProp,
+  useDrawerProgress,
+} from "@react-navigation/drawer";
+import { GrokIcon } from "@/components/icons";
+import { useNavigation } from "expo-router";
 
 const CHAT_BOX_HEIGHT = 100;
 const CHAT_BOX_MARGIN_V = 6;
@@ -46,6 +51,7 @@ export default function GrokSidebar() {
   const intensity = useSharedValue<number | undefined>(0);
   const drawerProgress = useDrawerProgress();
   const { width } = useWindowDimensions();
+  const text = useThemeColor("text");
 
   useAnimatedReaction(
     () => drawerProgress.value,
@@ -71,8 +77,11 @@ export default function GrokSidebar() {
       >
         <Animated.View style={[styles.container, animatedStyle]}>
           <Header />
-          <ScrollView style={styles.screen}>
-            <Text style={{ fontSize: 24, fontWeight: "bold" }}>Grok</Text>
+          <ScrollView
+            style={styles.screen}
+            contentContainerStyle={styles.screenInner}
+          >
+            <GrokIcon color={text + "24"} size={84} />
           </ScrollView>
           <SuggestionBox />
           <ChatBox />
@@ -88,13 +97,19 @@ export default function GrokSidebar() {
 }
 
 const Header = () => {
+  const navigation = useNavigation<DrawerNavigationProp<any>>();
+
   return (
     <View style={styles.header}>
-      <View style={styles.headerLeft}>
+      <Pressable
+        style={styles.headerLeft}
+        onPress={() => navigation.toggleDrawer()}
+        hitSlop={30}
+      >
         <ThemedTextWrapper>
           <Menu size={21} />
         </ThemedTextWrapper>
-      </View>
+      </Pressable>
       <View>
         <ThemedText style={styles.headerTitle} type="defaultSemiBold">
           Grok
@@ -177,6 +192,7 @@ const Button = ({
         style,
       ]}
       onPress={onPress}
+      activeOpacity={0.8}
     >
       {children}
     </TouchableOpacity>
@@ -241,6 +257,11 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     padding: 16,
+  },
+  screenInner: {
+    flexGrow: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
   round: {
     borderRadius: RADIUS,

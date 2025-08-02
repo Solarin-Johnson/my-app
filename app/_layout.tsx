@@ -6,13 +6,11 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Head from "expo-router/head";
 import { Drawer } from "expo-router/drawer";
-import { Platform, useWindowDimensions, View } from "react-native";
+import { Platform, useWindowDimensions } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { DarkTheme, LightTheme } from "@/constants/Theme";
 import DrawerContent from "@/components/DrawerContent";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { ThemedTextWrapper } from "@/components/ThemedText";
-import { Ghost, Home } from "lucide-react-native";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
 const isWeb = Platform.OS === "web";
