@@ -121,6 +121,12 @@ export function NavigationDrawer() {
           },
         }}
       />
+      <Drawer.Screen
+        name="gesture-menu"
+        options={{
+          drawerLabel: "Gesture Menu",
+        }}
+      />
     </Drawer>
   );
 }
