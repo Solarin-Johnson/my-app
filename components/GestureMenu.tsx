@@ -1,4 +1,4 @@
-import { Children, cloneElement } from "react";
+import { Children, cloneElement, isValidElement, useMemo } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,8 @@ type GestureMenuProps = {
   width?: number;
   radius?: number;
   itemHeight?: number;
+  itemWidth?: number;
+  horizontal?: boolean;
 };
 
 type GestureMenuItemProps = {
@@ -32,28 +34,51 @@ export default function GestureMenu({
   spacing = 4,
   width = 200,
   radius = 16,
-  itemHeight = 32,
+  itemHeight = 34,
+  itemWidth = 100,
+  horizontal = false,
 }: GestureMenuProps) {
   const derivedStyle: StyleProp<ViewStyle> = {
-    width: width,
+    minWidth: width,
     padding: spacing,
     // gap: spacing,
     borderRadius: radius,
+    flexDirection: horizontal ? "row" : "column",
   };
 
   const itemStyle: StyleProp<ViewStyle> = {
     borderRadius: radius - spacing,
     height: itemHeight,
     padding: spacing,
+    minWidth: itemWidth,
   };
+
+  const indicatorStyle: StyleProp<ViewStyle> = {
+    width: horizontal ? itemWidth : width - spacing * 2,
+    height: itemHeight,
+    borderRadius: radius - spacing,
+    marginTop: spacing,
+    marginLeft: spacing,
+  };
+
+  const processedChildren = useMemo(() => {
+    return Children.map(children, (child) => {
+      //   if (!isValidElement(child) || child.type !== GestureMenuItem) {
+      //     throw new Error(
+      //       "GestureMenu children must be <GestureMenuItem> components only."
+      //     );
+      //   }
+
+      return cloneElement(child, {
+        style: [itemStyle, child.props.style],
+      });
+    });
+  }, [children, itemStyle]);
 
   return (
     <View style={[styles.curve, styles.container, style, derivedStyle]}>
-      {Children.map(children, (child) =>
-        cloneElement(child, {
-          style: { ...itemStyle, ...((child.props.style as ViewStyle) || {}) },
-        })
-      )}
+      <Indicator style={indicatorStyle} />
+      {processedChildren}
     </View>
   );
 }
@@ -71,6 +96,10 @@ export const GestureMenuItem = ({
   );
 };
 
+export const Indicator = ({ style }: { style?: StyleProp<ViewStyle> }) => {
+  return <View style={[styles.curve, styles.indicator, style]} />;
+};
+
 const styles = StyleSheet.create({
   curve: {
     borderCurve: "continuous",
@@ -79,5 +108,9 @@ const styles = StyleSheet.create({
   item: {
     // backgroundColor: "#00000050",
     justifyContent: "center",
+  },
+  indicator: {
+    position: "absolute",
+    backgroundColor: "red",
   },
 });
