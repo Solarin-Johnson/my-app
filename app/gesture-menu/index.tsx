@@ -7,7 +7,11 @@ export default function GestureMenuScreen() {
     <SafeAreaView
       style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
     >
-      <GestureMenu style={{ backgroundColor: "white" }}>
+      <GestureMenu
+        style={{ backgroundColor: "white" }}
+        horizontal
+        itemWidth={80}
+      >
         <GestureMenuItem
           label="Option 1"
           onPress={() => console.log("Option 1 pressed")}
@@ -19,6 +23,10 @@ export default function GestureMenuScreen() {
         <GestureMenuItem
           label="Option 3"
           onPress={() => console.log("Option 3 pressed")}
+        />
+        <GestureMenuItem
+          label="Option 4"
+          onPress={() => console.log("Option 4 pressed")}
         />
       </GestureMenu>
     </SafeAreaView>
