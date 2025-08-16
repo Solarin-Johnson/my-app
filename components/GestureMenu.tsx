@@ -1,3 +1,4 @@
+import { Feedback } from "@/functions";
 import { Children, cloneElement, isValidElement, useMemo } from "react";
 import {
   View,
@@ -14,6 +15,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
 
 type GestureMenuProps = {
   style?: StyleProp<ViewStyle>;
@@ -26,6 +28,8 @@ type GestureMenuProps = {
   itemHeight?: number;
   itemWidth?: number;
   horizontal?: boolean;
+  trail?: boolean;
+  indicatorColor?: string;
 };
 
 type GestureMenuItemProps = {
@@ -40,13 +44,17 @@ const SPRING_CONFIG = {
   damping: 24,
   mass: 1,
   overshootClamping: true,
-  restDisplacementThreshold: 0.000001,
-  restSpeedThreshold: 0.000001,
+  restDisplacementThreshold: 0.0000001,
+  restSpeedThreshold: 0.0000001,
 };
 
 const applySpring = (value: number) => {
   "worklet";
   return withSpring(value, SPRING_CONFIG);
+};
+
+const SnapFeedback = () => {
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 };
 
 export default function GestureMenu({
@@ -58,6 +66,8 @@ export default function GestureMenu({
   itemHeight = 34,
   itemWidth = 100,
   horizontal = false,
+  trail = true,
+  indicatorColor = "orange",
 }: GestureMenuProps) {
   const dragging = useSharedValue(false);
   const translate = useSharedValue({
@@ -65,14 +75,15 @@ export default function GestureMenu({
     y: 0,
   });
 
+  const currentSnapIndex = useSharedValue(-1);
+
   const itemStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
-      borderRadius: radius - spacing,
       height: itemHeight,
       padding: spacing,
       minWidth: itemWidth,
     }),
-    [radius, spacing, itemHeight, itemWidth]
+    [spacing, itemHeight, itemWidth]
   );
 
   const processedChildren = useMemo(() => {
@@ -89,7 +100,10 @@ export default function GestureMenu({
     });
   }, [children, itemStyle]);
 
-  const width = Math.max(_width, (processedChildren.length - 1) * itemWidth);
+  const width = Math.max(
+    _width,
+    horizontal ? (processedChildren.length - 1) * itemWidth : 0
+  );
 
   const derivedStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
@@ -101,7 +115,7 @@ export default function GestureMenu({
     [width, spacing, radius, horizontal]
   );
 
-  const pressChild = (index: number) => {
+  const triggerPress = (index: number) => {
     const targetChild = (Array.isArray(children) ? children : [children])[
       index
     ];
@@ -137,9 +151,12 @@ export default function GestureMenu({
 
   const calculateSnapPosition = (x: number, y: number) => {
     "worklet";
+    const roundX = Math.round(x / itemWidth) * itemWidth;
+    const roundY = Math.round(y / itemHeight) * itemHeight;
+
     return {
-      x: applySpring(Math.round(x / itemWidth) * itemWidth),
-      y: applySpring(Math.round(y / itemHeight) * itemHeight),
+      x: applySpring(roundX),
+      y: applySpring(roundY),
     };
   };
 
@@ -156,9 +173,20 @@ export default function GestureMenu({
       dragging.value = true;
     })
     .onUpdate((event) => {
-      translate.value = calculateBoundedTranslation(event.x, event.y);
+      const bounded = calculateBoundedTranslation(event.x, event.y);
+      const newIndex = calculateSelectedIndex(event.x, event.y);
+
+      if (newIndex !== currentSnapIndex.value && dragging.value) {
+        currentSnapIndex.value = newIndex;
+        runOnJS(SnapFeedback)();
+      }
+
+      translate.value = trail
+        ? bounded
+        : calculateSnapPosition(bounded.x, bounded.y);
     })
     .onEnd(() => {
+      if (!trail) return;
       translate.value = calculateSnapPosition(
         translate.value.x,
         translate.value.y
@@ -167,14 +195,18 @@ export default function GestureMenu({
     .onFinalize((event) => {
       dragging.value = false;
       const selectedIndex = calculateSelectedIndex(event.x, event.y);
-      runOnJS(pressChild)(selectedIndex);
+      runOnJS(triggerPress)(selectedIndex);
     });
 
-  const indicatoreAnimatedStyle = useAnimatedStyle(() => {
-    // console.log("translate.value", translate.value);
+  const tapGesture = Gesture.Tap().onBegin((event) => {
+    const bounded = calculateBoundedTranslation(event.x, event.y);
+    translate.value = calculateSnapPosition(bounded.x, bounded.y);
+  });
 
+  const gesture = Gesture.Simultaneous(panGesture, tapGesture);
+
+  const indicatoreAnimatedStyle = useAnimatedStyle(() => {
     return {
-      //   opacity: dragging.value ? 1 : 0,
       transform: [
         {
           translateX: horizontal ? translate.value.x : 0,
@@ -193,12 +225,13 @@ export default function GestureMenu({
       borderRadius: radius - spacing,
       marginTop: spacing,
       marginLeft: spacing,
+      backgroundColor: indicatorColor,
     }),
-    [horizontal, itemWidth, width, spacing, itemHeight, radius]
+    [horizontal, itemWidth, width, spacing, itemHeight, radius, indicatorColor]
   );
 
   return (
-    <GestureDetector gesture={panGesture}>
+    <GestureDetector gesture={gesture}>
       <View style={[styles.curve, styles.container, style, derivedStyle]}>
         <Indicator style={[indicatorStyle, indicatoreAnimatedStyle]} />
         {processedChildren}
@@ -214,7 +247,11 @@ export const GestureMenuItem = ({
   children,
 }: GestureMenuItemProps) => {
   return (
-    <Pressable onPress={onPress} style={[styles.curve, styles.item, style]}>
+    <Pressable
+      onPress={onPress}
+      style={[styles.curve, styles.item, style]}
+      pointerEvents="none"
+    >
       {children || <Text>{label}</Text>}
     </Pressable>
   );
@@ -230,11 +267,9 @@ const styles = StyleSheet.create({
   },
   container: {},
   item: {
-    // backgroundColor: "#00000050",
     justifyContent: "center",
   },
   indicator: {
     position: "absolute",
-    backgroundColor: "red",
   },
 });
