@@ -7,6 +7,7 @@ import {
   StyleProp,
   ViewStyle,
   Pressable,
+  TextStyle,
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -14,6 +15,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 
@@ -30,13 +32,16 @@ type GestureMenuProps = {
   horizontal?: boolean;
   trail?: boolean;
   indicatorColor?: string;
+  itemProps?: Omit<GestureMenuItemProps, "children" | "label">;
+  hideSelectionOnBlur: boolean;
 };
 
 type GestureMenuItemProps = {
   label: string;
-  onPress: () => void;
+  onPress?: () => void;
   style?: StyleProp<ViewStyle>;
   children?: React.ReactNode;
+  textStyle?: StyleProp<TextStyle>;
 };
 
 const SPRING_CONFIG = {
@@ -54,7 +59,7 @@ const applySpring = (value: number) => {
 };
 
 const SnapFeedback = () => {
-  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  Haptics.selectionAsync();
 };
 
 export default function GestureMenu({
@@ -68,6 +73,8 @@ export default function GestureMenu({
   horizontal = false,
   trail = true,
   indicatorColor = "orange",
+  itemProps,
+  hideSelectionOnBlur,
 }: GestureMenuProps) {
   const dragging = useSharedValue(false);
   const translate = useSharedValue({
@@ -95,7 +102,8 @@ export default function GestureMenu({
       //   }
 
       return cloneElement(child, {
-        style: [itemStyle, child.props.style],
+        ...itemProps,
+        style: [itemStyle, child.props.style, itemProps?.style],
       });
     });
   }, [children, itemStyle]);
@@ -149,14 +157,18 @@ export default function GestureMenu({
     };
   };
 
-  const calculateSnapPosition = (x: number, y: number) => {
+  const calculateSnapPosition = (
+    x: number,
+    y: number,
+    animate: boolean = true
+  ) => {
     "worklet";
     const roundX = Math.round(x / itemWidth) * itemWidth;
     const roundY = Math.round(y / itemHeight) * itemHeight;
 
     return {
-      x: applySpring(roundX),
-      y: applySpring(roundY),
+      x: animate ? applySpring(roundX) : roundX,
+      y: animate ? applySpring(roundY) : roundY,
     };
   };
 
@@ -200,13 +212,20 @@ export default function GestureMenu({
 
   const tapGesture = Gesture.Tap().onBegin((event) => {
     const bounded = calculateBoundedTranslation(event.x, event.y);
-    translate.value = calculateSnapPosition(bounded.x, bounded.y);
+    translate.value = calculateSnapPosition(
+      bounded.x,
+      bounded.y,
+      !hideSelectionOnBlur
+    );
   });
 
   const gesture = Gesture.Simultaneous(panGesture, tapGesture);
 
   const indicatoreAnimatedStyle = useAnimatedStyle(() => {
     return {
+      opacity: withTiming(dragging.value ? 1 : hideSelectionOnBlur ? 0 : 1, {
+        duration: 100,
+      }),
       transform: [
         {
           translateX: horizontal ? translate.value.x : 0,
@@ -245,6 +264,7 @@ export const GestureMenuItem = ({
   style,
   onPress,
   children,
+  textStyle,
 }: GestureMenuItemProps) => {
   return (
     <Pressable
@@ -252,7 +272,7 @@ export const GestureMenuItem = ({
       style={[styles.curve, styles.item, style]}
       pointerEvents="none"
     >
-      {children || <Text>{label}</Text>}
+      {children || <Text style={textStyle}>{label}</Text>}
     </Pressable>
   );
 };
