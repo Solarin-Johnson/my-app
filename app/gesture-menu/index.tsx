@@ -17,8 +17,8 @@ export default function GestureMenuScreen() {
           { label: "Option 1", icon: <Search size={19} strokeWidth={2.4} /> },
           { label: "Option 2" },
           { label: "Option 3" },
-          { label: "Option 4" },
-          { label: "Option 5" },
+          // { label: "Option 4" },
+          // { label: "Option 5" },
         ];
 
         return (
@@ -26,15 +26,14 @@ export default function GestureMenuScreen() {
             style={{ backgroundColor: "white", borderRadius: 12 }}
             // horizontal
             radius={32}
-            spacing={8}
             itemHeight={46}
-            itemWidth={90}
+            itemWidth={120}
             trail={false}
             // indicatorColor="#F1A039"
             width={240}
             // hideSelectionOnBlur
             itemProps={{
-              textStyle: { fontWeight: "500", textAlign: "left" },
+              textStyle: { fontWeight: "500" },
               style: {
                 paddingHorizontal: 12,
                 gap: 8,

@@ -90,7 +90,6 @@ export default function GestureMenu({
   roundedIndicator = true,
   seperatorProps = {
     size: 1,
-    opacity: 0.6,
   },
 }: GestureMenuProps) {
   const dragging = useSharedValue(false);
@@ -98,9 +97,17 @@ export default function GestureMenu({
     x: 0,
     y: 0,
   });
-  const spacing = roundedIndicator ? _spacing : 0;
-  const radius = roundedIndicator ? _radius : 0;
+  const radius = roundedIndicator ? Math.min(32, _radius) : 0;
+  const spacing = roundedIndicator
+    ? Math.max(_spacing, horizontal ? 0 : radius / 4)
+    : 0;
   const itemWidth = horizontal ? _itemWidth : _itemWidth;
+
+  const childrenCount = Children.count(children);
+
+  const width = horizontal
+    ? childrenCount * itemWidth
+    : _width - (roundedIndicator ? spacing : 0) * 2;
 
   const currentSnapIndex = useSharedValue(-1);
 
@@ -108,11 +115,11 @@ export default function GestureMenu({
     () => ({
       height: itemHeight,
       padding: spacing,
-      minWidth: itemWidth,
-      maxWidth: horizontal ? itemWidth : "100%",
+      maxWidth: horizontal ? itemWidth : width,
+      width: horizontal ? itemWidth : width,
       gap: spacing,
     }),
-    [spacing, itemHeight, itemWidth]
+    [spacing, itemHeight, itemWidth, width]
   );
 
   const processedChildren = useMemo(() => {
@@ -134,33 +141,34 @@ export default function GestureMenu({
       });
     });
 
-    return childrenArray.reduce((acc: React.ReactElement[], child, index) => {
-      if (index === 0) return [child];
-      return [
-        ...acc,
-        <Separator
-          key={`separator-${index}`}
-          horizontal={horizontal}
-          {...seperatorProps}
-        />,
-        child,
-      ];
-    }, []);
+    return roundedIndicator
+      ? childrenArray
+      : childrenArray.reduce((acc: React.ReactElement[], child, index) => {
+          if (index === 0) return [child];
+          return [
+            ...acc,
+            <Separator
+              key={`separator-${index}`}
+              horizontal={horizontal}
+              {...seperatorProps}
+            />,
+            child,
+          ];
+        }, []);
   }, [children, itemStyle, itemProps, horizontal]);
 
-  const childrenCount = Children.count(children);
   const seperatorCount = processedChildren.length - childrenCount;
-
-  const width = horizontal ? childrenCount * itemWidth : _width;
 
   const derivedStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
       minWidth: width,
       padding: spacing,
-      borderRadius: radius,
+      borderRadius: roundedIndicator
+        ? radius
+        : (style as ViewStyle)?.borderRadius ?? 0,
       flexDirection: horizontal ? "row" : "column",
     }),
-    [width, spacing, radius, horizontal]
+    [width, spacing, radius, horizontal, style, roundedIndicator]
   );
 
   const triggerPress = (index: number) => {
@@ -199,7 +207,7 @@ export default function GestureMenu({
     animate: boolean = true
   ) => {
     "worklet";
-    const space = currentSnapIndex.value;
+    const space = roundedIndicator ? 0 : currentSnapIndex.value;
     const roundX = Math.round(x / itemWidth) * itemWidth + space;
     const roundY = Math.round(y / itemHeight) * itemHeight + space;
 
@@ -279,7 +287,7 @@ export default function GestureMenu({
 
   const indicatorStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
-      width: horizontal ? itemWidth : width - spacing * 2,
+      width: horizontal ? itemWidth : width,
       height: itemHeight,
       borderRadius: radius - spacing,
       marginTop: spacing,
@@ -291,7 +299,7 @@ export default function GestureMenu({
 
   return (
     <GestureDetector gesture={gesture}>
-      <View style={[styles.curve, styles.container, derivedStyle, style]}>
+      <View style={[styles.curve, styles.container, style, derivedStyle]}>
         <Indicator style={[indicatorStyle, indicatoreAnimatedStyle]} />
         {processedChildren}
       </View>
