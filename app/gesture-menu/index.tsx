@@ -1,5 +1,6 @@
 import GestureMenu, { GestureMenuItem } from "@/components/GestureMenu";
 import { Feedback } from "@/functions";
+import { Lock, Search } from "lucide-react-native";
 import { View, Text, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -11,30 +12,49 @@ export default function GestureMenuScreen() {
     <SafeAreaView
       style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
     >
-      <GestureMenu
-        style={{ backgroundColor: "white" }}
-        // horizontal
-        radius={32}
-        spacing={8}
-        itemHeight={45}
-        itemWidth={70}
-        trail={false}
-        indicatorColor="#F1A039"
-        width={240}
-        hideSelectionOnBlur
-        itemProps={{
-          textStyle: { fontWeight: "500", textAlign: "left" },
-          style: {
-            paddingHorizontal: 10,
-          },
-        }}
-      >
-        <GestureMenuItem label="Option 1" onPress={() => onPress("Option 1")} />
-        <GestureMenuItem label="Option 2" onPress={() => onPress("Option 2")} />
-        <GestureMenuItem label="Option 3" onPress={() => onPress("Option 3")} />
-        <GestureMenuItem label="Option 4" onPress={() => onPress("Option 4")} />
-        <GestureMenuItem label="Option 5" onPress={() => onPress("Option 5")} />
-      </GestureMenu>
+      {(() => {
+        const items = [
+          { label: "Option 1", icon: <Search size={19} strokeWidth={2.4} /> },
+          { label: "Option 2" },
+          { label: "Option 3" },
+          { label: "Option 4" },
+          { label: "Option 5" },
+        ];
+
+        return (
+          <GestureMenu
+            style={{ backgroundColor: "white", borderRadius: 12 }}
+            // horizontal
+            radius={32}
+            spacing={8}
+            itemHeight={46}
+            itemWidth={90}
+            trail={false}
+            // indicatorColor="#F1A039"
+            width={240}
+            // hideSelectionOnBlur
+            itemProps={{
+              textStyle: { fontWeight: "500", textAlign: "left" },
+              style: {
+                paddingHorizontal: 12,
+                gap: 8,
+              },
+              color: "#333",
+              icon: <Lock size={19} strokeWidth={2.4} />,
+            }}
+            roundedIndicator={false}
+          >
+            {items.map(({ label, icon }) => (
+              <GestureMenuItem
+                key={label}
+                label={label}
+                onPress={() => onPress(label)}
+                icon={icon}
+              />
+            ))}
+          </GestureMenu>
+        );
+      })()}
     </SafeAreaView>
   );
 }
