@@ -14,7 +14,7 @@ export class Feedback {
   }
 
   static soft = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
   };
 
   static success = () => {

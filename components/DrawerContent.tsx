@@ -23,7 +23,7 @@ const DrawerContent = memo((props: DrawerContentComponentProps) => {
 
   useEffect(() => {
     if (focused) {
-      Feedback.light();
+      Feedback.soft();
     }
   }, [status]);
 
