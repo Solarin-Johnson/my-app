@@ -11,7 +11,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.solarin.myapp"
+      "bundleIdentifier": "com.myapp.solarin"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +19,7 @@
         "backgroundColor": "#181818"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.solarin.myapp"
+      "package": "com.myapp.solarin"
     },
     "web": {
       "bundler": "metro",

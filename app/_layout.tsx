@@ -127,6 +127,12 @@ export function NavigationDrawer() {
           drawerLabel: "Gesture Menu",
         }}
       />
+      <Drawer.Screen
+        name="wa-status"
+        options={{
+          drawerLabel: "WhatsApp Status",
+        }}
+      />
     </Drawer>
   );
 }

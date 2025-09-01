@@ -30,7 +30,7 @@ export function ThemedTextWrapper({
   type = "default",
   colorName = "text",
   style,
-  ignoreStyle,
+  ignoreStyle = true,
   ...rest
 }: ThemedTextProps & { children: ReactElement<any>; ignoreStyle?: boolean }) {
   const color = useThemeColor(colorName);
