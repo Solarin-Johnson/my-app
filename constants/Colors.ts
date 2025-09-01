@@ -8,17 +8,21 @@ const tintColorDark = "#fff";
 
 export const Colors = {
   light: {
+    waBg: "#F4F4F4",
     text: "#181818",
     background: "#F5F5F7",
     barColor: "#FFFFFF",
+    waCard: "#FFFFFF",
     card: "#F5F5F7",
     tint: tintColorLight,
   },
   dark: {
+    waBg: "#000000",
     text: "#F5F5F7",
     background: "#121212",
     card: "#121212",
     barColor: "#1A1A1A",
+    waCard: "#171718",
     tint: tintColorDark,
   },
 };

@@ -5,9 +5,11 @@ import { BlurView } from "expo-blur";
 import { Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { ChevronLeft } from "lucide-react-native";
 
 export default function Layout() {
-  const { top } = useSafeAreaInsets();
+  const bg = useThemeColor("waBg");
   return (
     <Stack
       screenOptions={{
@@ -16,8 +18,9 @@ export default function Layout() {
         headerRight: () => <HeaderRight />,
         headerTransparent: true,
         headerBackground: () => (
-          <BlurView style={StyleSheet.absoluteFill} intensity={20} />
+          <BlurView style={StyleSheet.absoluteFill} intensity={60} />
         ),
+        contentStyle: { backgroundColor: bg },
       }}
     >
       <Stack.Screen
@@ -61,7 +64,7 @@ const HeaderLeft = () => {
       hitSlop={8}
     >
       <ThemedTextWrapper>
-        <Feather name="chevron-left" size={25} />
+        <ChevronLeft size={28} />
       </ThemedTextWrapper>
     </Pressable>
   );

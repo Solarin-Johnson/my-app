@@ -19,6 +19,7 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   const [loaded] = useFonts({
+    InterRegular: require("../assets/fonts/Inter-Regular.ttf"),
     InterMedium: require("../assets/fonts/Inter-Medium.ttf"),
     InterSemiBold: require("../assets/fonts/Inter-SemiBold.ttf"),
     InterBold: require("../assets/fonts/Inter-Bold.ttf"),
