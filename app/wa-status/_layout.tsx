@@ -63,10 +63,19 @@ export default function Layout() {
             progress,
             current,
             insets,
+            focused,
+            activeBoundId,
+            bounds,
           }) => {
             "worklet";
 
-            const scale = interpolate(progress, [0, 0.8, 1, 2], [0, 1, 1, 1]);
+            console.log(focused);
+
+            const scale = interpolate(
+              progress,
+              [0, 0.8, 1, 2],
+              [focused ? 0 : 1, 1, 1, 1]
+            );
             const borderRadius = interpolate(progress, [0, 1, 2], [2000, 0, 0]);
 
             const translateY = interpolate(
@@ -93,18 +102,39 @@ export default function Layout() {
                   "clamp"
                 ) * interpolate(excessY, [0, maxExcessY], [0, 1], "clamp");
             }
+            const raw = bounds({
+              id: "status",
+              method: "transform",
+              raw: true,
+            });
+            console.log(raw);
+
+            const styles = bounds({
+              id: "status",
+              method: "transform", // "transform" | "size" | "content"
+              space: "absolute", // "relative" | "absolute"
+              scaleMode: "match", // "match" | "none" | "uniform"
+              anchor: "center", // see anchors below
+              // target: "bound" | "fullscreen" | { x, y, width, height, pageX, pageY }
+              // gestures: { x?: number; y?: number }
+            });
+
             return {
               contentStyle: {
                 transform: [{ scale }, { translateY }, { translateX }],
                 borderRadius,
+                originX: width / 2,
+                originY: height / 2 + insets.top / 2,
+                // backgroundColor: "white",
               },
+              [activeBoundId]: styles,
             };
           },
           transitionSpec: {
             close: Transition.specs.DefaultSpec,
             open: Transition.specs.DefaultSpec,
           },
-          // ...Transition.presets.ZoomIn(),
+          // ...Transition.presets.SharedIGImage(),
         }}
       />
     </Stack>

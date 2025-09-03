@@ -6,6 +6,7 @@ import { Image } from "expo-image";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Link } from "expo-router";
 import { Ellipsis } from "lucide-react-native";
+import Transition from "react-native-screen-transitions";
 
 export default function Index() {
   return (
@@ -47,14 +48,14 @@ const ClusterItem = ({
   return (
     <Link href="/wa-status/123">
       <ThemedView colorName="waCard" style={styles.clusterItem}>
-        <View style={styles.thumbContainer}>
+        <Transition.View sharedBoundTag="status" style={styles.thumbContainer}>
           <Image
             source={{
               uri: imgSrc,
             }}
             style={styles.thumb}
           />
-        </View>
+        </Transition.View>
         <View style={styles.contentWrapper}>
           <View style={styles.main}>
             <ThemedText style={styles.views}>
@@ -91,6 +92,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     paddingRight: 12,
+    width: 80,
+    height: 80,
   },
   thumb: {
     width: 56,
