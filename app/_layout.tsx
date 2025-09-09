@@ -134,6 +134,13 @@ export function NavigationDrawer() {
           drawerLabel: "WhatsApp Status",
         }}
       />
+      <Drawer.Screen
+        name="untitled"
+        options={{
+          drawerLabel: "Screen Transitions",
+          swipeEdgeWidth: 5,
+        }}
+      />
     </Drawer>
   );
 }
