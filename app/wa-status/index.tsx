@@ -6,19 +6,15 @@ import { Image } from "expo-image";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Link } from "expo-router";
 import { Ellipsis } from "lucide-react-native";
-import Transition from "react-native-screen-transitions";
 
 export default function Index() {
   return (
-    <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
-      style={styles.container}
-    >
+    <PageContainer>
       <ClusterContainer>
         <ClusterItem />
         <ClusterItem />
       </ClusterContainer>
-    </ScrollView>
+    </PageContainer>
   );
 }
 
@@ -26,7 +22,18 @@ interface ClusterContainerProps {
   children: ReactNode;
 }
 
-const ClusterContainer = ({ children }: ClusterContainerProps) => {
+export const PageContainer = ({ children }: ClusterContainerProps) => {
+  return (
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      style={styles.container}
+    >
+      {children}
+    </ScrollView>
+  );
+};
+
+export const ClusterContainer = ({ children }: ClusterContainerProps) => {
   return (
     <ThemedView colorName="waCard" style={styles.clusterContainer}>
       {children}
@@ -38,24 +45,26 @@ interface ClusterItemProps {
   imgSrc?: string;
   views?: number;
   time?: string;
+  linkHref?: string;
 }
 
-const ClusterItem = ({
+export const ClusterItem = ({
   imgSrc = "https://wallpapercave.com/wp/wp3161438.jpg",
   views = 24,
   time = "1h ago",
+  linkHref = "/wa-status/page",
 }: ClusterItemProps) => {
   return (
-    <Link href="/wa-status/123">
+    <Link href={linkHref as any}>
       <ThemedView colorName="waCard" style={styles.clusterItem}>
-        <Transition.View sharedBoundTag="status" style={styles.thumbContainer}>
+        <View style={styles.thumbContainer}>
           <Image
             source={{
               uri: imgSrc,
             }}
             style={styles.thumb}
           />
-        </Transition.View>
+        </View>
         <View style={styles.contentWrapper}>
           <View style={styles.main}>
             <ThemedText style={styles.views}>
@@ -92,8 +101,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     paddingRight: 12,
-    width: 80,
-    height: 80,
   },
   thumb: {
     width: 56,
