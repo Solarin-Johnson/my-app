@@ -5,13 +5,16 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import UntitledButton, {
   UntitledButtonWrapper,
 } from "@/components/untitled/button";
+import { UntitledCardLarge } from "@/components/untitled/card";
 
 export default function Index() {
   return (
     <UntitledScreen
       headerProps={{ children: <Header /> }}
       barProps={{ type: "fill" }}
-    ></UntitledScreen>
+    >
+      <UntitledCardLarge />
+    </UntitledScreen>
   );
 }
 

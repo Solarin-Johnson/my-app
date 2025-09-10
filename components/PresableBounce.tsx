@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { GestureResponderEvent, Pressable, PressableProps } from "react-native";
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -8,19 +9,18 @@ import Animated, {
 } from "react-native-reanimated";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const easing = Easing.inOut(Easing.ease);
 
 interface PressableBounceProps extends PressableProps {
   children: React.ReactNode;
   bounceScale?: number;
   duration?: number;
-  propagateEvent?: boolean;
 }
 
 const PressableBounce: React.FC<PressableBounceProps> = ({
   children,
   bounceScale = 0.95,
   duration = 150,
-  propagateEvent = false,
   ...props
 }) => {
   const scale = useSharedValue(1);
@@ -32,17 +32,14 @@ const PressableBounce: React.FC<PressableBounceProps> = ({
   });
 
   const handlePressIn = (event: GestureResponderEvent) => {
-    if (!propagateEvent) {
-      event.stopPropagation();
-    }
-    scale.value = withTiming(bounceScale, { duration });
+    scale.value = withTiming(bounceScale, {
+      duration,
+      easing,
+    });
     props.onPressIn && props.onPressIn(event);
   };
 
   const handlePressOut = (event: GestureResponderEvent) => {
-    if (!propagateEvent) {
-      event.stopPropagation();
-    }
     scale.value = withSpring(1);
     props.onPressOut && props.onPressOut(event);
   };

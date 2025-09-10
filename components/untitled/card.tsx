@@ -48,15 +48,50 @@ export const UntitledCardMiniWrapper = ({
   return <View style={styles.wrapper}>{children}</View>;
 };
 
+export const UntitledCardLarge = ({
+  name = "untitled project",
+  author = "Dotjs",
+}: {
+  name?: string;
+  author?: string;
+}) => {
+  return (
+    <View>
+      <View style={styles.content}>
+        <View style={[styles.box, styles.boxLarge]}></View>
+        <View style={styles.details}>
+          <ThemedText type="defaultSemiBold" style={styles.titleLarge}>
+            {name}
+          </ThemedText>
+          <View style={styles.cluster}>
+            <ThemedTextWrapper style={styles.fade}>
+              <Ionicons name="lock-closed-outline" size={14} />
+            </ThemedTextWrapper>
+            <ThemedText type="regular" style={[styles.subtitle, styles.fade]}>
+              {author}
+            </ThemedText>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     width: "50%",
   },
   content: {
     marginHorizontal: 22,
+    alignItems: "center",
   },
   title: {
     fontSize: 17.2,
+  },
+  titleLarge: {
+    fontSize: 28,
+    letterSpacing: -0.5,
+    opacity: 0.7,
   },
   subtitle: {
     fontSize: 14,
@@ -71,6 +106,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   box: {
+    width: "100%",
     flex: 1,
     aspectRatio: 1,
     borderRadius: 18,
@@ -78,7 +114,12 @@ const styles = StyleSheet.create({
     experimental_backgroundImage: `linear-gradient(135deg, ${Colors.dark.untitledGradient2} 0%, ${Colors.dark.untitledGradient1} 80%)`,
     boxShadow: "0px 5px 10px rgba(0,0,0,0.1)",
   },
+  boxLarge: {
+    width: "90%",
+    margin: 12,
+  },
   details: {
+    width: "100%",
     marginTop: 12,
     gap: 4,
   },
