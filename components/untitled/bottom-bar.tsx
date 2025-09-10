@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useScreenAnimation } from "react-native-screen-transitions";
@@ -37,6 +37,7 @@ export default function UntitledBottomBar({
   const headerAnimatedStyle = useAnimatedStyle(() => {
     const {
       progress,
+
       layouts: {
         screen: { width },
       },
@@ -48,7 +49,7 @@ export default function UntitledBottomBar({
           translateX: interpolate(progress, [0, 1, 2], [-width, 0, width]),
         },
       ],
-      opacity: interpolate(progress, [0, 0.5, 1, 1.5, 2], [0, 1, 1, 1, 0]),
+      opacity: interpolate(progress, [0, 0.1, 1, 1.9, 2], [0, 1, 1, 1, 0]),
     };
   });
 

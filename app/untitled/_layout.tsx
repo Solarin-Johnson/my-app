@@ -21,8 +21,8 @@ export const Stack = withLayoutContext<
 >(Navigator);
 
 const SPRING_CONFIG = {
-  damping: 100,
-  stiffness: 500,
+  damping: 50,
+  stiffness: 400,
   mass: 1,
   overshootClamping: true,
   restDisplacementThreshold: 0.0001,
