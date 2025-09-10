@@ -18,6 +18,7 @@ export const Colors = {
     untitledBg: "#FFFFFF",
     untitledGradient1: "#D55FDC",
     untitledGradient2: "#F5C1DB",
+    untitledBarBg: "#222222",
   },
   dark: {
     waBg: "#000000",
@@ -30,5 +31,6 @@ export const Colors = {
     untitledBg: "#191918",
     untitledGradient1: "#D55FDC",
     untitledGradient2: "#F5C1DB",
+    untitledBarBg: "#323232",
   },
 };

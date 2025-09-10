@@ -8,7 +8,10 @@ import UntitledButton, {
 
 export default function Index() {
   return (
-    <UntitledScreen headerProps={{ children: <Header /> }}></UntitledScreen>
+    <UntitledScreen
+      headerProps={{ children: <Header /> }}
+      barProps={{ type: "fill" }}
+    ></UntitledScreen>
   );
 }
 

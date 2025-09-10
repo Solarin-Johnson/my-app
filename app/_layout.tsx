@@ -138,7 +138,7 @@ export function NavigationDrawer() {
         name="untitled"
         options={{
           drawerLabel: "Screen Transitions",
-          swipeEdgeWidth: 5,
+          swipeEdgeWidth: 10,
         }}
       />
     </Drawer>
