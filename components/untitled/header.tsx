@@ -67,7 +67,8 @@ export default function UntitledHeader({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 12,
+    padding: 16,
+    paddingHorizontal: 20,
   },
   header: {
     flexDirection: "row",

@@ -1,5 +1,3 @@
-import { ThemedText } from "@/components/ThemedText";
-import UntitledHeader from "@/components/untitled/header";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import type {
   ParamListBase,
@@ -21,6 +19,17 @@ export const Stack = withLayoutContext<
   StackNavigationState<ParamListBase>,
   NativeStackNavigationEventMap
 >(Navigator);
+
+const SPRING_CONFIG = {
+  damping: 80,
+  stiffness: 600,
+  mass: 1,
+  overshootClamping: true,
+  restDisplacementThreshold: 0.0001,
+  restSpeedThreshold: 0.0001,
+};
+
+// const TIMING_CONFIG = { duration: 100, easing: Easing.inOut(Easing.ease) };
 
 export default function Layout() {
   const bg = useThemeColor("untitledBg");
@@ -56,8 +65,8 @@ export default function Layout() {
             };
           },
           transitionSpec: {
-            close: Transition.specs.DefaultSpec,
-            open: Transition.specs.DefaultSpec,
+            close: SPRING_CONFIG,
+            open: SPRING_CONFIG,
           },
         }}
       />

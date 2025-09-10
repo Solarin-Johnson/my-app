@@ -1,6 +1,5 @@
 import React from "react";
-import { Link, router, useRouter } from "expo-router";
-import { ThemedTextWrapper } from "@/components/ThemedText";
+import { router } from "expo-router";
 import UntitledScreen from "@/components/untitled/screen";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import UntitledButton, {
@@ -9,11 +8,7 @@ import UntitledButton, {
 
 export default function Index() {
   return (
-    <UntitledScreen headerProps={{ children: <Header /> }}>
-      <ThemedTextWrapper>
-        <Link href="/untitled/1">Go to ID 123</Link>
-      </ThemedTextWrapper>
-    </UntitledScreen>
+    <UntitledScreen headerProps={{ children: <Header /> }}></UntitledScreen>
   );
 }
 

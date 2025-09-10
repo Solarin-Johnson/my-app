@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Pressable, StyleSheet } from "react-native";
 import React, { ReactElement } from "react";
 import { ThemedTextWrapper } from "../ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";

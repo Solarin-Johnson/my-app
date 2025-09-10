@@ -16,6 +16,8 @@ export const Colors = {
     card: "#F5F5F7",
     tint: tintColorLight,
     untitledBg: "#FFFFFF",
+    untitledGradient1: "#D55FDC",
+    untitledGradient2: "#F5C1DB",
   },
   dark: {
     waBg: "#000000",
@@ -26,5 +28,7 @@ export const Colors = {
     waCard: "#171718",
     tint: tintColorDark,
     untitledBg: "#191918",
+    untitledGradient1: "#D55FDC",
+    untitledGradient2: "#F5C1DB",
   },
 };
