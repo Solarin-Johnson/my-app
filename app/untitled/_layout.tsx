@@ -21,8 +21,8 @@ export const Stack = withLayoutContext<
 >(Navigator);
 
 const SPRING_CONFIG = {
-  damping: 80,
-  stiffness: 600,
+  damping: 100,
+  stiffness: 500,
   mass: 1,
   overshootClamping: true,
   restDisplacementThreshold: 0.0001,
@@ -30,6 +30,7 @@ const SPRING_CONFIG = {
 };
 
 // const TIMING_CONFIG = { duration: 100, easing: Easing.inOut(Easing.ease) };
+// const SPRING_CONFIG = Transition.specs.DefaultSpec;
 
 export default function Layout() {
   const bg = useThemeColor("untitledBg");

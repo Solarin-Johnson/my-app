@@ -4,6 +4,7 @@ import { ThemedText, ThemedTextWrapper } from "../ThemedText";
 import { Colors } from "@/constants/Colors";
 import { Link } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import PressableBounce from "../PresableBounce";
 
 export const UntitledCardMini = ({
   name = "untitled project",
@@ -14,7 +15,7 @@ export const UntitledCardMini = ({
 }) => {
   return (
     <Link href="/untitled/1" asChild>
-      <Pressable style={styles.container}>
+      <PressableBounce style={styles.container}>
         <View style={styles.content}>
           <View style={styles.box}></View>
           <View style={styles.details}>
@@ -34,7 +35,7 @@ export const UntitledCardMini = ({
             </View>
           </View>
         </View>
-      </Pressable>
+      </PressableBounce>
     </Link>
   );
 };

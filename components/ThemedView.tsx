@@ -2,6 +2,7 @@ import { View, type ViewProps } from "react-native";
 
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Colors } from "@/constants/Colors";
+import { cloneElement } from "react";
 
 export type ThemedViewProps = ViewProps & {
   lightColor?: string;
@@ -24,4 +25,26 @@ export function ThemedView({
   });
 
   return <View style={[{ backgroundColor }, style]} {...otherProps} />;
+}
+
+export function ThemedViewWrapper({
+  children,
+  lightColor,
+  darkColor,
+  invert = false,
+  colorName = "background",
+  style,
+  ...rest
+}: ThemedViewProps & { children: React.ReactElement<any> }) {
+  const backgroundColor = useThemeColor(invert ? "text" : colorName, {
+    light: lightColor,
+    dark: darkColor,
+  });
+
+  const combinedStyle = [{ backgroundColor }, style];
+
+  return cloneElement(children, {
+    style: [(children.props as any).style ?? {}, ...combinedStyle],
+    ...rest,
+  });
 }
