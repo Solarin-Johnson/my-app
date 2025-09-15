@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet, Pressable } from "react-native";
 import React, { ReactNode } from "react";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -6,15 +6,28 @@ import { Image } from "expo-image";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Link } from "expo-router";
 import { Ellipsis } from "lucide-react-native";
+import GlassViewComponent from "@/components/ui/glassy-view";
+import {
+  Button,
+  ContextMenu,
+  Host,
+  Picker,
+  Label,
+  Submenu,
+  Switch,
+} from "@expo/ui/swift-ui";
 
 export default function Index() {
   return (
-    <PageContainer>
-      <ClusterContainer>
-        <ClusterItem />
-        <ClusterItem />
-      </ClusterContainer>
-    </PageContainer>
+    <>
+      <PageContainer>
+        <ClusterContainer>
+          <ClusterItem />
+          <ClusterItem />
+        </ClusterContainer>
+      </PageContainer>
+      <GlassViewComponent />
+    </>
   );
 }
 
@@ -74,9 +87,37 @@ export const ClusterItem = ({
               {time}
             </ThemedText>
           </View>
-          <ThemedTextWrapper>
-            <Ellipsis />
-          </ThemedTextWrapper>
+          <Pressable hitSlop={20}>
+            <Host style={{ width: 40 }}>
+              <ContextMenu>
+                <ContextMenu.Items>
+                  <Button
+                    systemImage="person.crop.circle.badge.xmark"
+                    onPress={() => console.log("Pressed1")}
+                  >
+                    Hello
+                  </Button>
+                  <Button
+                    variant="bordered"
+                    systemImage="heart"
+                    onPress={() => console.log("Pressed2")}
+                  >
+                    Love it
+                  </Button>
+                  <Submenu
+                    button={<Button systemImage="ellipsis">More</Button>}
+                  >
+                    <Button systemImage="square.and.arrow.up">Share</Button>
+                  </Submenu>
+                </ContextMenu.Items>
+                <ContextMenu.Trigger>
+                  <ThemedTextWrapper>
+                    <Ellipsis />
+                  </ThemedTextWrapper>
+                </ContextMenu.Trigger>
+              </ContextMenu>
+            </Host>
+          </Pressable>
         </View>
       </ThemedView>
     </Link>
