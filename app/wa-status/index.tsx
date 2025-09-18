@@ -15,6 +15,7 @@ import {
   Label,
   Submenu,
   Switch,
+  Spacer,
 } from "@expo/ui/swift-ui";
 
 export default function Index() {
@@ -104,9 +105,11 @@ export const ClusterItem = ({
                   >
                     Love it
                   </Button>
+
                   <Submenu
                     button={<Button systemImage="ellipsis">More</Button>}
                   >
+                    <Button systemImage="square.and.arrow.up">Share</Button>
                     <Button systemImage="square.and.arrow.up">Share</Button>
                   </Submenu>
                 </ContextMenu.Items>

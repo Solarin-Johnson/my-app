@@ -15,7 +15,8 @@ export default function GlassViewComponent() {
       <GlassContainer spacing={5} style={styles.containerStyle}>
         <GlassView
           style={styles.glass1}
-          glassEffectStyle="clear"
+          glassEffectStyle="regular"
+          tintColor="#00000050"
           isInteractive
         />
         <GlassView
