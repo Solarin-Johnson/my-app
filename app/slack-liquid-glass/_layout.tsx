@@ -22,7 +22,9 @@ export default function Layout() {
         options={{
           headerTitle: (props) => <HeaderTitle {...props} />,
           headerRight: () => <HeaderRight />,
-          // headerShown: false,
+          headerBackTitle: "Go Back",
+          // headerBackImageSource: require("../../assets/icon/slack-chevron-left.png"),
+          headerTransparent: true,
         }}
       />
     </Stack>
