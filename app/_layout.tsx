@@ -141,6 +141,12 @@ export function NavigationDrawer() {
           swipeEdgeWidth: 10,
         }}
       />
+      <Drawer.Screen
+        name="slack-liquid-glass"
+        options={{
+          drawerLabel: "Slack Liquid Glass",
+        }}
+      />
     </Drawer>
   );
 }
