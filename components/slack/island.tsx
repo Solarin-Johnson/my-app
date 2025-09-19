@@ -1,40 +1,32 @@
 import {
   GestureResponderEvent,
   Pressable,
+  StyleProp,
   StyleSheet,
   useWindowDimensions,
+  ViewStyle,
 } from "react-native";
 import React, { useEffect } from "react";
 import { GlassView } from "expo-glass-effect";
-import { ThemedText } from "../ThemedText";
 import Animated, {
   SharedValue,
   useAnimatedStyle,
-  useDerivedValue,
   useSharedValue,
-  withSpring,
 } from "react-native-reanimated";
+import { BarOptions, Dp, InfoBar, ItemProps } from ".";
+import {
+  CLOSED_HEIGHT,
+  DATA,
+  FULL_HEIGHT,
+  OPENED_PAD,
+  PADDING,
+  applySpring,
+} from "./config";
 
 export type Cords = { x: number; y: number; width: number; height: number };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const AnimatedGlassView = Animated.createAnimatedComponent(GlassView);
-
-const PADDING = 16;
-const FULL_HEIGHT = 350;
-const CLOSED_HEIGHT = 45;
-export const ANIMATION_DELAY = 340;
-const SPRING_CONFIG = {
-  stiffness: 300,
-  damping: 30,
-  mass: 1,
-  overshootClamping: true,
-};
-
-const applySpring = (value: number) => {
-  "worklet";
-  return withSpring(value, SPRING_CONFIG);
-};
 
 export default function Island({
   onPress,
@@ -43,8 +35,10 @@ export default function Island({
   visible = true,
   cords,
   opened: openedProp,
+  onClose,
 }: {
   onPress?: (e: GestureResponderEvent) => void;
+  onClose?: (e: GestureResponderEvent) => void;
   modal?: boolean;
   containerRef?: React.RefObject<any>;
   visible?: boolean;
@@ -56,22 +50,26 @@ export default function Island({
   const _opened = useSharedValue(false);
   const opened = openedProp || _opened;
 
+  const sharedProp: ItemProps = {
+    opened,
+    modal,
+  };
+
   useEffect(() => {
     opened.value = true;
   }, []);
-
-  useDerivedValue(() => {});
 
   const animatedStyle = useAnimatedStyle(() => {
     const { x, y, width, height } = cords?.value || {};
     const isOpened = opened.value;
 
-    const modalStyle = modal
+    const modalStyle: StyleProp<ViewStyle> = modal
       ? {
-          position: "absolute" as const,
+          position: "absolute",
           left: applySpring(isOpened ? PADDING : x || 0),
           width: applySpring(isOpened ? FULL_WIDTH : width || 0),
-          height: applySpring(isOpened ? FULL_HEIGHT : height || 0),
+          height: applySpring(isOpened ? FULL_HEIGHT : CLOSED_HEIGHT),
+          paddingTop: applySpring(isOpened ? OPENED_PAD : 0),
         }
       : {};
     return {
@@ -89,11 +87,13 @@ export default function Island({
     >
       <AnimatedPressable
         onPress={onPress}
-        style={{ flex: 1, padding: 8 }}
+        style={styles.topBar}
         ref={containerRef}
-        pointerEvents={modal ? "box-none" : "auto"}
+        // pointerEvents={modal ? "box-none" : "auto"}
       >
-        <ThemedText>Island</ThemedText>
+        <Dp {...sharedProp} onClose={onClose} />
+        <InfoBar name={DATA.name} tabs={DATA.tabs} />
+        <BarOptions {...sharedProp} />
       </AnimatedPressable>
     </AnimatedGlassView>
   );
@@ -107,5 +107,12 @@ const styles = StyleSheet.create({
     marginRight: 48,
     borderCurve: "continuous",
     borderRadius: CLOSED_HEIGHT / 2,
+  },
+  topBar: {
+    width: "100%",
+    height: CLOSED_HEIGHT,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
   },
 });

@@ -1,23 +1,11 @@
 import { Sparkles } from "lucide-react-native";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  Pressable,
-  GestureResponderEvent,
-} from "react-native";
+import { View, Text, StyleSheet, Modal, Pressable } from "react-native";
 import { NativeStackHeaderRightProps } from "react-native-screen-transitions";
-import { ThemedText, ThemedTextWrapper } from "../ThemedText";
-import { Button, ContextMenu, Host, Text as UIText } from "@expo/ui/swift-ui";
-import { scaleEffect, opacity } from "@expo/ui/swift-ui/modifiers";
-import { GlassView } from "expo-glass-effect";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
-import { useEffect, useRef, useState } from "react";
-import Island, { ANIMATION_DELAY, Cords } from "./island";
+import { ThemedTextWrapper } from "../ThemedText";
+import { Button, ContextMenu, Host } from "@expo/ui/swift-ui";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useState } from "react";
+import Island, { Cords } from "./island";
 import {
   measure,
   SharedValue,
@@ -25,12 +13,9 @@ import {
   useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated";
+import { ANIMATION_DELAY } from "./config";
 
-export default function HeaderTitle({
-  children,
-  tintColor,
-  style,
-}: {
+export default function HeaderTitle({}: {
   children: React.ReactNode;
   tintColor?: string;
   style?: any;
@@ -43,7 +28,7 @@ export default function HeaderTitle({
     const measured = measure(islandRef);
     if (measured !== null) {
       const { x, y, width, height, pageX, pageY } = measured;
-      console.log({ x, y, width, height, pageX, pageY });
+      //   console.log({ x, y, width, height, pageX, pageY });
       cords.value = { x: pageX, y: pageY, width, height };
     } else {
       console.warn("measure: could not measure view");
@@ -81,33 +66,24 @@ const ModalHeader = ({
   const { top } = useSafeAreaInsets();
   const opened = useSharedValue(false);
 
+  const onClose = () => {
+    opened.value = false;
+    setTimeout(() => {
+      setVisible(false);
+    }, ANIMATION_DELAY);
+  };
+
   return (
     <Modal
       transparent
       visible={visible}
-      onRequestClose={() => {
-        setVisible(!visible);
-      }}
-      animationType="fade"
+      onRequestClose={onClose}
+      animationType={visible ? "none" : "fade"}
     >
-      <Pressable
-        style={{ flex: 1 }}
-        onPress={() => {
-          opened.value = false;
-          setTimeout(() => {
-            setVisible(false);
-          }, ANIMATION_DELAY);
-        }}
-      >
-        <View style={{ marginTop: top, flex: 1 }}>
-          <Island
-            onPress={(e: GestureResponderEvent) => e.stopPropagation()}
-            cords={cords}
-            modal
-            opened={opened}
-          />
-        </View>
-      </Pressable>
+      <Pressable style={styles.underlay} onPress={onClose} />
+      <View style={{ marginTop: top, flex: 1 }}>
+        <Island cords={cords} modal opened={opened} onClose={onClose} />
+      </View>
     </Modal>
   );
 };
@@ -138,5 +114,9 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     alignItems: "center",
     justifyContent: "center",
+  },
+  underlay: {
+    ...StyleSheet.absoluteFillObject,
+    // backgroundColor: "red",
   },
 });
