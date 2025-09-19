@@ -1,6 +1,7 @@
 import {
   GestureResponderEvent,
   Pressable,
+  ScrollView,
   StyleProp,
   StyleSheet,
   useWindowDimensions,
@@ -13,7 +14,17 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { BarOptions, Dp, InfoBar, ItemProps } from ".";
+import {
+  BarButton,
+  BarOptions,
+  ButtonCluster,
+  ButtonSeperator,
+  ContentContainer,
+  Dp,
+  InfoBar,
+  ItemProps,
+  QuickActions,
+} from ".";
 import {
   CLOSED_HEIGHT,
   DATA,
@@ -22,6 +33,10 @@ import {
   PADDING,
   applySpring,
 } from "./config";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import Octicons from "@expo/vector-icons/Octicons";
+import Feather from "@expo/vector-icons/Feather";
+import { FileText, Layers, Settings, UserRound } from "lucide-react-native";
 
 export type Cords = { x: number; y: number; width: number; height: number };
 
@@ -85,16 +100,52 @@ export default function Island({
       style={[styles.glass, animatedStyle]}
       // tintColor={"#ffffff08"}
     >
-      <AnimatedPressable
-        onPress={onPress}
-        style={styles.topBar}
-        ref={containerRef}
-        // pointerEvents={modal ? "box-none" : "auto"}
-      >
-        <Dp {...sharedProp} onClose={onClose} />
-        <InfoBar name={DATA.name} tabs={DATA.tabs} />
-        <BarOptions {...sharedProp} />
-      </AnimatedPressable>
+      <Animated.View style={{ flex: 1, overflow: "hidden" }}>
+        <AnimatedPressable
+          onPress={onPress}
+          style={styles.topBar}
+          ref={containerRef}
+          // pointerEvents={modal ? "box-none" : "auto"}
+        >
+          <Dp {...sharedProp} onClose={onClose} />
+          <InfoBar name={DATA.name} tabs={DATA.tabs} />
+          <BarOptions {...sharedProp} />
+        </AnimatedPressable>
+        <ContentContainer {...sharedProp}>
+          <QuickActions />
+          <ButtonCluster>
+            <BarButton
+              icon={<Ionicons name="chatbubbles" size={21} />}
+              label="Messages"
+              active
+              onPress={onClose}
+            />
+            <BarButton
+              icon={<Layers size={21} strokeWidth={1.9} />}
+              label="Files"
+              onPress={onClose}
+            />
+            <BarButton
+              icon={<FileText size={21} strokeWidth={1.9} />}
+              label="Canvas"
+              onPress={onClose}
+            />
+            <ButtonSeperator />
+            <BarButton
+              icon={<UserRound size={21} strokeWidth={1.9} />}
+              label="Call"
+              rightButton
+              onPress={onClose}
+            />
+            <BarButton
+              icon={<Settings size={21} strokeWidth={1.9} />}
+              label="Settings"
+              rightButton
+              onPress={onClose}
+            />
+          </ButtonCluster>
+        </ContentContainer>
+      </Animated.View>
     </AnimatedGlassView>
   );
 }
