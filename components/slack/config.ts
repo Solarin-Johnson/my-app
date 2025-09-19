@@ -1,14 +1,16 @@
 import { withSpring } from "react-native-reanimated";
 
-const PADDING = 16;
+const PADDING = 8;
 const FULL_HEIGHT = 350;
 const CLOSED_HEIGHT = 45;
-const ANIMATION_DELAY = 350;
+const ANIMATION_DELAY = 230;
 const OPENED_PAD = 4;
 
 const DATA = {
   name: "Solarin Johnson",
   tabs: 3,
+  bannerText:
+    "This is your space. Draft messages, list your to-dos, or keep links and files handy. You can also talk to yourself here, but please bear in mind you'll have to supply both sides of the conversation.",
 };
 
 const SPRING_CONFIG = {

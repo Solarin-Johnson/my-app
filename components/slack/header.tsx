@@ -77,8 +77,9 @@ const ModalHeader = ({
     <Modal
       transparent
       visible={visible}
+      onDismiss={onClose}
       onRequestClose={onClose}
-      animationType={visible ? "none" : "fade"}
+      // animationType={visible ? "none" : "fade"}
     >
       <Pressable style={styles.underlay} onPress={onClose} />
       <View style={{ marginTop: top, flex: 1 }}>
