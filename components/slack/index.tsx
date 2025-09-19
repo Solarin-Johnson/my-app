@@ -21,7 +21,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedView } from "../ThemedView";
 import Entypo from "@expo/vector-icons/Entypo";
-import { Button, ContextMenu, Host, Text as UIText } from "@expo/ui/swift-ui";
+// import { Button, ContextMenu, Host, Text as UIText } from "@expo/ui/swift-ui";
 
 export type ItemProps = {
   opened: SharedValue<boolean>;
@@ -158,17 +158,7 @@ const QuickActions = () => {
         icon={<AntDesign name="user-add" size={18} />}
         label="Add"
       />
-      <QuickActionsItem
-        icon={<Feather name="star" size={18} />}
-        label="Move"
-        menus={[
-          { title: "Move To Starred", systemImage: "star" },
-          {
-            title: "Move to New Section",
-            systemImage: "plus",
-          },
-        ]}
-      />
+      <QuickActionsItem icon={<Feather name="star" size={18} />} label="Move" />
       <QuickActionsItem
         icon={<Feather name="search" size={18} />}
         label="Search"
@@ -180,53 +170,22 @@ const QuickActions = () => {
 const QuickActionsItem = ({
   icon,
   label,
-  menus = [],
 }: {
   icon: ReactElement<any>;
   label: string;
-  menus?: Array<{
-    title: string;
-    disabled?: boolean;
-    variant?: "default" | "bordered";
-    onPress?: () => void;
-    systemImage?: string;
-  }>;
 }) => {
   const text = useThemeColor("slackText");
   return (
-    <Host style={styles.quickItemWrapper}>
-      <ContextMenu>
-        <ContextMenu.Items>
-          {menus.map((menu, index) => (
-            <Button
-              key={index}
-              disabled={menu.disabled}
-              variant={menu.variant}
-              onPress={menu.onPress}
-              systemImage={
-                typeof menu.systemImage === "string"
-                  ? menu.systemImage
-                  : undefined
-              }
-            >
-              {menu.title}
-            </Button>
-          ))}
-        </ContextMenu.Items>
-        <ContextMenu.Trigger>
-          <View style={[styles.quickItem, { borderColor: text + "16" }]}>
-            <ThemedTextWrapper colorName="slackText">{icon}</ThemedTextWrapper>
-            <ThemedText
-              type="defaultSemiBold"
-              style={{ fontSize: 13.5 }}
-              colorName="slackText"
-            >
-              {label}
-            </ThemedText>
-          </View>
-        </ContextMenu.Trigger>
-      </ContextMenu>
-    </Host>
+    <Pressable style={[styles.quickItem, { borderColor: text + "16" }]}>
+      <ThemedTextWrapper colorName="slackText">{icon}</ThemedTextWrapper>
+      <ThemedText
+        type="defaultSemiBold"
+        style={{ fontSize: 13.5 }}
+        colorName="slackText"
+      >
+        {label}
+      </ThemedText>
+    </Pressable>
   );
 };
 
@@ -350,7 +309,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   quickItem: {
-    height: "100%",
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -358,10 +317,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     borderCurve: "continuous",
-  },
-  quickItemWrapper: {
-    flex: 1,
-    height: "100%",
   },
   container: {
     flex: 1,
