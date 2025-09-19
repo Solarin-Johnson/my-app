@@ -98,7 +98,7 @@ export const HeaderRight = ({}: NativeStackHeaderRightProps) => {
         </ContextMenu.Items>
         <ContextMenu.Trigger>
           <View style={styles.rightContainer}>
-            <ThemedTextWrapper>
+            <ThemedTextWrapper colorName="slackText">
               <Sparkles size={20} strokeWidth={1.8} />
             </ThemedTextWrapper>
           </View>

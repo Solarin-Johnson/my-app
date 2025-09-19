@@ -20,9 +20,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedView } from "../ThemedView";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import Entypo from "@expo/vector-icons/Entypo";
-import { opacity } from "react-native-reanimated/lib/typescript/Colors";
 // import { Button, ContextMenu, Host, Text as UIText } from "@expo/ui/swift-ui";
 
 export type ItemProps = {
@@ -71,7 +69,7 @@ const Dp = ({
           style={[styles.closeBtn, btnAnimatedStyle]}
           onPress={onClose}
         >
-          <ThemedTextWrapper>
+          <ThemedTextWrapper colorName="slackText">
             <X size={23} />
           </ThemedTextWrapper>
         </AnimatedPressable>
@@ -87,10 +85,17 @@ const InfoBar = ({ name, tabs }: { name: string; tabs: number }) => {
         flex: 1,
       }}
     >
-      <ThemedText type="defaultSemiBold" style={styles.nameText}>
+      <ThemedText
+        type="defaultSemiBold"
+        style={styles.nameText}
+        colorName="slackText"
+      >
         {name}
       </ThemedText>
-      <ThemedText style={styles.tabsText}>{`${tabs} tabs`}</ThemedText>
+      <ThemedText
+        style={styles.tabsText}
+        colorName="slackText"
+      >{`${tabs} tabs`}</ThemedText>
     </View>
   );
 };
@@ -114,7 +119,7 @@ const BarOptions = ({ opened, modal }: ItemProps) => {
       style={[{ paddingHorizontal: 14 }, animatedStyle]}
       hitSlop={16}
     >
-      <ThemedTextWrapper>
+      <ThemedTextWrapper colorName="slackText">
         <Ellipsis size={21} />
       </ThemedTextWrapper>
     </AnimatedPressable>
@@ -169,11 +174,15 @@ const QuickActionsItem = ({
   icon: ReactElement<any>;
   label: string;
 }) => {
-  const text = useThemeColor("text");
+  const text = useThemeColor("slackText");
   return (
     <Pressable style={[styles.quickItem, { borderColor: text + "16" }]}>
-      <ThemedTextWrapper>{icon}</ThemedTextWrapper>
-      <ThemedText type="defaultSemiBold" style={{ fontSize: 13.5 }}>
+      <ThemedTextWrapper colorName="slackText">{icon}</ThemedTextWrapper>
+      <ThemedText
+        type="defaultSemiBold"
+        style={{ fontSize: 13.5 }}
+        colorName="slackText"
+      >
         {label}
       </ThemedText>
     </Pressable>
@@ -217,16 +226,20 @@ const BarButton = ({
       }}
     >
       <View style={styles.buttonIcon}>
-        <ThemedTextWrapper>{icon}</ThemedTextWrapper>
+        <ThemedTextWrapper colorName="slackText">{icon}</ThemedTextWrapper>
       </View>
       <ThemedText
+        colorName="slackText"
         style={[styles.label, active && styles.activeLabel]}
         type={active ? "default" : "regular"}
       >
         {label}
       </ThemedText>
       {rightButton && (
-        <ThemedTextWrapper style={[styles.buttonIcon, { opacity: 0.8 }]}>
+        <ThemedTextWrapper
+          colorName="slackText"
+          style={[styles.buttonIcon, { opacity: 0.8 }]}
+        >
           <Entypo name="chevron-thin-right" size={20} />
         </ThemedTextWrapper>
       )}

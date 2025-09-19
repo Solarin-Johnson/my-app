@@ -1,7 +1,6 @@
 import {
   GestureResponderEvent,
   Pressable,
-  ScrollView,
   StyleProp,
   StyleSheet,
   useWindowDimensions,
@@ -34,13 +33,10 @@ import {
   applySpring,
 } from "./config";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import Octicons from "@expo/vector-icons/Octicons";
-import Feather from "@expo/vector-icons/Feather";
 import { FileText, Layers, Settings, UserRound } from "lucide-react-native";
 
 export type Cords = { x: number; y: number; width: number; height: number };
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const AnimatedGlassView = Animated.createAnimatedComponent(GlassView);
 
 export default function Island({
@@ -75,7 +71,7 @@ export default function Island({
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => {
-    const { x, y, width, height } = cords?.value || {};
+    const { x, width } = cords?.value || {};
     const isOpened = opened.value;
 
     const modalStyle: StyleProp<ViewStyle> = modal
@@ -96,21 +92,16 @@ export default function Island({
   return (
     <AnimatedGlassView
       glassEffectStyle="regular"
-      isInteractive={!modal}
+      isInteractive
       style={[styles.glass, animatedStyle]}
       // tintColor={"#ffffff08"}
     >
       <Animated.View style={{ flex: 1, overflow: "hidden" }}>
-        <AnimatedPressable
-          onPress={onPress}
-          style={styles.topBar}
-          ref={containerRef}
-          // pointerEvents={modal ? "box-none" : "auto"}
-        >
+        <Pressable onPress={onPress} style={styles.topBar} ref={containerRef}>
           <Dp {...sharedProp} onClose={onClose} />
           <InfoBar name={DATA.name} tabs={DATA.tabs} />
           <BarOptions {...sharedProp} />
-        </AnimatedPressable>
+        </Pressable>
         <ContentContainer {...sharedProp}>
           <QuickActions />
           <ButtonCluster>
