@@ -1,5 +1,5 @@
 import React from "react";
-import { Slot, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import HeaderTitle, { HeaderRight } from "@/components/slack/header";
 
 export default function Layout() {
@@ -7,7 +7,6 @@ export default function Layout() {
     <Stack
       screenOptions={{
         headerBackButtonDisplayMode: "minimal",
-        headerShadowVisible: false,
       }}
     >
       <Stack.Screen
@@ -15,6 +14,7 @@ export default function Layout() {
         options={{
           headerTitle: "Slack",
           // headerShown: false,
+          headerTransparent: true,
         }}
       />
       <Stack.Screen
@@ -23,7 +23,6 @@ export default function Layout() {
           headerTitle: (props) => <HeaderTitle {...props} />,
           headerRight: () => <HeaderRight />,
           headerBackTitle: "Go Back",
-          // headerBackImageSource: require("../../assets/icon/slack-chevron-left.png"),
           headerTransparent: true,
         }}
       />

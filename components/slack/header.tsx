@@ -40,7 +40,6 @@ export default function HeaderTitle({}: {
       <Island
         onPress={() => {
           setModalVisible(true);
-          console.log("press header title");
         }}
         containerRef={islandRef}
         visible={!modalVisible}

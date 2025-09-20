@@ -1,14 +1,13 @@
 import { ThemedTextWrapper } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import Button from "@/components/ui/Button";
 import { GlassView } from "expo-glass-effect";
 import { Link } from "expo-router";
-import { Text, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView style={styles.container} colorName="slackBg">
       <SafeAreaView>
         <GlassView glassEffectStyle="clear" isInteractive style={styles.glass}>
           <ThemedTextWrapper style={styles.text} type="defaultSemiBold">
@@ -25,7 +24,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: "center",
     alignItems: "center",
   },
   text: {

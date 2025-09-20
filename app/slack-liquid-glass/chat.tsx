@@ -4,13 +4,14 @@ import MessageBar from "@/components/slack/message-bar";
 import MessageBox from "@/components/slack/message-box";
 import { ThemedView } from "@/components/ThemedView";
 import { StyleSheet, ScrollView, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 const MSG_BOX_HEIGHT = 60;
 
 export default function Index() {
   return (
-    <ThemedView style={styles.container}>
-      <ScrollView
+    <ThemedView style={styles.container} colorName="slackBg">
+      <KeyboardAwareScrollView
         style={styles.container}
         contentContainerStyle={{ paddingBottom: MSG_BOX_HEIGHT }}
         contentInsetAdjustmentBehavior="automatic"
@@ -19,7 +20,7 @@ export default function Index() {
       >
         <SlackBanner />
         <MessageBox />
-      </ScrollView>
+      </KeyboardAwareScrollView>
       <MessageBar />
     </ThemedView>
   );

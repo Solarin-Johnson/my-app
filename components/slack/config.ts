@@ -3,7 +3,7 @@ import { withSpring } from "react-native-reanimated";
 const PADDING = 8;
 const FULL_HEIGHT = 350;
 const CLOSED_HEIGHT = 45;
-const ANIMATION_DELAY = 230;
+const ANIMATION_DELAY = 280;
 const OPENED_PAD = 4;
 
 const DATA = {
