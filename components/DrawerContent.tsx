@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from "react";
 import {
   DrawerContentComponentProps,
-  DrawerItemList,
+  // DrawerItemList,
   useDrawerStatus,
 } from "@react-navigation/drawer";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -15,9 +15,13 @@ import { Home } from "lucide-react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Feedback } from "@/functions";
+import { DrawerItemList } from "./drawer/DrawerItemList";
 
 const DrawerContent = memo((props: DrawerContentComponentProps) => {
-  const demos = (props.state?.routes?.length || 0) - 3 || 0;
+  const demos = (props.state?.routes?.length || 0) - 1 || 0;
+  const routeNames = props.state?.routes.map((route) => route.name) || [];
+  console.log("Route names:", routeNames);
+
   const status = useDrawerStatus();
   const [focused, setFocused] = useState(false);
 
