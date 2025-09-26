@@ -2,7 +2,6 @@ import {
   View,
   StyleSheet,
   TextInput,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   StyleProp,
@@ -39,6 +38,7 @@ import {
 } from "@react-navigation/drawer";
 import { GrokIcon } from "@/components/icons";
 import { useNavigation } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const CHAT_BOX_HEIGHT = 100;
 const CHAT_BOX_MARGIN_V = 6;

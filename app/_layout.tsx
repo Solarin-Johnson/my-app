@@ -53,6 +53,8 @@ export default function RootLayout() {
 export function NavigationDrawer() {
   const { width } = useWindowDimensions();
   const text = useThemeColor("text");
+  const theme = useColorScheme();
+  const isLight = theme === "light";
 
   return (
     <Drawer
@@ -75,6 +77,7 @@ export function NavigationDrawer() {
         drawerActiveTintColor: text,
         drawerActiveBackgroundColor: `${text}10`,
         drawerInactiveTintColor: text + "90",
+        ...(isLight && { overlayColor: "#00000030" }),
       }}
       drawerContent={(props) => <DrawerContent {...props} />}
     >
@@ -120,7 +123,9 @@ export function NavigationDrawer() {
             width: width,
             backgroundColor: "transparent",
           },
+          overlayColor: "transparent",
         }}
+        initialParams={{ noPreview: true }}
       />
       <Drawer.Screen
         name="gesture-menu"
@@ -140,6 +145,7 @@ export function NavigationDrawer() {
           drawerLabel: "Screen Transitions",
           swipeEdgeWidth: 10,
         }}
+        initialParams={{ noPreview: true }}
       />
       <Drawer.Screen
         name="slack-liquid-glass"

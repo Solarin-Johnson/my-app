@@ -9,6 +9,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import { Href, Link } from "expo-router";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 type Props = {
   /**
@@ -117,6 +118,7 @@ export function DrawerItem(props: Props) {
     pressOpacity = 1,
     testID,
     accessibilityLabel,
+    route,
     ...rest
   } = props;
 
@@ -127,7 +129,8 @@ export function DrawerItem(props: Props) {
     : inactiveBackgroundColor;
 
   const iconNode = icon ? icon({ size: 24, focused, color }) : null;
-
+  const noPreview = (route?.params as any)?.noPreview || false;
+  const bg = useThemeColor("barColor");
   return (
     <View
       collapsable={false}
@@ -135,7 +138,21 @@ export function DrawerItem(props: Props) {
       style={[styles.container, { borderRadius, backgroundColor }, style]}
     >
       <Link href={href} asChild>
-        <Link.Preview />
+        {!noPreview && <Link.Preview style={{ backgroundColor: bg }} />}
+        <Link.Menu>
+          <Link.MenuAction
+            title="Share"
+            icon="square.and.arrow.up"
+            onPress={() => {}}
+          />
+          <Link.MenuAction
+            title="Delete"
+            icon="trash"
+            destructive
+            onPress={() => {}}
+          />
+        </Link.Menu>
+
         <Link.Trigger>
           <PlatformPressable
             testID={testID}
