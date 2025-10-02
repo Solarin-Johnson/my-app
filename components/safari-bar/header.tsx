@@ -2,6 +2,7 @@ import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText, ThemedTextWrapper } from "../ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import ResponsiveText from "../ResponsiveText";
 
 interface HeaderProps {
   title: string;
@@ -12,16 +13,9 @@ interface HeaderProps {
 const Header = ({ title, content, onBackPress }: HeaderProps) => {
   return (
     <View style={styles.container}>
-      <View style={styles.nav}>
-        <TouchableOpacity onPress={onBackPress}>
-          <ThemedTextWrapper>
-            <Ionicons name="chevron-back-outline" size={25} />
-          </ThemedTextWrapper>
-        </TouchableOpacity>
-      </View>
       <View style={styles.head}>
         <View>
-          <ThemedText type="title">{title}</ThemedText>
+          <ResponsiveText text={title} baseSize={29} type="title" />
         </View>
         <ThemedText style={styles.content} type="subtitle">
           {content}
@@ -53,6 +47,9 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingVertical: 5,
+  },
+  title: {
+    fontSize: 28,
   },
 });
 

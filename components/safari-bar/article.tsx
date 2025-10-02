@@ -12,7 +12,9 @@ const Article: React.FC<ArticleProps> = ({ title, content }) => {
   return (
     <View style={styles.article}>
       <View>
-        <ThemedText type="default">{title}</ThemedText>
+        <ThemedText type="default" style={{ fontSize: 20 }}>
+          {title}
+        </ThemedText>
       </View>
       <View style={styles.section}>
         {content.map((paragraph, i) => (

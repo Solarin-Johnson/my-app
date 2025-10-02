@@ -14,15 +14,15 @@ export default function ProgressiveFade({
   style: customStyle,
 }: ProgressiveFadeProps) {
   const color = useThemeColor("background");
-  const { top } = useSafeAreaInsets();
+  const insets = useSafeAreaInsets();
 
   return (
     <View
       style={[
         styles.container,
         {
-          [direction === "top" ? "top" : "bottom"]: 0,
-          height: height + top,
+          [direction]: 0,
+          height: height + insets[direction],
         },
         customStyle,
       ]}

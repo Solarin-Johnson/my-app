@@ -1,29 +1,46 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import React from "react";
 import Animated from "react-native-reanimated";
 import ProgressiveFade from "@/components/ProgressiveFade";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import Header from "@/components/safari-bar/header";
+import { DATA } from "@/components/safari-bar/config";
+import Article from "@/components/safari-bar/article";
 
 const FADE_HEIGHT = 4;
+const { content, title, sections } = DATA;
 
 export default function SafariBar() {
+  const { top } = useSafeAreaInsets();
   return (
-    <ThemedView style={{ flex: 1 }}>
-      <Animated.ScrollView
+    <ThemedView style={{ flex: 1 }} colorName="safariBg">
+      <Animated.FlatList
+        ListHeaderComponent={() => (
+          <Header title={title} content={content} onBackPress={() => {}} />
+        )}
         style={styles.container}
-        contentContainerStyle={styles.content}
-        scrollIndicatorInsets={{ top: FADE_HEIGHT }}
-      >
-        <SafeAreaView>
-          <View style={{ height: 1500 }}>
-            <ThemedText>SafariBar</ThemedText>
-            <View style={styles.box} />
-          </View>
-        </SafeAreaView>
-      </Animated.ScrollView>
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: top + FADE_HEIGHT },
+        ]}
+        data={sections}
+        renderItem={({ item, index }) => (
+          <Article
+            content={item.content}
+            title={item.title}
+            index={index + 1}
+          />
+        )}
+        // onScroll={scrollHandler}
+        scrollEventThrottle={16}
+      />
       <ProgressiveFade direction="top" height={FADE_HEIGHT} />
+      <ProgressiveFade direction="bottom" height={20} />
     </ThemedView>
   );
 }
@@ -31,10 +48,11 @@ export default function SafariBar() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignSelf: "center",
+    maxWidth: 640,
   },
   content: {
-    paddingHorizontal: 16,
-    paddingTop: FADE_HEIGHT,
+    paddingBottom: 20,
   },
   box: {
     height: 120,
