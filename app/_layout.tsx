@@ -153,6 +153,13 @@ export function NavigationDrawer() {
           drawerLabel: "Slack Liquid Glass",
         }}
       />
+      <Drawer.Screen
+        name="safari-bar"
+        options={{
+          drawerLabel: "Safari Bar",
+          headerTransparent: true,
+        }}
+      />
     </Drawer>
   );
 }

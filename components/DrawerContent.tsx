@@ -20,7 +20,7 @@ import { DrawerItemList } from "./drawer/DrawerItemList";
 const DrawerContent = memo((props: DrawerContentComponentProps) => {
   const demos = (props.state?.routes?.length || 0) - 1 || 0;
   const routeNames = props.state?.routes.map((route) => route.name) || [];
-  console.log("Route names:", routeNames);
+  // console.log("Route names:", routeNames);
 
   const status = useDrawerStatus();
   const [focused, setFocused] = useState(false);

@@ -1,0 +1,51 @@
+import { View, StyleSheet, ViewStyle } from "react-native";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+type ProgressiveFadeProps = {
+  direction?: "top" | "bottom";
+  height?: number;
+  style?: ViewStyle | ViewStyle[];
+};
+
+export default function ProgressiveFade({
+  direction = "top",
+  height = 64,
+  style: customStyle,
+}: ProgressiveFadeProps) {
+  const color = useThemeColor("background");
+  const { top } = useSafeAreaInsets();
+
+  return (
+    <View
+      style={[
+        styles.container,
+        {
+          [direction === "top" ? "top" : "bottom"]: 0,
+          height: height + top,
+        },
+        customStyle,
+      ]}
+    >
+      <View
+        style={[
+          {
+            experimental_backgroundImage: `linear-gradient(${
+              direction === "top" ? "to bottom" : "to top"
+            }, ${color} 0%, ${color}00) 100%`,
+          },
+          StyleSheet.absoluteFill,
+        ]}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+    position: "absolute",
+    left: 0,
+    right: 0,
+  },
+});
