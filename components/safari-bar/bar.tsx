@@ -13,6 +13,7 @@ import Animated, {
   SharedValue,
   useAnimatedReaction,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
@@ -20,16 +21,18 @@ import ProgressiveFade from "../ProgressiveFade";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GlassContainer, GlassView } from "expo-glass-effect";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { ThemedTextWrapper } from "../ThemedText";
+import { ThemedText, ThemedTextWrapper } from "../ThemedText";
 import Entypo from "@expo/vector-icons/Entypo";
 
 const AnimatedGlassView = Animated.createAnimatedComponent(GlassView);
 
 const BUTTON_SIZE = 50;
-const GAP = 8;
+const GAP = 6;
 const SPACING = 24;
-const BAR_COLLAPSED_WIDTH = 100;
-const SCROLL_THRESHOLD = 40;
+const SCROLL_THRESHOLD = 30;
+const SENSITIVITY = 0.01;
+const BAR_COLLAPSED_HEIGHT = 40;
+const SNAP_THRESHOLD = 0.2;
 
 export default function Bar({
   scrollY,
@@ -42,7 +45,7 @@ export default function Bar({
   const isExpanded = useSharedValue(true);
   const prevScrollY = useSharedValue(0);
   const lastScrollY = useSharedValue(0);
-  const progress = useSharedValue(0);
+  const progress = useSharedValue(1);
 
   useAnimatedReaction(
     () => isScrollEnd.value,
@@ -56,6 +59,10 @@ export default function Bar({
     }
   );
 
+  const derivedProgress = useDerivedValue(() => {
+    return progress.value;
+  });
+
   useAnimatedReaction(
     () => scrollY.value,
     (currentScrollY) => {
@@ -63,19 +70,19 @@ export default function Bar({
       const isScrollingDown = currentScrollY > prevScrollY.value;
 
       // Update expanded state based on direction
-      if (Math.abs(currentScrollY - prevScrollY.value) > SCROLL_THRESHOLD) {
+      if (Math.abs(prevScrollY.value - currentScrollY) > SCROLL_THRESHOLD) {
         isExpanded.value = !isScrollingDown;
       }
 
       // Calculate real-time progress based on scroll velocity
-      const scrollDelta = currentScrollY - prevScrollY.value;
-      const sensitivity = 0.01; // Adjust sensitivity as needed
+      const scrollDelta = prevScrollY.value - currentScrollY;
 
       // Update progress directly based on scroll movement
       const newProgress = Math.max(
         0,
-        Math.min(1, progress.value + scrollDelta * sensitivity)
+        Math.min(1, progress.value + scrollDelta * SENSITIVITY)
       );
+
       progress.value = newProgress;
 
       // Update previous scroll position for next frame
@@ -85,21 +92,33 @@ export default function Bar({
 
   const animatedStyle = useAnimatedStyle(() => {
     // console.log(isExpanded.value, scrollY.value, prevScrollY.value);
-    console.log(progress.value);
+    console.log(progress.value, "exp", isExpanded.value);
 
     return {
       transform: [
         {
-          scale: interpolate(progress.value, [0, 1], [0.7, 1]),
+          scale: interpolate(
+            derivedProgress.value,
+            [0, 1],
+            [0.8, 1],
+            Extrapolation.CLAMP
+          ),
+        },
+        {
+          translateY: interpolate(
+            derivedProgress.value,
+            [0, 1],
+            [30, 0],
+            Extrapolation.CLAMP
+          ),
         },
       ],
-      opacity: isExpanded.value ? 1 : 0.8,
     };
   });
 
   return (
     <>
-      {/* <ProgressiveFade direction="bottom" height={40} /> */}
+      <ProgressiveFade direction="bottom" height={40} />
       <Animated.View style={[styles.container, { bottom }, animatedStyle]}>
         <GlassContainer style={styles.glassContainer} spacing={GAP / 2}>
           <IconButton>
@@ -109,7 +128,7 @@ export default function Bar({
               style={{ opacity: 0.5 }}
             />
           </IconButton>
-          <AddressBar />
+          <AddressBar progress={derivedProgress} />
           <IconButton>
             <Ionicons name="ellipsis-horizontal" size={24} />
           </IconButton>
@@ -119,19 +138,31 @@ export default function Bar({
   );
 }
 
-const AddressBar = () => {
+const AddressBar = ({ progress }: { progress: SharedValue<number> }) => {
   const { width } = useWindowDimensions();
   const CALCULATED_SPACE = 2 * (BUTTON_SIZE + GAP + SPACING);
   const BAR_WIDE_WIDTH = width - CALCULATED_SPACE;
+  const BAR_COLLAPSED_WIDTH = BAR_WIDE_WIDTH * 0.8;
 
   const barAnimatedStyle = useAnimatedStyle(() => {
     return {
-      width: BAR_WIDE_WIDTH,
+      width: interpolate(
+        progress.value,
+        [0, 1],
+        [BAR_COLLAPSED_WIDTH, BAR_WIDE_WIDTH],
+        Extrapolation.CLAMP
+      ),
+      height: interpolate(
+        progress.value,
+        [0, 1],
+        [BAR_COLLAPSED_HEIGHT, BUTTON_SIZE],
+        Extrapolation.CLAMP
+      ),
     };
   });
   return (
     <GlassButton buttonStyle={styles.bar} wrapperStyle={barAnimatedStyle}>
-      <Text>Bar</Text>
+      <ThemedText>Bar</ThemedText>
     </GlassButton>
   );
 };

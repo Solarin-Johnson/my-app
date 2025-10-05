@@ -1,6 +1,7 @@
 import { View, StyleSheet, ViewStyle } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated from "react-native-reanimated";
 
 type ProgressiveFadeProps = {
   direction?: "top" | "bottom";
@@ -17,7 +18,7 @@ export default function ProgressiveFade({
   const insets = useSafeAreaInsets();
 
   return (
-    <View
+    <Animated.View
       style={[
         styles.container,
         {
@@ -37,7 +38,7 @@ export default function ProgressiveFade({
           StyleSheet.absoluteFill,
         ]}
       />
-    </View>
+    </Animated.View>
   );
 }
 

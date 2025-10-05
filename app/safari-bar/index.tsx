@@ -58,7 +58,7 @@ export default function SafariBar() {
           />
         )}
         onScroll={scrollHandler}
-        scrollEventThrottle={16}
+        // scrollEventThrottle={16}
       />
       <ProgressiveFade direction="top" height={FADE_HEIGHT} />
       <Bar scrollY={scrollY} isScrollEnd={isScrollEnd} />
