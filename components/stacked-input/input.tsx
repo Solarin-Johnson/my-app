@@ -1,5 +1,5 @@
 import { TextInput, StyleSheet, TextInputProps } from "react-native";
-import React, { useCallback, useRef } from "react";
+import React, { ReactElement, useCallback, useRef } from "react";
 import Animated, {
   useAnimatedReaction,
   useAnimatedStyle,
@@ -10,7 +10,7 @@ import Animated, {
 import { useStackedInput } from "./provider";
 import { BlurView } from "expo-blur";
 import { scheduleOnRN } from "react-native-worklets";
-import { ThemedView, ThemedViewWrapper } from "../ThemedView";
+import { ThemedView } from "../ThemedView";
 import { ThemedTextWrapper } from "../ThemedText";
 
 const TRANSFORM_DISTANCE = -6;
@@ -36,10 +36,12 @@ const SPRING_CONFIG_INV = {
 export default function Input({
   index,
   stackedInputRef,
+  children,
   ...props
 }: {
   index: number;
   stackedInputRef?: React.RefObject<TextInput>;
+  children?: ReactElement<any>;
 } & TextInputProps) {
   const { currentIndex } = useStackedInput();
   const _inputRef = useRef<TextInput>(null);
@@ -122,11 +124,12 @@ export default function Input({
           <TextInput
             ref={inputRef}
             placeholder="Type here..."
-            style={styles.text}
+            style={children ? styles.hiddenText : styles.text}
             {...props}
             onFocus={onFocus}
           />
         </ThemedTextWrapper>
+        {children}
       </ThemedView>
       <AnimatedBlurView
         intensity={intensity}
@@ -141,7 +144,6 @@ const styles = StyleSheet.create({
   block: {
     borderWidth: 1,
     borderColor: "#88888899",
-    fontSize: 16,
     width: "100%",
     height: "100%",
     overflow: "hidden",
@@ -149,9 +151,12 @@ const styles = StyleSheet.create({
   text: {
     padding: 14,
     fontSize: 16,
-    width: "100%",
-    height: "100%",
-    fontWeight: "500",
+    flex: 1,
+  },
+  hiddenText: {
+    opacity: 0,
+    position: "absolute",
+    pointerEvents: "none",
   },
   rounded: {
     borderRadius: 14,
