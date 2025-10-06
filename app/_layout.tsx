@@ -160,6 +160,12 @@ export function NavigationDrawer() {
           headerTransparent: true,
         }}
       />
+      <Drawer.Screen
+        name="stacked-input"
+        options={{
+          drawerLabel: "Stacked Input",
+        }}
+      />
     </Drawer>
   );
 }
