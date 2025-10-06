@@ -43,7 +43,7 @@ export default function Input({
   stackedInputRef?: React.RefObject<TextInput>;
   children?: ReactElement<any>;
 } & TextInputProps) {
-  const { currentIndex } = useStackedInput();
+  const { currentIndex, itemStyles, itemProps } = useStackedInput();
   const _inputRef = useRef<TextInput>(null);
   const inputRef = stackedInputRef || _inputRef;
   const previousIndex = useSharedValue(0);
@@ -119,13 +119,18 @@ export default function Input({
 
   return (
     <Animated.View style={[styles.container, animatedStyle]}>
-      <ThemedView style={[styles.block, styles.rounded]}>
+      <ThemedView style={[styles.block, styles.rounded, itemStyles]}>
         <ThemedTextWrapper>
           <TextInput
             ref={inputRef}
             placeholder="Type here..."
-            style={children ? styles.hiddenText : styles.text}
             {...props}
+            {...itemProps}
+            style={[
+              children ? styles.hiddenText : styles.text,
+              props.style,
+              itemProps?.style,
+            ]}
             onFocus={onFocus}
           />
         </ThemedTextWrapper>
@@ -150,8 +155,9 @@ const styles = StyleSheet.create({
   },
   text: {
     padding: 14,
-    fontSize: 16,
+    fontSize: 17,
     flex: 1,
+    fontWeight: "600",
   },
   hiddenText: {
     opacity: 0,

@@ -1,5 +1,11 @@
 import { createContext, use } from "react";
-import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import {
+  StyleProp,
+  StyleSheet,
+  TextInputProps,
+  View,
+  ViewStyle,
+} from "react-native";
 import {
   useSharedValue,
   SharedValue,
@@ -8,6 +14,8 @@ import {
 
 type SharedVal = {
   currentIndex: SharedValue<number>;
+  itemStyles?: StyleProp<ViewStyle>;
+  itemProps?: TextInputProps;
 };
 
 const StackedInputContext = createContext<SharedVal | undefined>(undefined);
@@ -16,13 +24,14 @@ export function Provider({
   children,
   style,
   currentIndex,
+  itemStyles,
+  itemProps,
 }: {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
-  currentIndex: SharedValue<number>;
-}) {
+} & SharedVal) {
   return (
-    <StackedInputContext value={{ currentIndex }}>
+    <StackedInputContext value={{ currentIndex, itemStyles, itemProps }}>
       <View style={[styles.container, style]}>{children}</View>
     </StackedInputContext>
   );

@@ -4,7 +4,14 @@ import { cloneElement, ReactElement } from "react";
 import { Colors } from "@/constants/Colors";
 
 export type ThemedTextProps = TextProps & {
-  type?: "default" | "title" | "defaultSemiBold" | "subtitle" | "link" | "bold" | "regular";
+  type?:
+    | "default"
+    | "title"
+    | "defaultSemiBold"
+    | "subtitle"
+    | "link"
+    | "bold"
+    | "regular";
   colorName?: keyof typeof Colors.light & keyof typeof Colors.dark;
 };
 
