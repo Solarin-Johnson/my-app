@@ -24,7 +24,7 @@ const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 const SPRING_CONFIG = {
   damping: 10,
   stiffness: 80,
-  mass: 0.5,
+  mass: 0.6,
 };
 
 const SPRING_CONFIG_INV = {
@@ -157,7 +157,6 @@ const styles = StyleSheet.create({
     padding: 14,
     fontSize: 17,
     flex: 1,
-    fontWeight: "600",
   },
   hiddenText: {
     opacity: 0,
@@ -172,6 +171,6 @@ const styles = StyleSheet.create({
     right: 0,
     left: 0,
     position: "absolute",
-    height: 50,
+    height: 52,
   },
 });

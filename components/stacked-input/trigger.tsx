@@ -1,35 +1,30 @@
-import { View } from "react-native";
-import React, { ReactElement, cloneElement, ComponentProps } from "react";
-import { SharedValue } from "react-native-reanimated";
+import { ReactElement, cloneElement, ComponentProps } from "react";
+import { useStackedInput } from "./provider";
 
 interface TriggerProps {
   type: "next" | "previous";
-  min?: number;
-  max?: number;
-  currentIndex: SharedValue<number>;
   children: ReactElement<ComponentProps<any> & { onPress?: () => void }>;
 }
 
-export default function Trigger({
-  type,
-  min = 0,
-  max = 1,
-  currentIndex,
-  children,
-}: TriggerProps) {
+export default function Trigger({ type, children }: TriggerProps) {
+  const { minIndex = 0, maxIndex = 1, currentIndex } = useStackedInput();
+
   const handleNext = () => {
-    if (currentIndex.value < max) {
+    if (currentIndex.value < maxIndex) {
       currentIndex.value += 1;
     }
   };
 
   const handlePrevious = () => {
-    if (currentIndex.value > min) {
+    if (currentIndex.value > minIndex) {
       currentIndex.value -= 1;
     }
   };
 
   return cloneElement(children, {
-    onPress: type === "next" ? handleNext : handlePrevious,
+    onPress: () => {
+      children.props.onPress?.();
+      type === "next" ? handleNext() : handlePrevious();
+    },
   });
 }
