@@ -171,6 +171,6 @@ const styles = StyleSheet.create({
     right: 0,
     left: 0,
     position: "absolute",
-    height: 52,
+    height: "100%",
   },
 });

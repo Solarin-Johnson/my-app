@@ -247,8 +247,8 @@ const styles = StyleSheet.create({
   },
   stack: {
     marginTop: 20,
-    height: 60,
-    marginBottom: 12,
+    height: 52,
+    marginBottom: 16,
   },
   controlContainer: {
     flexDirection: "row",
