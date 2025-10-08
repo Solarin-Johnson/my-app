@@ -102,10 +102,10 @@ const StackInputContainer = () => {
 const StackControl = () => {
   return (
     <View style={styles.controlContainer}>
-      <Stacked.Trigger type="previous">
+      <Stacked.Trigger type="previous" asChild>
         <BackButton />
       </Stacked.Trigger>
-      <Stacked.Trigger type="next">
+      <Stacked.Trigger type="next" asChild>
         <RightButton title="Next" />
       </Stacked.Trigger>
     </View>
