@@ -166,6 +166,12 @@ export function NavigationDrawer() {
           drawerLabel: "Stacked Input",
         }}
       />
+      <Drawer.Screen
+        name="3d-rotate"
+        options={{
+          drawerLabel: "3D Rotate",
+        }}
+      />
     </Drawer>
   );
 }
