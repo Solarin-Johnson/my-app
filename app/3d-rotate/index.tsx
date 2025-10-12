@@ -1,6 +1,5 @@
 import { View, Text, StyleSheet, TextInput, ScrollView } from "react-native";
 import React, { useRef } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 import Rotate3d, { Rotate3dHandle } from "@/components/3dRotate";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import PressableBounce from "@/components/PresableBounce";
@@ -10,17 +9,10 @@ import Animated, {
 } from "react-native-reanimated";
 import { Host, HStack, Slider } from "@expo/ui/swift-ui";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import {
-  ArrowLeft,
-  ArrowRight,
-  ChevronLeft,
-  RotateCcw,
-} from "lucide-react-native";
-import {
-  KeyboardAvoidingView,
-  KeyboardAwareScrollView,
-} from "react-native-keyboard-controller";
+import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { ThemedViewWrapper } from "@/components/ThemedView";
+import DrawPad, { DrawPadHandle } from "expo-drawpad";
 
 const AnimatedSlider = Animated.createAnimatedComponent(Slider);
 
@@ -94,29 +86,41 @@ const FrontContent = ({ goForward }: { goForward: () => void }) => (
     <View style={styles.body}>
       <InputField label="Recipient" value="John Doe" readOnly />
       <InputField label="Package ID" value="PKG123456" readOnly />
-      <InputField label="Received by" value="" placeholder="Enter name" />
+      <InputField label="Received by" placeholder="Enter name" />
       <SubmitButton onPress={goForward} />
     </View>
   </ItemWrapper>
 );
 
-const BackContent = ({ goBack }: { goBack: () => void }) => (
-  <ItemWrapper style={styles.backCard}>
-    <View style={styles.header}>
-      <PressableBounce onPress={goBack} bounceScale={0.9}>
-        <ThemedTextWrapper>
-          <ArrowLeft size={26} strokeWidth={2.4} />
-        </ThemedTextWrapper>
-      </PressableBounce>
-      <ThemedText type="title" style={[styles.title, styles.backTitle]}>
-        Sign
-      </ThemedText>
-      <ThemedTextWrapper>
-        <RotateCcw strokeWidth={2.4} size={23} />
-      </ThemedTextWrapper>
-    </View>
-  </ItemWrapper>
-);
+const BackContent = ({ goBack }: { goBack: () => void }) => {
+  const padRef = useRef<DrawPadHandle>(null);
+  const pathLength = useSharedValue<number>(0);
+
+  const clearPad = () => {
+    padRef.current?.erase();
+  };
+
+  return (
+    <ItemWrapper style={styles.backCard}>
+      <View style={styles.header}>
+        <PressableBounce onPress={goBack} bounceScale={0.9}>
+          <ThemedTextWrapper>
+            <ArrowLeft size={26} strokeWidth={2.4} />
+          </ThemedTextWrapper>
+        </PressableBounce>
+        <ThemedText type="title" style={[styles.title, styles.backTitle]}>
+          Sign
+        </ThemedText>
+        <PressableBounce onPress={clearPad} bounceScale={0.9}>
+          <ThemedTextWrapper>
+            <RotateCcw strokeWidth={2.4} size={23} />
+          </ThemedTextWrapper>
+        </PressableBounce>
+      </View>
+      <DrawPad ref={padRef} pathLength={pathLength} />
+    </ItemWrapper>
+  );
+};
 
 const InputField = ({
   label,
@@ -125,6 +129,7 @@ const InputField = ({
   label?: string;
 } & React.ComponentProps<typeof TextInput>) => {
   const text = useThemeColor("text");
+
   return (
     <View style={styles.inputField}>
       {label && <ThemedText style={styles.label}>{label}</ThemedText>}

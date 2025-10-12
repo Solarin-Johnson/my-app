@@ -14,6 +14,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import { Feedback } from "@/functions";
 
 export type Rotate3dHandle = {
   flip: () => void;
@@ -83,11 +84,13 @@ export default function Rotate3d({
       Math.round(progress.value) === 0 ? 1 : 0,
       SPRING_CONFIG
     );
+    Feedback.soft();
   };
 
   const flipTo = (to: "front" | "back") => {
     const targetValue = to === "front" ? 0 : 1;
     progress.value = withSpring(targetValue, SPRING_CONFIG);
+    Feedback.soft();
   };
 
   useImperativeHandle(
