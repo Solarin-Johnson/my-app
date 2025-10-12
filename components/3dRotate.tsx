@@ -1,97 +1,127 @@
-import { View, Text, StyleSheet, Pressable } from "react-native";
-import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  StyleProp,
+  ViewStyle,
+} from "react-native";
+import React, { useImperativeHandle } from "react";
 import Animated, {
+  SharedValue,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { ThemedText } from "./ThemedText";
 
-export default function Rotate3d() {
-  const rotation = useSharedValue(0);
+export type Rotate3dHandle = {
+  flip: () => void;
+  flipTo: (to: "front" | "back") => void;
+};
+
+export type Rotate3dProps = {
+  frontContent?: React.ReactNode;
+  backContent?: React.ReactNode;
+  progress?: SharedValue<number>;
+  itemStyle?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle>;
+  ref?: React.RefObject<Rotate3dHandle | null>;
+  perspective?: number;
+  rtl?: boolean;
+};
+
+const SPRING_CONFIG = {
+  damping: 10,
+  stiffness: 80,
+  mass: 0.6,
+};
+
+export default function Rotate3d({
+  progress: _progress,
+  frontContent,
+  backContent,
+  itemStyle,
+  style,
+  ref,
+  perspective = 800,
+  rtl = true,
+}: Rotate3dProps) {
+  const __progress = useSharedValue(0);
+  const progress = _progress ?? __progress;
+
+  const rotation = useDerivedValue(() => {
+    return progress.value * 180 * (rtl ? -1 : 1);
+  });
 
   const frontAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
+        { perspective },
         {
           rotateY: `${rotation.value}deg`,
         },
       ],
+      pointerEvents: Math.abs(rotation.value) > 90 ? "none" : "auto",
     };
   });
 
   const backAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
+        { perspective },
         {
           rotateY: `${rotation.value + 180}deg`,
         },
       ],
+      pointerEvents: Math.abs(rotation.value) <= 90 ? "none" : "auto",
     };
   });
 
-  const isFlipped = useSharedValue(0);
-
   const flipCard = () => {
-    isFlipped.value = isFlipped.value === 0 ? 1 : 0;
-    rotation.value = withSpring(isFlipped.value === 0 ? 0 : 180);
+    progress.value = withSpring(
+      Math.round(progress.value) === 0 ? 1 : 0,
+      SPRING_CONFIG
+    );
   };
 
+  const flipTo = (to: "front" | "back") => {
+    const targetValue = to === "front" ? 0 : 1;
+    progress.value = withSpring(targetValue, SPRING_CONFIG);
+  };
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      flip: flipCard,
+      flipTo,
+    }),
+    [flipCard]
+  );
+
   return (
-    <View style={styles.container}>
-      <Pressable onPress={flipCard}>
-        <View style={styles.flipCard}>
-          <Animated.View
-            style={[
-              styles.flipCardItem,
-              styles.flipCardFront,
-              frontAnimatedStyle,
-            ]}
-          >
-            <ThemedText style={styles.text}>Front Content</ThemedText>
-          </Animated.View>
-          <Animated.View
-            style={[
-              styles.flipCardItem,
-              styles.flipCardBack,
-              backAnimatedStyle,
-            ]}
-          >
-            <ThemedText style={styles.text}>Back Content</ThemedText>
-          </Animated.View>
-        </View>
-      </Pressable>
+    <View style={style}>
+      <Animated.View
+        style={[styles.flipCardItem, itemStyle, frontAnimatedStyle]}
+      >
+        {frontContent}
+      </Animated.View>
+      <Animated.View
+        style={[styles.flipCardItem, itemStyle, backAnimatedStyle]}
+      >
+        {backContent}
+      </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f0f0f0",
-  },
-  flipCard: {
-    width: 240,
-    height: 240,
-    perspective: "100",
-  },
-  flipCardFront: {
-    backgroundColor: "#007bff",
-  },
-  flipCardBack: {
-    backgroundColor: "#28a745",
-  },
+  flipCard: {},
   flipCardItem: {
     backfaceVisibility: "hidden",
     height: "100%",
     width: "100%",
-    borderRadius: 8,
     position: "absolute",
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 5,
   },
   text: {
     fontSize: 24,
