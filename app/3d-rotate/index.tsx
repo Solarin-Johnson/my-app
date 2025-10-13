@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, ScrollView } from "react-native";
+import { View, StyleSheet, TextInput } from "react-native";
 import React, { useRef } from "react";
 import Rotate3d, { Rotate3dHandle } from "@/components/3dRotate";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
@@ -28,6 +28,8 @@ export default function Index() {
     <KeyboardAwareScrollView
       contentContainerStyle={styles.container}
       style={{ flex: 1 }}
+      keyboardDismissMode="interactive"
+      keyboardShouldPersistTaps="handled"
     >
       <Rotate3d
         ref={rotateRef}
@@ -40,14 +42,11 @@ export default function Index() {
         }
         progress={progress}
       />
-      {/* <PressableBounce
-        onPress={() => {
-          rotateRef.current?.flip();
-        }}
+
+      {/* <Host
+        matchContents
+        style={{ minHeight: 80, width: 200, position: "absolute", bottom: 20 }}
       >
-        <ThemedText>Flip Card</ThemedText>
-      </PressableBounce>
-      <Host matchContents style={{ minHeight: 100, width: 300 }}>
         <HStack>
           <AnimatedSlider
             min={0}
@@ -95,6 +94,7 @@ const FrontContent = ({ goForward }: { goForward: () => void }) => (
 const BackContent = ({ goBack }: { goBack: () => void }) => {
   const padRef = useRef<DrawPadHandle>(null);
   const pathLength = useSharedValue<number>(0);
+  const text = useThemeColor("slackText");
 
   const clearPad = () => {
     padRef.current?.erase();
@@ -117,7 +117,8 @@ const BackContent = ({ goBack }: { goBack: () => void }) => {
           </ThemedTextWrapper>
         </PressableBounce>
       </View>
-      <DrawPad ref={padRef} pathLength={pathLength} />
+      <DrawPad ref={padRef} pathLength={pathLength} stroke={text} />
+      <SubmitButton title="Confirm" hideIcon />
     </ItemWrapper>
   );
 };
@@ -143,15 +144,27 @@ const InputField = ({
   );
 };
 
-const SubmitButton = ({ onPress }: { onPress: () => void }) => {
+const SubmitButton = ({
+  onPress,
+  title = "Next",
+  hideIcon = false,
+}: {
+  onPress?: () => void;
+  title?: string;
+  hideIcon?: boolean;
+}) => {
   const text = useThemeColor("text");
   return (
     <ThemedViewWrapper colorName="text">
       <PressableBounce onPress={onPress} style={[styles.button]}>
-        <ThemedText colorName="background">Next</ThemedText>
-        <ThemedTextWrapper colorName="background">
-          <ArrowRight size={20} />
-        </ThemedTextWrapper>
+        <ThemedText colorName="background" type="defaultSemiBold">
+          {title}
+        </ThemedText>
+        {!hideIcon && (
+          <ThemedTextWrapper colorName="background">
+            <ArrowRight size={20} strokeWidth={2.4} />
+          </ThemedTextWrapper>
+        )}
       </PressableBounce>
     </ThemedViewWrapper>
   );
