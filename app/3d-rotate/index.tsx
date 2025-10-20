@@ -43,10 +43,7 @@ export default function Index() {
         progress={progress}
       />
 
-      {/* <Host
-        matchContents
-        style={{ minHeight: 80, width: 200, position: "absolute", bottom: 20 }}
-      >
+      <Host matchContents style={{ minHeight: 80, width: 250 }}>
         <HStack>
           <AnimatedSlider
             min={0}
@@ -58,7 +55,7 @@ export default function Index() {
             }}
           />
         </HStack>
-      </Host> */}
+      </Host>
     </KeyboardAwareScrollView>
   );
 }
