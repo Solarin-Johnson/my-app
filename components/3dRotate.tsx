@@ -1,11 +1,4 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  StyleProp,
-  ViewStyle,
-} from "react-native";
+import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import React, { useImperativeHandle } from "react";
 import Animated, {
   SharedValue,
@@ -30,6 +23,7 @@ export type Rotate3dProps = {
   ref?: React.RefObject<Rotate3dHandle | null>;
   perspective?: number;
   rtl?: boolean;
+  axis?: "x" | "y"; // <-- Add axis prop
 };
 
 const SPRING_CONFIG = {
@@ -47,6 +41,7 @@ export default function Rotate3d({
   ref,
   perspective = 800,
   rtl = true,
+  axis = "x",
 }: Rotate3dProps) {
   const __progress = useSharedValue(0);
   const progress = _progress ?? __progress;
@@ -56,25 +51,23 @@ export default function Rotate3d({
   });
 
   const frontAnimatedStyle = useAnimatedStyle(() => {
+    const rotateTransform =
+      axis === "y"
+        ? { rotateY: `${rotation.value}deg` }
+        : { rotateX: `${rotation.value}deg` };
     return {
-      transform: [
-        { perspective },
-        {
-          rotateY: `${rotation.value}deg`,
-        },
-      ],
+      transform: [{ perspective }, rotateTransform],
       pointerEvents: Math.abs(rotation.value) > 90 ? "none" : "auto",
     };
   });
 
   const backAnimatedStyle = useAnimatedStyle(() => {
+    const rotateTransform =
+      axis === "y"
+        ? { rotateY: `${rotation.value + 180}deg` }
+        : { rotateX: `${rotation.value + 180}deg` };
     return {
-      transform: [
-        { perspective },
-        {
-          rotateY: `${rotation.value + 180}deg`,
-        },
-      ],
+      transform: [{ perspective }, rotateTransform],
       pointerEvents: Math.abs(rotation.value) <= 90 ? "none" : "auto",
     };
   });
