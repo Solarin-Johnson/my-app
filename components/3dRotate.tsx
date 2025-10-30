@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
     height: "100%",
     width: "100%",
     position: "absolute",
+    // transformOrigin: "bottom center",
   },
   text: {
     fontSize: 24,

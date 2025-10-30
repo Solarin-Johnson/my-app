@@ -82,35 +82,54 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
-        name="index"
-        initialParams={{ userId: "default-user", showBio: false }}
+        name="calender-3d"
         options={{
-          drawerLabel: "Home",
-          drawerItemStyle: { display: "none" },
+          drawerLabel: "3D Calender",
         }}
       />
       <Drawer.Screen
-        name="keyboard-ctrl"
+        name="3d-rotate"
         options={{
-          drawerLabel: "Keyboard Controller",
+          drawerLabel: "3D Rotate",
         }}
       />
       <Drawer.Screen
-        name="gesture-nav"
+        name="stacked-input"
         options={{
-          drawerLabel: "Gesture Navigation",
+          drawerLabel: "Stacked Input",
         }}
       />
       <Drawer.Screen
-        name="twitter-profile"
+        name="safari-bar"
         options={{
-          drawerLabel: "Twitter Profile",
+          drawerLabel: "Safari Bar",
+          headerTransparent: true,
         }}
       />
       <Drawer.Screen
-        name="threads-pull-refresh"
+        name="slack-liquid-glass"
         options={{
-          drawerLabel: "Threads Pull Refresh",
+          drawerLabel: "Slack Liquid Glass",
+        }}
+      />
+      <Drawer.Screen
+        name="untitled"
+        options={{
+          drawerLabel: "Screen Transitions",
+          swipeEdgeWidth: 10,
+        }}
+        initialParams={{ noPreview: true }}
+      />
+      <Drawer.Screen
+        name="wa-status"
+        options={{
+          drawerLabel: "WhatsApp Status",
+        }}
+      />
+      <Drawer.Screen
+        name="gesture-menu"
+        options={{
+          drawerLabel: "Gesture Menu",
         }}
       />
       <Drawer.Screen
@@ -128,48 +147,35 @@ export function NavigationDrawer() {
         initialParams={{ noPreview: true }}
       />
       <Drawer.Screen
-        name="gesture-menu"
+        name="threads-pull-refresh"
         options={{
-          drawerLabel: "Gesture Menu",
+          drawerLabel: "Threads Pull Refresh",
         }}
       />
       <Drawer.Screen
-        name="wa-status"
+        name="twitter-profile"
         options={{
-          drawerLabel: "WhatsApp Status",
+          drawerLabel: "Twitter Profile",
         }}
       />
       <Drawer.Screen
-        name="untitled"
+        name="gesture-nav"
         options={{
-          drawerLabel: "Screen Transitions",
-          swipeEdgeWidth: 10,
-        }}
-        initialParams={{ noPreview: true }}
-      />
-      <Drawer.Screen
-        name="slack-liquid-glass"
-        options={{
-          drawerLabel: "Slack Liquid Glass",
+          drawerLabel: "Gesture Navigation",
         }}
       />
       <Drawer.Screen
-        name="safari-bar"
+        name="keyboard-ctrl"
         options={{
-          drawerLabel: "Safari Bar",
-          headerTransparent: true,
+          drawerLabel: "Keyboard Controller",
         }}
       />
       <Drawer.Screen
-        name="stacked-input"
+        name="index"
+        initialParams={{ userId: "default-user", showBio: false }}
         options={{
-          drawerLabel: "Stacked Input",
-        }}
-      />
-      <Drawer.Screen
-        name="3d-rotate"
-        options={{
-          drawerLabel: "3D Rotate",
+          drawerLabel: "Home",
+          drawerItemStyle: { display: "none" },
         }}
       />
     </Drawer>
