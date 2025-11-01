@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useScreenAnimation } from "react-native-screen-transitions";
@@ -33,6 +33,10 @@ export default function UntitledBottomBar({
   const { bottom } = useSafeAreaInsets();
   const props = useScreenAnimation();
   const bg = useThemeColor("background");
+
+  if (Platform.OS === "web") {
+    return;
+  }
 
   const headerAnimatedStyle = useAnimatedStyle(() => {
     const {

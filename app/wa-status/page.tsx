@@ -1,5 +1,5 @@
 import React from "react";
-import { ClusterContainer, ClusterItem, PageContainer } from ".";
+import { ClusterContainer, ClusterItem, PageContainer } from "./index";
 
 export default function Page() {
   return (

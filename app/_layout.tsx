@@ -82,12 +82,6 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
-        name="calender-3d"
-        options={{
-          drawerLabel: "3D Calender",
-        }}
-      />
-      <Drawer.Screen
         name="3d-rotate"
         options={{
           drawerLabel: "3D Rotate",
