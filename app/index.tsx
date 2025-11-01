@@ -6,6 +6,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "expo-router";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
+import TextArea from "@/components/TextArea";
 
 export default function Index() {
   const text = useThemeColor("text");
@@ -17,6 +18,7 @@ export default function Index() {
       <View style={[styles.container, { backgroundColor: bg }]}>
         <View style={styles.container}>
           <Logo />
+          <TextArea />
         </View>
         <Button
           title="Start Exploring"
