@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "expo-router";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import TextArea from "@/components/TextArea";
+import { ThemedTextWrapper } from "@/components/ThemedText";
 
 export default function Index() {
   const text = useThemeColor("text");
@@ -18,7 +19,24 @@ export default function Index() {
       <View style={[styles.container, { backgroundColor: bg }]}>
         <View style={styles.container}>
           <Logo />
-          <TextArea />
+          <ThemedTextWrapper>
+            <TextArea
+              containerStyle={{
+                width: "80%",
+                height: 200,
+                marginVertical: 24,
+              }}
+              style={{
+                textAlignVertical: "top",
+                borderColor: "#ccc",
+                borderWidth: 1,
+                borderRadius: 8,
+                padding: 10,
+              }}
+              maxHeight={300}
+              maxWidth={350}
+            />
+          </ThemedTextWrapper>
         </View>
         <Button
           title="Start Exploring"
@@ -40,7 +58,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
+    // alignItems: "center",
   },
   text: {
     fontSize: 24,
