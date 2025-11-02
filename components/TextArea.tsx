@@ -1,20 +1,21 @@
 import {
   View,
-  Text,
   TextInput,
   StyleSheet,
   Platform,
   StyleProp,
   ViewStyle,
-  TextStyle,
   TextInputProps,
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import Animated, {
+  Easing,
   measure,
   useAnimatedRef,
   useAnimatedStyle,
   useSharedValue,
+  withTiming,
+  WithTimingConfig,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { scheduleOnUI } from "react-native-worklets";
@@ -24,7 +25,9 @@ const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 const isWeb = Platform;
 const HANDLE_WIDTH = 20;
 const HANDLE_HEIGHT = 10;
-const MIN_SIZE = 50;
+const MIN_SIZE = 40;
+const LINE_HEIGHT_DEFAULT = 18;
+const PADDING_DEFAULT = 8;
 
 type TextAreaProps = {
   containerStyle?: StyleProp<ViewStyle>;
@@ -32,6 +35,16 @@ type TextAreaProps = {
   minHeight?: number;
   maxWidth?: number;
   minWidth?: number;
+  autoAdjustHeight?: boolean;
+  lineHeight?: number;
+  padding?: number;
+  borderWidth?: number;
+  timingConfig?: WithTimingConfig;
+};
+
+const TIMING_CONFIG: WithTimingConfig = {
+  duration: 100,
+  easing: Easing.inOut(Easing.ease),
 };
 
 export default function TextArea({
@@ -41,12 +54,20 @@ export default function TextArea({
   minHeight = MIN_SIZE,
   maxWidth,
   minWidth = MIN_SIZE,
+  autoAdjustHeight = true,
+  lineHeight = LINE_HEIGHT_DEFAULT,
+  padding = PADDING_DEFAULT,
+  borderWidth = 0,
+  value,
+  onChangeText,
+  timingConfig = TIMING_CONFIG,
   ...props
 }: TextAreaProps & TextInputProps) {
-  const textInputRef = useAnimatedRef();
+  const textContainerRef = useAnimatedRef();
   const cordX = useSharedValue(0);
   const cordY = useSharedValue(0);
   const layout = useSharedValue({ width: 0, height: 0 });
+  const textInputRef = useRef<TextInput>(null);
 
   const chooseMax = (val: number, axis: "x" | "y") => {
     "worklet";
@@ -64,7 +85,12 @@ export default function TextArea({
     return Math.max(min, Math.min(base, max));
   };
 
-  const pan = Gesture.Pan()
+  const applyConfig = (value: number) => {
+    "worklet";
+    return autoAdjustHeight ? withTiming(value, timingConfig) : value;
+  };
+
+  const resizePan = Gesture.Pan()
     .minDistance(isWeb ? 1 : 0)
     .onUpdate((e) => {
       cordX.value = e.translationX;
@@ -84,18 +110,34 @@ export default function TextArea({
 
     return {
       width: layout.value.width + cordX.value,
-      height: layout.value.height + cordY.value,
+      height: applyConfig(layout.value.height + cordY.value),
     };
   });
 
+  const handleAutoAdjustHeight = (text: string) => {
+    "worklet";
+    if (!autoAdjustHeight) return;
+    const lines = text.split("\n").length;
+
+    const newHeight = Math.max(
+      lines * lineHeight + padding * 2 + borderWidth * 2,
+      minHeight
+    );
+    layout.value = {
+      ...layout.value,
+      height: newHeight,
+    };
+  };
+
   useEffect(() => {
     scheduleOnUI(() => {
-      const measurement = measure(textInputRef);
+      const measurement = measure(textContainerRef);
       if (!measurement) return;
       layout.value = {
         width: measurement.width,
         height: measurement.height,
       };
+      handleAutoAdjustHeight(value || "");
     });
   }, []);
 
@@ -108,24 +150,37 @@ export default function TextArea({
 
   return (
     <Animated.View
-      ref={textInputRef}
       style={[containerStyle, maxStyle, animatedStyle]}
+      ref={textContainerRef}
     >
       <TextInput
+        ref={textInputRef}
         placeholder="Type something..."
         multiline
         style={[
           style,
           {
-            flex: 1,
             ...maxStyle,
+            flex: 1,
+            lineHeight,
+            padding,
+            margin: 0,
+            borderWidth,
           },
         ]}
+        onChangeText={(text) => {
+          scheduleOnUI(() => {
+            handleAutoAdjustHeight(text);
+          });
+          onChangeText?.(text);
+        }}
         {...props}
       />
-      <GestureDetector gesture={pan}>
-        <View style={styles.handle} />
-      </GestureDetector>
+      {!autoAdjustHeight && (
+        <GestureDetector gesture={resizePan}>
+          <View style={styles.handle} />
+        </GestureDetector>
+      )}
     </Animated.View>
   );
 }
@@ -139,5 +194,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 4,
     bottom: 4,
+    cursor: "se-resize" as any,
   },
 });
