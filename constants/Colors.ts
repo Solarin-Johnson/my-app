@@ -6,6 +6,10 @@
 const tintColorLight = "#0a7ea4";
 const tintColorDark = "#fff";
 
+const globalColors = {
+  systemBlue: "#2D6AF6",
+};
+
 export const Colors = {
   light: {
     waBg: "#F4F4F4",
@@ -22,8 +26,11 @@ export const Colors = {
     slackBg: "#FFFFFF",
     slackText: "#1C1C1C",
     safariBg: "#F2F2F6",
+    captchaBg: "#FFFFFF",
     captchaCardBg: "#F7F7F7",
     captchaCheckboxBg: "#272727",
+    captchaCheckboxInitialBg: "#FFFFFF",
+    ...globalColors,
   },
   dark: {
     waBg: "#000000",
@@ -40,7 +47,10 @@ export const Colors = {
     slackBg: "#1B1D21",
     slackText: "#D2D2D4",
     safariBg: "#1C1C1E",
-    captchaCardBg: "#F7F7F7",
-    captchaCheckboxBg: "#272727",
+    captchaBg: "#0E0E0E",
+    captchaCardBg: "#181818",
+    captchaCheckboxBg: "#343434",
+    captchaCheckboxInitialBg: "#656565",
+    ...globalColors,
   },
 };

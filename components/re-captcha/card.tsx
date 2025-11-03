@@ -1,24 +1,42 @@
 import { View, Text, StyleSheet } from "react-native";
 import React from "react";
-import Animated from "react-native-reanimated";
+import Animated, {
+  SharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated";
 import CheckBox from "../ui/check-box";
 import { ThemedViewWrapper } from "../ThemedView";
 import { Image } from "expo-image";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText } from "../ThemedText";
+import { ReCaptchaProps, SPRING_CONFIG } from "./config";
+import { Feedback } from "@/functions";
 
-export default function CaptchaCard() {
-  const checkBoxInitialColor = useThemeColor("barColor");
+export default function CaptchaCard({ shrinkProgress }: ReCaptchaProps) {
+  const checkBoxInitialColor = useThemeColor("captchaCheckboxInitialBg");
   const captchaCheckboxBg = useThemeColor("captchaCheckboxBg");
+
+  const animatedCardStyle = useAnimatedStyle(() => {
+    const scale = 1 - shrinkProgress.value * 0.3;
+    return {
+      transform: [{ scale }],
+    };
+  });
+
   return (
     <ThemedViewWrapper colorName="captchaCardBg">
-      <Animated.View style={styles.card}>
+      <Animated.View style={[styles.card, animatedCardStyle]}>
         <View style={styles.content}>
           <CheckBox
             size={38}
             initialColor={checkBoxInitialColor}
             checkedColor={captchaCheckboxBg}
             style={styles.checkBox}
+            onChange={(checked) => {
+              Feedback.soft();
+              shrinkProgress.value = withSpring(checked ? 1 : 0, SPRING_CONFIG);
+            }}
           />
           <ThemedText style={styles.title} type="defaultSemiBold">
             I'm not a robot
@@ -40,7 +58,7 @@ export default function CaptchaCard() {
 
 const styles = StyleSheet.create({
   card: {
-    width: 320,
+    width: 310,
     padding: 18,
     height: 74,
     backgroundColor: "#fff",
@@ -48,6 +66,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     flexDirection: "row",
+    // transformOrigin: "bottom center",
   },
   image: {
     width: 48,

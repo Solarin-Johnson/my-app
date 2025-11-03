@@ -1,0 +1,149 @@
+import { View, Text, StyleSheet } from "react-native";
+import React from "react";
+import { ThemedView, ThemedViewWrapper } from "../ThemedView";
+import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import { ReCaptchaProps } from "./config";
+import { ThemedText, ThemedTextWrapper } from "../ThemedText";
+import Button from "../ui/Button";
+import { Ionicons } from "@expo/vector-icons";
+import { Headphones, Info, RotateCw } from "lucide-react-native";
+import PressableBounce from "../PresableBounce";
+
+const AnimatedThemedView = Animated.createAnimatedComponent(ThemedView);
+
+const TRAY_HEIGHT = 320;
+
+export default function Tray({ shrinkProgress }: ReCaptchaProps) {
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: shrinkProgress.value,
+      marginTop: (shrinkProgress.value - 1) * TRAY_HEIGHT,
+      transform: [
+        {
+          translateY: (1 - shrinkProgress.value) * TRAY_HEIGHT * 1.2,
+        },
+      ],
+    };
+  });
+
+  const iconProps = {
+    size: 16,
+    strokeWidth: 2.4,
+  };
+
+  return (
+    <AnimatedThemedView
+      style={[styles.container, animatedStyle]}
+      colorName="captchaCardBg"
+    >
+      <ThemedView style={[styles.content, styles.shadow]} colorName="captchaBg">
+        <ThemedText style={[styles.title, styles.roundText]}>
+          Connect the Numbers in Order
+        </ThemedText>
+        <ThemedText style={[styles.fadeText, styles.roundText]}>
+          (1 to 8)
+        </ThemedText>
+      </ThemedView>
+      <View style={styles.footer}>
+        <View style={styles.toolBar}>
+          <IconButton>
+            <RotateCw {...iconProps} />
+          </IconButton>
+          <IconButton>
+            <Headphones {...iconProps} />
+          </IconButton>
+          <IconButton>
+            <Info {...iconProps} />
+          </IconButton>
+        </View>
+        <ThemedViewWrapper colorName="systemBlue" style={styles.verifyButton}>
+          <PressableBounce>
+            <ThemedText style={[styles.roundText, styles.verifyText]}>
+              Verify
+            </ThemedText>
+          </PressableBounce>
+        </ThemedViewWrapper>
+      </View>
+    </AnimatedThemedView>
+  );
+}
+
+type IconButtonProps = {
+  children: React.ReactElement;
+};
+
+const IconButton: React.FC<IconButtonProps> = ({ children }) => (
+  <ThemedViewWrapper
+    style={[styles.iconButton, styles.shadow]}
+    colorName="captchaBg"
+  >
+    <PressableBounce>
+      <ThemedTextWrapper colorName="systemBlue">{children}</ThemedTextWrapper>
+    </PressableBounce>
+  </ThemedViewWrapper>
+);
+
+const styles = StyleSheet.create({
+  container: {
+    width: 310,
+    height: TRAY_HEIGHT,
+    borderRadius: 20,
+    borderCurve: "continuous",
+    padding: 4,
+    paddingBottom: 0,
+    boxShadow: "0 15px 20px -5px rgba(0,0,0,0.12)",
+  },
+  roundText: {
+    fontFamily: "ui-rounded",
+  },
+  content: {
+    flex: 1,
+    borderRadius: 16,
+    borderCurve: "continuous",
+    padding: 12,
+  },
+  footer: {
+    padding: 12,
+    flexDirection: "row",
+  },
+  title: {
+    fontWeight: "600",
+    fontSize: 17,
+  },
+  fadeText: {
+    opacity: 0.4,
+    fontSize: 12,
+    letterSpacing: -0.4,
+    fontWeight: "500",
+    marginTop: 2,
+  },
+  shadow: {
+    boxShadow: "1px 1px 1px rgba(0,0,0,0.05)",
+  },
+  toolBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+    gap: 6,
+  },
+  iconButton: {
+    width: 38,
+    borderRadius: "50%",
+    alignItems: "center",
+    justifyContent: "center",
+    aspectRatio: 1,
+  },
+  verifyButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 8,
+    borderRadius: 30,
+    borderCurve: "continuous",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  verifyText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+});
