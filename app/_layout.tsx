@@ -82,6 +82,12 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="re-captcha"
+        options={{
+          drawerLabel: "reCAPTCHA",
+        }}
+      />
+      <Drawer.Screen
         name="3d-rotate"
         options={{
           drawerLabel: "3D Rotate",

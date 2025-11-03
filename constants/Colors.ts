@@ -22,6 +22,8 @@ export const Colors = {
     slackBg: "#FFFFFF",
     slackText: "#1C1C1C",
     safariBg: "#F2F2F6",
+    captchaCardBg: "#F7F7F7",
+    captchaCheckboxBg: "#272727",
   },
   dark: {
     waBg: "#000000",
@@ -38,5 +40,7 @@ export const Colors = {
     slackBg: "#1B1D21",
     slackText: "#D2D2D4",
     safariBg: "#1C1C1E",
+    captchaCardBg: "#F7F7F7",
+    captchaCheckboxBg: "#272727",
   },
 };

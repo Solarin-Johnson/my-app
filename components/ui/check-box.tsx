@@ -76,7 +76,7 @@ export const CheckBox: React.FC<CheckBoxProps> = ({
           {
             width: size,
             height: size,
-            borderRadius: size * 0.25,
+            borderRadius: size * 0.3,
           },
           style,
           animatedStyle,
