@@ -1,8 +1,9 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import React from "react";
 import Animated, {
-  SharedValue,
   useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
   withSpring,
 } from "react-native-reanimated";
 import CheckBox from "../ui/check-box";
@@ -13,9 +14,22 @@ import { ThemedText } from "../ThemedText";
 import { ReCaptchaProps, SPRING_CONFIG } from "./config";
 import { Feedback } from "@/functions";
 
-export default function CaptchaCard({ shrinkProgress }: ReCaptchaProps) {
+export default function CaptchaCard({
+  shrinkProgress,
+  isVerified,
+}: ReCaptchaProps) {
   const checkBoxInitialColor = useThemeColor("captchaCheckboxInitialBg");
   const captchaCheckboxBg = useThemeColor("captchaCheckboxBg");
+  const systemBlue = useThemeColor("systemBlue");
+  const disabled = useSharedValue(false);
+  const checkedSV = useSharedValue(false);
+
+  useDerivedValue(() => {
+    if (isVerified.value) {
+      disabled.value = false;
+      shrinkProgress.value = withSpring(0, SPRING_CONFIG);
+    }
+  });
 
   const animatedCardStyle = useAnimatedStyle(() => {
     const scale = 1 - shrinkProgress.value * 0.3;
@@ -31,10 +45,15 @@ export default function CaptchaCard({ shrinkProgress }: ReCaptchaProps) {
           <CheckBox
             size={38}
             initialColor={checkBoxInitialColor}
-            checkedColor={captchaCheckboxBg}
+            disabledColor={captchaCheckboxBg}
+            checkedColor={systemBlue}
             style={styles.checkBox}
+            checked={checkedSV}
+            disabled={disabled}
             onChange={(checked) => {
               Feedback.soft();
+              disabled.value = true;
+              checkedSV.value = true;
               shrinkProgress.value = withSpring(checked ? 1 : 0, SPRING_CONFIG);
             }}
           />

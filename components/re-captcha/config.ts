@@ -8,4 +8,5 @@ export const SPRING_CONFIG = {
 
 export type ReCaptchaProps = {
   shrinkProgress: SharedValue<number>;
+  isVerified: SharedValue<boolean>;
 };

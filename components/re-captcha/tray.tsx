@@ -4,6 +4,7 @@ import { ThemedView, ThemedViewWrapper } from "../ThemedView";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 import { ReCaptchaProps } from "./config";
 import { ThemedText, ThemedTextWrapper } from "../ThemedText";
@@ -17,13 +18,15 @@ import Dots from "../ui/dots";
 import UnderlayText from "./underlay-text";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Shimmer from "./shimmer";
-import { scheduleOnUI } from "react-native-worklets";
 
 const AnimatedThemedView = Animated.createAnimatedComponent(ThemedView);
+const AnimatedThemedText = Animated.createAnimatedComponent(ThemedText);
+const AnimatedThemedViewWrapper =
+  Animated.createAnimatedComponent(ThemedViewWrapper);
 
 const TRAY_HEIGHT = 320;
 
-export default function Tray({ shrinkProgress }: ReCaptchaProps) {
+export default function Tray({ shrinkProgress, isVerified }: ReCaptchaProps) {
   const padRef = useRef<DrawPadHandle>(null);
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -61,6 +64,32 @@ export default function Tray({ shrinkProgress }: ReCaptchaProps) {
     };
   });
 
+  const btnAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: isVerifying.value ? 0.5 : 1,
+    };
+  });
+
+  function getBtnTextAnimatedStyle(show: boolean) {
+    return useAnimatedStyle(() => ({
+      opacity: withTiming(isVerifying.value === show ? 1 : 0, {
+        duration: 100,
+      }),
+    }));
+  }
+  const btnText1AnimatedStyle = getBtnTextAnimatedStyle(false);
+  const btnText2AnimatedStyle = getBtnTextAnimatedStyle(true);
+
+  const handleVerify = () => {
+    Feedback.medium();
+    isVerifying.value = true;
+    setTimeout(() => {
+      isVerifying.value = false;
+      isVerified.value = true;
+      Feedback.success();
+    }, 1500);
+  };
+
   return (
     <AnimatedThemedView
       style={[styles.container, animatedStyle]}
@@ -69,7 +98,7 @@ export default function Tray({ shrinkProgress }: ReCaptchaProps) {
       <ThemedView style={[styles.content, styles.shadow]} colorName="captchaBg">
         <Animated.View style={[styles.underLay, dotAnimatedStyle]}>
           <ThemedTextWrapper>
-            <Dots dotSize={0.5} spacing={10} />
+            <Dots dotSize={0.4} spacing={10} />
           </ThemedTextWrapper>
         </Animated.View>
         <ThemedText style={[styles.title, styles.roundText]}>
@@ -106,21 +135,31 @@ export default function Tray({ shrinkProgress }: ReCaptchaProps) {
             <Info {...iconProps} />
           </IconButton>
         </View>
-        <ThemedViewWrapper colorName="systemBlue" style={styles.verifyButton}>
-          <PressableBounce
-            onPress={() => {
-              Feedback.success();
-              isVerifying.value = true;
-              setTimeout(() => {
-                isVerifying.value = false;
-              }, 3500);
-            }}
-          >
-            <ThemedText style={[styles.roundText, styles.verifyText]}>
+        <AnimatedThemedViewWrapper
+          colorName="systemBlue"
+          style={[styles.verifyButton, btnAnimatedStyle]}
+        >
+          <PressableBounce onPress={handleVerify} bounceScale={0.98}>
+            <AnimatedThemedText
+              style={[
+                styles.roundText,
+                styles.verifyText,
+                btnText1AnimatedStyle,
+              ]}
+            >
               Verify
-            </ThemedText>
+            </AnimatedThemedText>
+            <AnimatedThemedText
+              style={[
+                styles.roundText,
+                styles.verifyText,
+                btnText2AnimatedStyle,
+              ]}
+            >
+              Verifying
+            </AnimatedThemedText>
           </PressableBounce>
-        </ThemedViewWrapper>
+        </AnimatedThemedViewWrapper>
       </View>
     </AnimatedThemedView>
   );
@@ -193,7 +232,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
   },
   verifyButton: {
-    paddingHorizontal: 24,
+    width: 100,
     paddingVertical: 8,
     borderRadius: 30,
     borderCurve: "continuous",
@@ -204,6 +243,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     fontSize: 16,
+    position: "absolute",
   },
   pad: {
     flex: 1,

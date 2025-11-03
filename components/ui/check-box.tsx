@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Pressable, StyleProp, StyleSheet, ViewStyle } from "react-native";
 import Animated, {
   useSharedValue,
@@ -6,69 +6,147 @@ import Animated, {
   withTiming,
   interpolateColor,
   withSpring,
+  SharedValue,
+  useAnimatedReaction,
+  useDerivedValue,
+  useAnimatedProps,
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 import { Entypo } from "@expo/vector-icons";
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+const ANIMATION_DURATION = 200;
+const SPRING_SCALE = 0.8;
+const DEFAULT_COLORS = {
+  checked: "#4F46E5",
+  initial: "#D1D5DB",
+  disabled: "#9CA3AF",
+};
+
+const interpolateDisabledColor = (
+  disabledValue: number,
+  activeColor: string,
+  disabledColor: string
+) => {
+  "worklet";
+  return interpolateColor(disabledValue, [0, 1], [activeColor, disabledColor]);
+};
+
 interface CheckBoxProps {
   checkedColor?: string;
   initialColor?: string;
-  checked?: boolean;
+  disabledColor?: string;
+  checked?: SharedValue<boolean>;
   onChange?: (checked: boolean) => void;
   size?: number;
   style?: StyleProp<ViewStyle>;
+  disabled?: SharedValue<boolean>;
 }
 
 export const CheckBox: React.FC<CheckBoxProps> = ({
-  checkedColor = "#4F46E5",
-  initialColor = "#D1D5DB",
+  checkedColor = DEFAULT_COLORS.checked,
+  initialColor = DEFAULT_COLORS.initial,
+  disabledColor = DEFAULT_COLORS.disabled,
   checked,
   onChange,
   size = 24,
   style,
+  disabled,
 }) => {
-  const checkedSV = useSharedValue(checked ? 1 : 0);
+  const checkedSV = useSharedValue(0);
   const scale = useSharedValue(1);
+  const disabledSV = useSharedValue(0);
 
-  useEffect(() => {
-    checkedSV.value = withTiming(checked ? 1 : 0, { duration: 200 });
-  }, [checked, checkedSV]);
+  const handleAnimatedReaction = (
+    sharedValue: SharedValue<number>,
+    value: boolean
+  ) => {
+    "worklet";
+    sharedValue.value = withTiming(value ? 1 : 0, {
+      duration: ANIMATION_DURATION,
+    });
+  };
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    backgroundColor: interpolateColor(
-      checkedSV.value,
-      [0, 1],
-      [initialColor, checkedColor]
-    ),
-  }));
+  useAnimatedReaction(
+    () => checked?.value ?? false,
+    (current, previous) => {
+      if (current !== previous) {
+        handleAnimatedReaction(checkedSV, current);
+      }
+    }
+  );
+
+  useAnimatedReaction(
+    () => disabled?.value ?? false,
+    (current, previous) => {
+      if (current !== previous) {
+        handleAnimatedReaction(disabledSV, current);
+      }
+    }
+  );
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const colorFrom = interpolateDisabledColor(
+      disabledSV.value,
+      initialColor,
+      disabledColor
+    );
+    const colorTo = interpolateDisabledColor(
+      disabledSV.value,
+      checkedColor,
+      disabledColor
+    );
+
+    return {
+      transform: [{ scale: scale.value }],
+      backgroundColor: interpolateColor(
+        checkedSV.value,
+        [0, 1],
+        [colorFrom, colorTo]
+      ),
+    };
+  });
 
   const iconAnimatedStyle = useAnimatedStyle(() => ({
     opacity: checkedSV.value,
   }));
 
+  const isDisabled = useDerivedValue(() => disabledSV.value === 1);
+
   const handlePress = () => {
-    if (checked === undefined) {
-      checkedSV.value = withTiming(checkedSV.value ? 0 : 1, { duration: 200 });
+    if (isDisabled.value) return;
+
+    if (!checked) {
+      checkedSV.value = withTiming(checkedSV.value ? 0 : 1, {
+        duration: ANIMATION_DURATION,
+      });
       if (onChange) scheduleOnRN(() => onChange(!checkedSV.value));
     } else {
-      if (onChange) scheduleOnRN(() => onChange(!checked));
+      if (onChange) scheduleOnRN(() => onChange(!checked.value));
     }
   };
 
   const handlePressIn = () => {
-    scale.value = withSpring(0.8);
+    if (isDisabled.value) return;
+    scale.value = withSpring(SPRING_SCALE);
   };
 
   const handlePressOut = () => {
+    if (isDisabled.value) return;
     scale.value = withSpring(1);
   };
 
+  const pressableAnimatedProps = useAnimatedProps(() => ({
+    disabled: isDisabled.value,
+  }));
+
   return (
-    <Pressable
+    <AnimatedPressable
       onPress={handlePress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
+      {...pressableAnimatedProps}
     >
       <Animated.View
         style={[
@@ -89,7 +167,7 @@ export const CheckBox: React.FC<CheckBoxProps> = ({
           <Entypo name="check" size={size * 0.7} color="#fff" />
         </Animated.View>
       </Animated.View>
-    </Pressable>
+    </AnimatedPressable>
   );
 };
 

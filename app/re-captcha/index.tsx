@@ -7,10 +7,12 @@ import Tray from "@/components/re-captcha/tray";
 
 export default function ReCaptcha() {
   const shrinkProgress = useSharedValue(0);
+  const isVerified = useSharedValue<boolean>(false);
+
   return (
     <ThemedView style={styles.container} colorName="captchaBg">
-      <CaptchaCard shrinkProgress={shrinkProgress} />
-      <Tray shrinkProgress={shrinkProgress} />
+      <CaptchaCard shrinkProgress={shrinkProgress} isVerified={isVerified} />
+      <Tray shrinkProgress={shrinkProgress} isVerified={isVerified} />
     </ThemedView>
   );
 }
