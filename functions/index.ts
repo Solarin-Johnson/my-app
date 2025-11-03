@@ -13,15 +13,15 @@ export class Feedback {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
   }
 
-  static soft = () => {
+  static soft() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
-  };
+  }
 
-  static success = () => {
+  static success() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-  };
+  }
 
-  static selection = () => {
+  static selection() {
     Haptics.selectionAsync();
-  };
+  }
 }

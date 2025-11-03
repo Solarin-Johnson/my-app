@@ -1,19 +1,30 @@
 import { View, Text, StyleSheet } from "react-native";
-import React from "react";
+import React, { useRef } from "react";
 import { ThemedView, ThemedViewWrapper } from "../ThemedView";
-import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 import { ReCaptchaProps } from "./config";
 import { ThemedText, ThemedTextWrapper } from "../ThemedText";
 import Button from "../ui/Button";
 import { Ionicons } from "@expo/vector-icons";
 import { Headphones, Info, RotateCw } from "lucide-react-native";
 import PressableBounce from "../PresableBounce";
+import DrawPad, { DrawPadHandle } from "expo-drawpad";
+import { Feedback } from "@/functions";
+import Dots from "../ui/dots";
+import UnderlayText from "./underlay-text";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import Shimmer from "./shimmer";
+import { scheduleOnUI } from "react-native-worklets";
 
 const AnimatedThemedView = Animated.createAnimatedComponent(ThemedView);
 
 const TRAY_HEIGHT = 320;
 
 export default function Tray({ shrinkProgress }: ReCaptchaProps) {
+  const padRef = useRef<DrawPadHandle>(null);
   const animatedStyle = useAnimatedStyle(() => {
     return {
       opacity: shrinkProgress.value,
@@ -25,11 +36,30 @@ export default function Tray({ shrinkProgress }: ReCaptchaProps) {
       ],
     };
   });
+  const text = useThemeColor("text");
+  const isVerifying = useSharedValue(false);
 
   const iconProps = {
     size: 16,
-    strokeWidth: 2.4,
+    strokeWidth: 2.7,
   };
+
+  const handleResetPad = () => {
+    padRef.current?.erase();
+    Feedback.medium();
+  };
+
+  const dotAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      zIndex: isVerifying.value ? 10 : 0,
+    };
+  });
+
+  const shimmerAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      zIndex: isVerifying.value ? 0 : -1,
+    };
+  });
 
   return (
     <AnimatedThemedView
@@ -37,16 +67,36 @@ export default function Tray({ shrinkProgress }: ReCaptchaProps) {
       colorName="captchaCardBg"
     >
       <ThemedView style={[styles.content, styles.shadow]} colorName="captchaBg">
+        <Animated.View style={[styles.underLay, dotAnimatedStyle]}>
+          <ThemedTextWrapper>
+            <Dots dotSize={0.5} spacing={10} />
+          </ThemedTextWrapper>
+        </Animated.View>
         <ThemedText style={[styles.title, styles.roundText]}>
           Connect the Numbers in Order
         </ThemedText>
         <ThemedText style={[styles.fadeText, styles.roundText]}>
           (1 to 8)
         </ThemedText>
+        <View style={styles.pad}>
+          <View style={StyleSheet.absoluteFill}>
+            <ThemedTextWrapper>
+              <UnderlayText />
+            </ThemedTextWrapper>
+          </View>
+          <DrawPad ref={padRef} stroke={text} />
+          <Animated.View
+            style={[StyleSheet.absoluteFill, shimmerAnimatedStyle]}
+          >
+            <ThemedTextWrapper colorName="captchaBg">
+              <Shimmer isPlaying={isVerifying} rotateDeg="135deg" />
+            </ThemedTextWrapper>
+          </Animated.View>
+        </View>
       </ThemedView>
       <View style={styles.footer}>
         <View style={styles.toolBar}>
-          <IconButton>
+          <IconButton onPress={handleResetPad}>
             <RotateCw {...iconProps} />
           </IconButton>
           <IconButton>
@@ -57,7 +107,15 @@ export default function Tray({ shrinkProgress }: ReCaptchaProps) {
           </IconButton>
         </View>
         <ThemedViewWrapper colorName="systemBlue" style={styles.verifyButton}>
-          <PressableBounce>
+          <PressableBounce
+            onPress={() => {
+              Feedback.success();
+              isVerifying.value = true;
+              setTimeout(() => {
+                isVerifying.value = false;
+              }, 3500);
+            }}
+          >
             <ThemedText style={[styles.roundText, styles.verifyText]}>
               Verify
             </ThemedText>
@@ -70,14 +128,15 @@ export default function Tray({ shrinkProgress }: ReCaptchaProps) {
 
 type IconButtonProps = {
   children: React.ReactElement;
+  onPress?: () => void;
 };
 
-const IconButton: React.FC<IconButtonProps> = ({ children }) => (
+const IconButton: React.FC<IconButtonProps> = ({ children, onPress }) => (
   <ThemedViewWrapper
     style={[styles.iconButton, styles.shadow]}
     colorName="captchaBg"
   >
-    <PressableBounce>
+    <PressableBounce onPress={onPress}>
       <ThemedTextWrapper colorName="systemBlue">{children}</ThemedTextWrapper>
     </PressableBounce>
   </ThemedViewWrapper>
@@ -145,5 +204,12 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     fontSize: 16,
+  },
+  pad: {
+    flex: 1,
+  },
+  underLay: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.2,
   },
 });
