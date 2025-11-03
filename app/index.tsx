@@ -24,7 +24,7 @@ export default function Index() {
             <ThemedTextWrapper>
               <TextArea
                 containerStyle={{
-                  width: "80%",
+                  width: 300,
                   height: 200,
                   margin: 24,
                 }}
