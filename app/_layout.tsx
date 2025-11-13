@@ -12,6 +12,7 @@ import { DarkTheme, LightTheme } from "@/constants/Theme";
 import DrawerContent from "@/components/DrawerContent";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import { NotifyProvider } from "@/components/notify";
 
 const isWeb = Platform.OS === "web";
 
@@ -41,8 +42,10 @@ export default function RootLayout() {
           <ThemeProvider
             value={colorScheme === "dark" ? DarkTheme : LightTheme}
           >
-            <NavigationDrawer />
-            <StatusBar style="auto" />
+            <NotifyProvider>
+              <NavigationDrawer />
+              <StatusBar style="auto" />
+            </NotifyProvider>
           </ThemeProvider>
         </SafeAreaProvider>
       </KeyboardProvider>

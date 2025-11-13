@@ -9,11 +9,13 @@ import { DrawerNavigationProp } from "@react-navigation/drawer";
 import TextArea from "@/components/TextArea";
 import { ThemedTextWrapper } from "@/components/ThemedText";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import { useNotify } from "@/components/notify";
 
 export default function Index() {
   const text = useThemeColor("text");
   const bg = useThemeColor("background");
   const navigation = useNavigation<DrawerNavigationProp<any>>();
+  const { notify } = useNotify();
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
@@ -52,7 +54,10 @@ export default function Index() {
               padding: 16,
               marginBottom: 24,
             }}
-            onPress={() => navigation.openDrawer()}
+            // onPress={() => navigation.openDrawer()}
+            onPress={() =>
+              notify(`Hello, in-app notification! ${Math.random()}`)
+            }
           />
         </View>
       </SafeAreaView>
