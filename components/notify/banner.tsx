@@ -2,8 +2,8 @@ import {
   BackHandler,
   Pressable,
   StyleSheet,
-  TextInput,
   useWindowDimensions,
+  View,
 } from "react-native";
 import React, { Fragment, useEffect } from "react";
 import Animated, {
@@ -23,7 +23,6 @@ import { CardExpanded, CardHandle, CardPeek } from "./card";
 import { isLiquidGlassAvailable, GlassView } from "expo-glass-effect";
 import { scheduleOnRN } from "react-native-worklets";
 import { Feedback } from "@/functions";
-import { useKeyboardHandler } from "react-native-keyboard-controller";
 
 const TOP_OFFSET = 60;
 const HEIGHT = 78;
@@ -64,6 +63,7 @@ export default function Banner({
   const scheduleHide = useSharedValue(0);
   const hasExceededThreshold = useSharedValue(false);
   const mounted = useSharedValue(false);
+  const height = useSharedValue(HEIGHT);
 
   const { height: windowHeight } = useWindowDimensions();
 
@@ -91,6 +91,12 @@ export default function Banner({
   useEffect(() => {
     mounted.value = true;
   }, []);
+
+  const toggleExpand = (expand: boolean) => {
+    "worklet";
+    const target = expand ? EXPANDED_HEIGHT : HEIGHT;
+    height.value = withSpring(target);
+  };
 
   const panGesture = Gesture.Pan()
     .minDistance(0)
@@ -153,29 +159,24 @@ export default function Banner({
       if (current) {
         translateY.value = withSpring(EXPANDED_TOP);
         scheduleOnRN(snapFeedback);
+        toggleExpand(true);
       } else {
         translateY.value = withSpring(0);
+        toggleExpand(false);
       }
     }
   );
 
-  const expandedHeight = useDerivedValue(() => {
-    console.log(windowHeight - keyboardHeight.value - TOP_OFFSET);
-
-    return Math.min(
-      EXPANDED_HEIGHT,
-      windowHeight -
-        keyboardHeight.value -
-        EXPANDED_TOP -
-        TOP_OFFSET -
-        KEYBOARD_OFFSET
-    );
-  });
-
   const animatedStyle = useAnimatedStyle(() => {
     const isCurrent = index === messageCount.value - 1;
     const isHidden = hidden.value || !isCurrent;
-    const isExpanded = hasExceededThreshold.value;
+    const maxHeight =
+      windowHeight -
+      keyboardHeight.value -
+      EXPANDED_TOP -
+      TOP_OFFSET -
+      KEYBOARD_OFFSET;
+    const finalHeight = Math.min(height.value, maxHeight);
 
     return {
       transform: [
@@ -190,7 +191,7 @@ export default function Banner({
         : 0 + translateY.value + TOP_OFFSET,
       opacity: withTiming(isHidden && mounted.value ? 0 : 1),
       pointerEvents: isHidden ? "none" : "auto",
-      height: withSpring(isExpanded ? expandedHeight.value : HEIGHT),
+      height: finalHeight,
     };
   });
 
@@ -201,12 +202,6 @@ export default function Banner({
       opacity: isLiquidGlass
         ? withTiming(hasExceededThreshold.value ? 0.3 : 0)
         : 1,
-    };
-  });
-
-  const expandedAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: withTiming(hasExceededThreshold.value ? 1 : 0),
     };
   });
 
@@ -239,19 +234,17 @@ export default function Banner({
           originY: -SLIDE_UP_DISTANCE * 2,
         }).springify()}
       >
-        <GestureDetector gesture={panGesture}>
-          <Wrapper style={[styles.banner, animatedStyle]} isInteractive={true}>
-            <Blur {...blurProps}>
-              <CardPeek text={message.text} shown={notExpanded} />
-              <Animated.View style={[styles.expanded, expandedAnimatedStyle]}>
-                <CardExpanded>
-                  <TextInput placeholder="Type your message here..." />
-                </CardExpanded>
-              </Animated.View>
-              <CardHandle shown={notExpanded} />
-            </Blur>
-          </Wrapper>
-        </GestureDetector>
+        <Wrapper style={[styles.banner, animatedStyle]} isInteractive={true}>
+          <Blur {...blurProps}>
+            <GestureDetector gesture={panGesture}>
+              <View style={styles.innerContent}>
+                <CardPeek text={message.text} shown={notExpanded} />
+                <CardHandle shown={notExpanded} />
+              </View>
+            </GestureDetector>
+            <CardExpanded shown={hasExceededThreshold}></CardExpanded>
+          </Blur>
+        </Wrapper>
       </Animated.View>
     </>
   );
@@ -274,9 +267,15 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     backgroundColor: "#88888888",
+  },
+  innerContent: {
+    flex: 1,
     paddingBottom: HANDLE_HEIGHT,
   },
   expanded: {
     ...StyleSheet.absoluteFillObject,
+    borderRadius: 24,
+    borderCurve: "continuous",
+    overflow: "hidden",
   },
 });

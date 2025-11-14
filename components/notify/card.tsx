@@ -1,25 +1,31 @@
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, TextInput } from "react-native";
 import { ThemedText } from "../ThemedText";
-import { ThemedView, ThemedViewWrapper } from "../ThemedView";
+import { ThemedViewWrapper } from "../ThemedView";
 import Animated, {
   SharedValue,
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
+import { BlurView } from "expo-blur";
 
 type CardGlobalProps = {
   shown: SharedValue<boolean>;
+};
+
+const useOpacityAnimation = (shown: SharedValue<boolean>) => {
+  return useAnimatedStyle(() => {
+    return {
+      opacity: withSpring(shown.value ? 1 : 0),
+    };
+  });
 };
 
 export const CardPeek = ({
   text,
   shown,
 }: { text: string } & CardGlobalProps) => {
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: withSpring(shown.value ? 1 : 0),
-    };
-  });
+  const animatedStyle = useOpacityAnimation(shown);
+
   return (
     <Animated.View
       style={[styles.container, styles.peekContainer, animatedStyle]}
@@ -31,27 +37,32 @@ export const CardPeek = ({
 
 const CardHeader = ({ title }: { title: string }) => {
   return (
-    <View style={styles.header}>
+    <BlurView style={styles.header} intensity={10}>
       <ThemedText style={styles.text}>{title}</ThemedText>
-    </View>
+    </BlurView>
   );
 };
 
-export const CardExpanded = ({ children }: { children?: React.ReactNode }) => {
+export const CardExpanded = ({
+  children,
+  shown,
+}: { children?: React.ReactNode } & CardGlobalProps) => {
+  const animatedStyle = useOpacityAnimation(shown);
+
   return (
-    <View style={styles.container}>
-      <View style={styles.expanded}>{children}</View>
+    <Animated.View style={[styles.expandedContainer, animatedStyle]}>
+      <ScrollView style={styles.expanded} scrollIndicatorInsets={{ top: 48 }}>
+        <TextInput placeholder="Type your message here..." />
+        {children}
+      </ScrollView>
       <CardHeader title="Details" />
-    </View>
+    </Animated.View>
   );
 };
 
 export const CardHandle = ({ shown }: CardGlobalProps) => {
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: withSpring(shown.value ? 1 : 0),
-    };
-  });
+  const animatedStyle = useOpacityAnimation(shown);
+
   return (
     <ThemedViewWrapper colorName="text">
       <Animated.View style={[styles.handle, animatedStyle]} />
@@ -89,5 +100,12 @@ const styles = StyleSheet.create({
   expanded: {
     flex: 1,
     paddingTop: 48,
+  },
+  expandedContainer: {
+    ...StyleSheet.absoluteFillObject,
+    margin: 1,
+    overflow: "hidden",
+    borderRadius: 24,
+    borderCurve: "continuous",
   },
 });
