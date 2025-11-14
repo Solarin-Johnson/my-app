@@ -49,7 +49,7 @@ export const CardExpanded = ({ children }: { children?: React.ReactNode }) => {
 export const CardHandle = ({ shown }: CardGlobalProps) => {
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      opacity: shown.value ? 1 : 0,
+      opacity: withSpring(shown.value ? 1 : 0),
     };
   });
   return (
@@ -67,9 +67,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 12,
   },
-  text: {
-    color: "white",
-  },
+  text: {},
   handle: {
     width: 40,
     height: 4,

@@ -17,7 +17,6 @@ import { CardExpanded, CardHandle, CardPeek } from "./card";
 import { isLiquidGlassAvailable, GlassView } from "expo-glass-effect";
 import { scheduleOnRN } from "react-native-worklets";
 import { Feedback } from "@/functions";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 
 const TOP_OFFSET = 60;
 const HEIGHT = 78;
@@ -27,7 +26,7 @@ const HIDE_DELAY = 3000;
 const THRESHOLD = HEIGHT / 2;
 const SLIDE_UP_DISTANCE = HEIGHT + TOP_OFFSET;
 const VELOCITY_THRESHOLD = 500;
-const DRAG_THRESHOLD = 20;
+const DRAG_THRESHOLD = 30;
 const HANDLE_HEIGHT = 10;
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
@@ -162,6 +161,10 @@ export default function Banner({
   const overlayAnimatedStyle = useAnimatedStyle(() => {
     return {
       pointerEvents: hasExceededThreshold.value ? "auto" : "none",
+      backgroundColor: isLiquidGlass ? "rgb(0, 0, 0)" : "transparent",
+      opacity: isLiquidGlass
+        ? withTiming(hasExceededThreshold.value ? 0.3 : 0)
+        : 1,
     };
   });
 
@@ -176,7 +179,7 @@ export default function Banner({
     ? {}
     : {
         intensity: 80,
-        styles: styles.content,
+        style: styles.content,
       };
 
   const Wrapper = isLiquidGlass ? AnimatedGlassView : Animated.View;
@@ -189,7 +192,11 @@ export default function Banner({
           hidden.value = true;
         }}
       >
-        <AnimatedBlurView intensity={overLayIntensity} style={{ flex: 1 }} />
+        {isLiquidGlass ? (
+          <Fragment />
+        ) : (
+          <AnimatedBlurView intensity={overLayIntensity} style={{ flex: 1 }} />
+        )}
       </AnimatedPressable>
       <Animated.View
         entering={SlideInUp.withInitialValues({
@@ -197,8 +204,8 @@ export default function Banner({
         }).springify()}
       >
         <GestureDetector gesture={panGesture}>
-          <Wrapper style={[styles.banner, animatedStyle]}>
-            <Blur>
+          <Wrapper style={[styles.banner, animatedStyle]} isInteractive={true}>
+            <Blur {...blurProps}>
               <CardPeek text={message.text} shown={notExpanded} />
               <Animated.View style={[styles.expanded, expandedAnimatedStyle]}>
                 <CardExpanded />
@@ -220,7 +227,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     zIndex: 999,
     borderCurve: "continuous",
-    overflow: "hidden",
+    overflow: isLiquidGlass ? "visible" : "hidden",
     top: TOP_OFFSET,
   },
   text: {
