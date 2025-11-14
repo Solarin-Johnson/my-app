@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "expo-router";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import TextArea from "@/components/TextArea";
-import { ThemedTextWrapper } from "@/components/ThemedText";
+import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useNotify } from "@/components/notify";
 
@@ -23,7 +23,7 @@ export default function Index() {
         <View style={[styles.container, { backgroundColor: bg }]}>
           <View style={styles.container}>
             <Logo />
-            <ThemedTextWrapper>
+            {/* <ThemedTextWrapper>
               <TextArea
                 containerStyle={{
                   width: 300,
@@ -43,7 +43,7 @@ export default function Index() {
                 verticalAlign="bottom"
                 timingConfig={{ duration: 0 }}
               />
-            </ThemedTextWrapper>
+            </ThemedTextWrapper> */}
           </View>
           <Button
             title="Start Exploring"
@@ -56,7 +56,32 @@ export default function Index() {
             }}
             // onPress={() => navigation.openDrawer()}
             onPress={() =>
-              notify(`Hello, in-app notification! ${Math.random()}`)
+              notify("Welcome", {
+                description: "Stay updated with important info",
+                expandedChildren: (
+                  <View
+                    style={{
+                      flex: 1,
+                      padding: 16,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <ThemedText type="defaultSemiBold" style={styles.title}>
+                      Expanded content goes here
+                    </ThemedText>
+                    <ThemedText style={styles.description}>
+                      You can put any React Node
+                    </ThemedText>
+                  </View>
+                ),
+                action: {
+                  label: "OK",
+                  onClick: () => {
+                    console.log("Notification action clicked");
+                  },
+                },
+              })
             }
           />
         </View>
@@ -74,5 +99,15 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 24,
     fontWeight: "bold",
+  },
+  title: {
+    fontSize: 23,
+    fontWeight: "bold",
+    fontFamily: "ui-rounded",
+    lineHeight: 32,
+  },
+  description: {
+    fontSize: 16,
+    fontFamily: "ui-rounded",
   },
 });

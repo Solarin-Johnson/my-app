@@ -8,10 +8,13 @@ import React, {
 import { View, StyleSheet } from "react-native";
 import Banner from "./banner";
 import { MessageType, NotifyContextType } from "./type";
-import { useDerivedValue, useSharedValue } from "react-native-reanimated";
+import { useSharedValue } from "react-native-reanimated";
 import { useKeyboardHandler } from "react-native-keyboard-controller";
 
 const NotifyContext = createContext<NotifyContextType | null>(null);
+
+let messageId = 0;
+const MAX_MESSAGES = 2;
 
 export const NotifyProvider = ({ children }: { children: ReactNode }) => {
   const [messages, setMessages] = useState<MessageType[]>([]);
@@ -20,12 +23,18 @@ export const NotifyProvider = ({ children }: { children: ReactNode }) => {
   const height = useSharedValue(0);
 
   const notify: NotifyContextType["notify"] = (msg, options) => {
-    setMessages((prev) => [...prev, { text: msg, options }]);
-  };
+    messageCount.value = messageCount.value + 1;
+    setMessages((prev) => {
+      const newMessage = { id: messageId++, text: msg, options };
+      let newMessages = [...prev, newMessage];
 
-  useDerivedValue(() => {
-    messageCount.value = messages.length;
-  });
+      if (newMessages.length > MAX_MESSAGES) {
+        newMessages = newMessages.slice(newMessages.length - MAX_MESSAGES);
+      }
+
+      return newMessages;
+    });
+  };
 
   useKeyboardHandler(
     {
@@ -45,8 +54,8 @@ export const NotifyProvider = ({ children }: { children: ReactNode }) => {
       <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
         {messages.map((message, index) => (
           <Banner
-            key={index}
-            index={index}
+            key={message?.id}
+            index={Number(message?.id)}
             message={message}
             messageCount={messageCount}
             keyboardHeight={height}

@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, TextInput } from "react-native";
+import { ScrollView, StyleSheet, TextInput, View } from "react-native";
 import { ThemedText } from "../ThemedText";
 import { ThemedViewWrapper } from "../ThemedView";
 import Animated, {
@@ -7,6 +7,8 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
+import { Image } from "expo-image";
+import { MessageType } from "./type";
 
 type CardGlobalProps = {
   shown: SharedValue<boolean>;
@@ -22,15 +24,38 @@ const useOpacityAnimation = (shown: SharedValue<boolean>) => {
 
 export const CardPeek = ({
   text,
+  options,
   shown,
-}: { text: string } & CardGlobalProps) => {
+}: MessageType & CardGlobalProps) => {
   const animatedStyle = useOpacityAnimation(shown);
 
   return (
     <Animated.View
-      style={[styles.container, styles.peekContainer, animatedStyle]}
+      style={[styles.container, styles.peekWrapper, animatedStyle]}
     >
-      <ThemedText style={styles.text}>{text}</ThemedText>
+      <Animated.View style={styles.peekContainer}>
+        <Image
+          source={{ uri: "https://via.placeholder.com/150" }}
+          style={styles.image}
+        />
+        <View style={styles.peekContent}>
+          <ThemedText
+            style={styles.text}
+            type="defaultSemiBold"
+            numberOfLines={1}
+            ellipsizeMode="clip"
+          >
+            {text}
+          </ThemedText>
+          <ThemedText
+            style={styles.description}
+            ellipsizeMode="tail"
+            numberOfLines={2}
+          >
+            {options?.description}
+          </ThemedText>
+        </View>
+      </Animated.View>
     </Animated.View>
   );
 };
@@ -51,11 +76,7 @@ export const CardExpanded = ({
 
   return (
     <Animated.View style={[styles.expandedContainer, animatedStyle]}>
-      <ScrollView style={styles.expanded} scrollIndicatorInsets={{ top: 48 }}>
-        <TextInput placeholder="Type your message here..." />
-        {children}
-      </ScrollView>
-      <CardHeader title="Details" />
+      <View style={styles.expanded}>{children}</View>
     </Animated.View>
   );
 };
@@ -63,20 +84,23 @@ export const CardExpanded = ({
 export const CardHandle = ({ shown }: CardGlobalProps) => {
   const animatedStyle = useOpacityAnimation(shown);
 
-  return (
-    <ThemedViewWrapper colorName="text">
-      <Animated.View style={[styles.handle, animatedStyle]} />
-    </ThemedViewWrapper>
-  );
+  return <Animated.View style={[styles.handle, animatedStyle]} />;
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  peekContainer: {
+  peekWrapper: {
     justifyContent: "center",
+  },
+  peekContainer: {
     padding: 12,
+    flexDirection: "row",
+    // backgroundColor: "blue",
+    alignItems: "center",
+    gap: 8,
+    maxHeight: 78,
   },
   text: {},
   handle: {
@@ -86,7 +110,8 @@ const styles = StyleSheet.create({
     borderCurve: "continuous",
     alignSelf: "center",
     position: "absolute",
-    bottom: 6,
+    bottom: 5,
+    backgroundColor: "#88888888",
   },
   header: {
     position: "absolute",
@@ -99,7 +124,6 @@ const styles = StyleSheet.create({
   },
   expanded: {
     flex: 1,
-    paddingTop: 48,
   },
   expandedContainer: {
     ...StyleSheet.absoluteFillObject,
@@ -107,5 +131,20 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderRadius: 24,
     borderCurve: "continuous",
+  },
+  image: {
+    height: "100%",
+    aspectRatio: 1,
+    borderRadius: "50%",
+    backgroundColor: "#88888888",
+  },
+  peekContent: {
+    flex: 1,
+    gap: 2,
+  },
+  title: {},
+  description: {
+    fontSize: 14,
+    opacity: 0.9,
   },
 });

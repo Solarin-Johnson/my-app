@@ -64,21 +64,13 @@ export default function Banner({
   const hasExceededThreshold = useSharedValue(false);
   const mounted = useSharedValue(false);
   const height = useSharedValue(HEIGHT);
+  const { options } = message;
 
   const { height: windowHeight } = useWindowDimensions();
 
+  const expandedChildren = options?.expandedChildren;
+
   const EXPANDED_TOP = windowHeight / 2 - EXPANDED_HEIGHT / 2 - TOP_OFFSET;
-
-  useEffect(() => {
-    const backHandler = () =>
-      hasExceededThreshold.value ? (hidden.value = true) : undefined;
-
-    const subscription = BackHandler.addEventListener(
-      "hardwareBackPress",
-      backHandler
-    );
-    return () => subscription.remove();
-  }, []);
 
   const notExpanded = useDerivedValue(() => {
     return !hasExceededThreshold.value;
@@ -90,7 +82,10 @@ export default function Banner({
 
   useEffect(() => {
     mounted.value = true;
-  }, []);
+    return () => {
+      mounted.value = false;
+    };
+  }, [message]);
 
   const toggleExpand = (expand: boolean) => {
     "worklet";
@@ -108,7 +103,7 @@ export default function Banner({
       if (hidden.value || hasExceededThreshold.value) return;
       if (e.translationY > 0) {
         translateY.value = e.translationY * RESISTANCE_FACTOR;
-        if (translateY.value > DRAG_THRESHOLD) {
+        if (translateY.value > DRAG_THRESHOLD && expandedChildren) {
           hasExceededThreshold.value = true;
         }
       } else {
@@ -128,6 +123,7 @@ export default function Banner({
   useAnimatedReaction(
     () => isDragging.value,
     (current) => {
+      if (hidden.value) return;
       if (current) {
         scheduleHide.value = 0;
       } else if (!hasExceededThreshold.value) {
@@ -156,6 +152,7 @@ export default function Banner({
   useAnimatedReaction(
     () => hasExceededThreshold.value,
     (current) => {
+      if (hidden.value) return;
       if (current) {
         translateY.value = withSpring(EXPANDED_TOP);
         scheduleOnRN(snapFeedback);
@@ -215,6 +212,13 @@ export default function Banner({
 
   const Wrapper = isLiquidGlass ? AnimatedGlassView : Animated.View;
 
+  const handlePress = () => {
+    hidden.value = true;
+    options?.action?.onClick();
+  };
+
+  if (message === null) return null;
+
   return (
     <>
       <AnimatedPressable
@@ -237,12 +241,16 @@ export default function Banner({
         <Wrapper style={[styles.banner, animatedStyle]} isInteractive={true}>
           <Blur {...blurProps}>
             <GestureDetector gesture={panGesture}>
-              <View style={styles.innerContent}>
-                <CardPeek text={message.text} shown={notExpanded} />
-                <CardHandle shown={notExpanded} />
-              </View>
+              <Pressable style={styles.innerContent} onPress={handlePress}>
+                <CardPeek shown={notExpanded} {...message} />
+                {expandedChildren && <CardHandle shown={notExpanded} />}
+              </Pressable>
             </GestureDetector>
-            <CardExpanded shown={hasExceededThreshold}></CardExpanded>
+            {expandedChildren && (
+              <CardExpanded shown={hasExceededThreshold}>
+                {expandedChildren}
+              </CardExpanded>
+            )}
           </Blur>
         </Wrapper>
       </Animated.View>
@@ -266,11 +274,11 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: "#88888888",
+    backgroundColor: "#88888850",
   },
   innerContent: {
     flex: 1,
-    paddingBottom: HANDLE_HEIGHT,
+    // paddingBottom: HANDLE_HEIGHT / 2,
   },
   expanded: {
     ...StyleSheet.absoluteFillObject,
