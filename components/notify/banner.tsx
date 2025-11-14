@@ -1,4 +1,10 @@
-import { Pressable, StyleSheet, useWindowDimensions } from "react-native";
+import {
+  BackHandler,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  useWindowDimensions,
+} from "react-native";
 import React, { Fragment, useEffect } from "react";
 import Animated, {
   SharedValue,
@@ -17,6 +23,7 @@ import { CardExpanded, CardHandle, CardPeek } from "./card";
 import { isLiquidGlassAvailable, GlassView } from "expo-glass-effect";
 import { scheduleOnRN } from "react-native-worklets";
 import { Feedback } from "@/functions";
+import { useKeyboardHandler } from "react-native-keyboard-controller";
 
 const TOP_OFFSET = 60;
 const HEIGHT = 78;
@@ -28,6 +35,7 @@ const SLIDE_UP_DISTANCE = HEIGHT + TOP_OFFSET;
 const VELOCITY_THRESHOLD = 500;
 const DRAG_THRESHOLD = 30;
 const HANDLE_HEIGHT = 10;
+const KEYBOARD_OFFSET = 20;
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -43,10 +51,12 @@ export default function Banner({
   message,
   index,
   messageCount,
+  keyboardHeight,
 }: {
   message: MessageType;
   index: number;
   messageCount: SharedValue<number>;
+  keyboardHeight: SharedValue<number>;
 }) {
   const hidden = useSharedValue(false);
   const translateY = useSharedValue(0);
@@ -54,8 +64,22 @@ export default function Banner({
   const scheduleHide = useSharedValue(0);
   const hasExceededThreshold = useSharedValue(false);
   const mounted = useSharedValue(false);
-  const { height } = useWindowDimensions();
-  const EXPANDED_TOP = height / 2 - EXPANDED_HEIGHT / 2 - TOP_OFFSET;
+
+  const { height: windowHeight } = useWindowDimensions();
+
+  const EXPANDED_TOP = windowHeight / 2 - EXPANDED_HEIGHT / 2 - TOP_OFFSET;
+
+  useEffect(() => {
+    const backHandler = () =>
+      hasExceededThreshold.value ? (hidden.value = true) : undefined;
+
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backHandler
+    );
+    return () => subscription.remove();
+  }, []);
+
   const notExpanded = useDerivedValue(() => {
     return !hasExceededThreshold.value;
   });
@@ -135,26 +159,38 @@ export default function Banner({
     }
   );
 
+  const expandedHeight = useDerivedValue(() => {
+    console.log(windowHeight - keyboardHeight.value - TOP_OFFSET);
+
+    return Math.min(
+      EXPANDED_HEIGHT,
+      windowHeight -
+        keyboardHeight.value -
+        EXPANDED_TOP -
+        TOP_OFFSET -
+        KEYBOARD_OFFSET
+    );
+  });
+
   const animatedStyle = useAnimatedStyle(() => {
     const isCurrent = index === messageCount.value - 1;
     const isHidden = hidden.value || !isCurrent;
     const isExpanded = hasExceededThreshold.value;
+
     return {
       transform: [
-        {
-          translateY: hidden.value
-            ? withSpring(-SLIDE_UP_DISTANCE)
-            : 0 + translateY.value,
-        },
         {
           scale: withTiming(!isCurrent ? 0.8 : 1, {
             duration: 300,
           }),
         },
       ],
+      top: hidden.value
+        ? withSpring(-TOP_OFFSET)
+        : 0 + translateY.value + TOP_OFFSET,
       opacity: withTiming(isHidden && mounted.value ? 0 : 1),
       pointerEvents: isHidden ? "none" : "auto",
-      height: withSpring(isExpanded ? EXPANDED_HEIGHT : HEIGHT),
+      height: withSpring(isExpanded ? expandedHeight.value : HEIGHT),
     };
   });
 
@@ -208,7 +244,9 @@ export default function Banner({
             <Blur {...blurProps}>
               <CardPeek text={message.text} shown={notExpanded} />
               <Animated.View style={[styles.expanded, expandedAnimatedStyle]}>
-                <CardExpanded />
+                <CardExpanded>
+                  <TextInput placeholder="Type your message here..." />
+                </CardExpanded>
               </Animated.View>
               <CardHandle shown={notExpanded} />
             </Blur>
@@ -228,7 +266,7 @@ const styles = StyleSheet.create({
     zIndex: 999,
     borderCurve: "continuous",
     overflow: isLiquidGlass ? "visible" : "hidden",
-    top: TOP_OFFSET,
+    // top: TOP_OFFSET,
   },
   text: {
     fontSize: 16,

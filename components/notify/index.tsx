@@ -9,12 +9,15 @@ import { View, StyleSheet } from "react-native";
 import Banner from "./banner";
 import { MessageType, NotifyContextType } from "./type";
 import { useDerivedValue, useSharedValue } from "react-native-reanimated";
+import { useKeyboardHandler } from "react-native-keyboard-controller";
 
 const NotifyContext = createContext<NotifyContextType | null>(null);
 
 export const NotifyProvider = ({ children }: { children: ReactNode }) => {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const messageCount = useSharedValue(0);
+  const progress = useSharedValue(0);
+  const height = useSharedValue(0);
 
   const notify: NotifyContextType["notify"] = (msg, options) => {
     setMessages((prev) => [...prev, { text: msg, options }]);
@@ -23,6 +26,18 @@ export const NotifyProvider = ({ children }: { children: ReactNode }) => {
   useDerivedValue(() => {
     messageCount.value = messages.length;
   });
+
+  useKeyboardHandler(
+    {
+      onMove: (e) => {
+        "worklet";
+        progress.value = e.progress;
+        height.value = e.height;
+      },
+    },
+
+    []
+  );
 
   return (
     <NotifyContext value={{ notify, messages }}>
@@ -34,6 +49,7 @@ export const NotifyProvider = ({ children }: { children: ReactNode }) => {
             index={index}
             message={message}
             messageCount={messageCount}
+            keyboardHeight={height}
           />
         ))}
       </View>
