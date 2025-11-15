@@ -2,6 +2,7 @@ import {
   BackHandler,
   Pressable,
   StyleSheet,
+  useColorScheme,
   useWindowDimensions,
   View,
 } from "react-native";
@@ -24,6 +25,7 @@ import { isLiquidGlassAvailable, GlassView } from "expo-glass-effect";
 import { scheduleOnRN } from "react-native-worklets";
 import { Feedback } from "@/functions";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 const TOP_OFFSET = 60;
 const HEIGHT = 78;
@@ -67,6 +69,9 @@ export default function Banner({
   const height = useSharedValue(HEIGHT);
   const { top } = useSafeAreaInsets();
   const { options } = message;
+  const bg = useThemeColor("barColor");
+  const theme = useColorScheme();
+  const isDark = theme === "dark";
 
   const { height: windowHeight } = useWindowDimensions();
 
@@ -208,8 +213,13 @@ export default function Banner({
   const blurProps = isLiquidGlass
     ? {}
     : {
-        intensity: 80,
-        style: styles.content,
+        intensity: 100,
+        style: [
+          styles.content,
+          {
+            backgroundColor: bg + "99",
+          },
+        ],
       };
 
   const Wrapper = isLiquidGlass ? AnimatedGlassView : Animated.View;
@@ -240,7 +250,16 @@ export default function Banner({
           originY: -SLIDE_UP_DISTANCE * 2,
         }).springify()}
       >
-        <Wrapper style={[styles.banner, animatedStyle]} isInteractive={true}>
+        <Wrapper
+          style={[
+            styles.banner,
+            {
+              boxShadow: isLiquidGlass || isDark ? "" : "0 4px 20px #00000010",
+            },
+            animatedStyle,
+          ]}
+          isInteractive={true}
+        >
           <Blur {...blurProps}>
             <GestureDetector gesture={panGesture}>
               <Pressable style={styles.innerContent} onPress={handlePress}>
@@ -269,6 +288,7 @@ const styles = StyleSheet.create({
     zIndex: 999,
     borderCurve: "continuous",
     overflow: isLiquidGlass ? "visible" : "hidden",
+
     // top: TOP_OFFSET,
   },
   text: {
@@ -276,7 +296,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: "#88888850",
   },
   innerContent: {
     flex: 1,

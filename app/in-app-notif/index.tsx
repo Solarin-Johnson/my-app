@@ -6,6 +6,7 @@ import { MessageType } from "@/components/notify/type";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useNotify } from "@/components/notify";
 import PressableBounce from "@/components/PresableBounce";
+import TextArea from "@/components/TextArea";
 
 const isLiquidGlass = isLiquidGlassAvailable();
 
@@ -109,6 +110,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: 12,
+    // experimental_backgroundImage:
+    //   "linear-gradient(120deg, #ff006624, #00ff8824)",
   },
   title: {
     fontSize: 23,
