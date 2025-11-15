@@ -1,6 +1,6 @@
 export type MessageOptions = {
   description?: string;
-  expandedChildren?: React.ReactNode;
+  expandedChild?: React.ReactNode;
   action?: {
     label: string;
     onClick: () => void;

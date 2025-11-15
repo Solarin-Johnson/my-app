@@ -23,6 +23,7 @@ import { CardExpanded, CardHandle, CardPeek } from "./card";
 import { isLiquidGlassAvailable, GlassView } from "expo-glass-effect";
 import { scheduleOnRN } from "react-native-worklets";
 import { Feedback } from "@/functions";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const TOP_OFFSET = 60;
 const HEIGHT = 78;
@@ -64,13 +65,14 @@ export default function Banner({
   const hasExceededThreshold = useSharedValue(false);
   const mounted = useSharedValue(false);
   const height = useSharedValue(HEIGHT);
+  const { top } = useSafeAreaInsets();
   const { options } = message;
 
   const { height: windowHeight } = useWindowDimensions();
 
-  const expandedChildren = options?.expandedChildren;
+  const expandedChild = options?.expandedChild;
 
-  const EXPANDED_TOP = windowHeight / 2 - EXPANDED_HEIGHT / 2 - TOP_OFFSET;
+  const EXPANDED_TOP = windowHeight / 2 - EXPANDED_HEIGHT / 2 - top;
 
   const notExpanded = useDerivedValue(() => {
     return !hasExceededThreshold.value;
@@ -103,7 +105,7 @@ export default function Banner({
       if (hidden.value || hasExceededThreshold.value) return;
       if (e.translationY > 0) {
         translateY.value = e.translationY * RESISTANCE_FACTOR;
-        if (translateY.value > DRAG_THRESHOLD && expandedChildren) {
+        if (translateY.value > DRAG_THRESHOLD && expandedChild) {
           hasExceededThreshold.value = true;
         }
       } else {
@@ -243,12 +245,12 @@ export default function Banner({
             <GestureDetector gesture={panGesture}>
               <Pressable style={styles.innerContent} onPress={handlePress}>
                 <CardPeek shown={notExpanded} {...message} />
-                {expandedChildren && <CardHandle shown={notExpanded} />}
+                {expandedChild && <CardHandle shown={notExpanded} />}
               </Pressable>
             </GestureDetector>
-            {expandedChildren && (
+            {expandedChild && (
               <CardExpanded shown={hasExceededThreshold}>
-                {expandedChildren}
+                {expandedChild}
               </CardExpanded>
             )}
           </Blur>

@@ -10,6 +10,41 @@ import TextArea from "@/components/TextArea";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useNotify } from "@/components/notify";
+import { MessageType } from "@/components/notify/type";
+
+const ExpandedContent = () => {
+  return (
+    <View
+      style={{
+        flex: 1,
+        padding: 16,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <ThemedText type="defaultSemiBold" style={styles.title}>
+        Expanded content goes here
+      </ThemedText>
+      <ThemedText style={styles.description}>
+        You can put any React Node
+      </ThemedText>
+    </View>
+  );
+};
+
+const notifPayload: MessageType = {
+  text: "Welcome",
+  options: {
+    description: "Stay updated with important info",
+    expandedChild: <ExpandedContent />,
+    action: {
+      label: "OK",
+      onClick: () => {
+        console.log("Notification action clicked");
+      },
+    },
+  },
+};
 
 export default function Index() {
   const text = useThemeColor("text");
@@ -55,34 +90,7 @@ export default function Index() {
               marginBottom: 24,
             }}
             // onPress={() => navigation.openDrawer()}
-            onPress={() =>
-              notify("Welcome", {
-                description: "Stay updated with important info",
-                expandedChildren: (
-                  <View
-                    style={{
-                      flex: 1,
-                      padding: 16,
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <ThemedText type="defaultSemiBold" style={styles.title}>
-                      Expanded content goes here
-                    </ThemedText>
-                    <ThemedText style={styles.description}>
-                      You can put any React Node
-                    </ThemedText>
-                  </View>
-                ),
-                action: {
-                  label: "OK",
-                  onClick: () => {
-                    console.log("Notification action clicked");
-                  },
-                },
-              })
-            }
+            onPress={() => notify(notifPayload.text, notifPayload.options)}
           />
         </View>
       </SafeAreaView>
