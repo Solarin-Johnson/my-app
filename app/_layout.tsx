@@ -85,6 +85,13 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="in-app-notif"
+        options={{
+          drawerLabel: "In-App Notification",
+        }}
+      />
+
+      <Drawer.Screen
         name="re-captcha"
         options={{
           drawerLabel: "reCAPTCHA",

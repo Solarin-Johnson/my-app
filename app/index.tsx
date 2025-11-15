@@ -7,44 +7,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "expo-router";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import TextArea from "@/components/TextArea";
-import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
+import { ThemedTextWrapper } from "@/components/ThemedText";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useNotify } from "@/components/notify";
-import { MessageType } from "@/components/notify/type";
-
-const ExpandedContent = () => {
-  return (
-    <View
-      style={{
-        flex: 1,
-        padding: 16,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <ThemedText type="defaultSemiBold" style={styles.title}>
-        Expanded content goes here
-      </ThemedText>
-      <ThemedText style={styles.description}>
-        You can put any React Node
-      </ThemedText>
-    </View>
-  );
-};
-
-const notifPayload: MessageType = {
-  text: "Welcome",
-  options: {
-    description: "Stay updated with important info",
-    expandedChild: <ExpandedContent />,
-    action: {
-      label: "OK",
-      onClick: () => {
-        console.log("Notification action clicked");
-      },
-    },
-  },
-};
 
 export default function Index() {
   const text = useThemeColor("text");
@@ -89,8 +54,7 @@ export default function Index() {
               padding: 16,
               marginBottom: 24,
             }}
-            // onPress={() => navigation.openDrawer()}
-            onPress={() => notify(notifPayload.text, notifPayload.options)}
+            onPress={() => navigation.openDrawer()}
           />
         </View>
       </SafeAreaView>
@@ -107,15 +71,5 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 24,
     fontWeight: "bold",
-  },
-  title: {
-    fontSize: 23,
-    fontWeight: "bold",
-    fontFamily: "ui-rounded",
-    lineHeight: 32,
-  },
-  description: {
-    fontSize: 16,
-    fontFamily: "ui-rounded",
   },
 });
