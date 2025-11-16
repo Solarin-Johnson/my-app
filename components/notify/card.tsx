@@ -33,11 +33,13 @@ export const CardPeek = ({
     <Animated.View
       style={[styles.container, styles.peekWrapper, animatedStyle]}
     >
-      <Animated.View style={styles.peekContainer}>
-        <Image
-          source={{ uri: "https://via.placeholder.com/150" }}
-          style={styles.image}
-        />
+      <View style={styles.peekContainer}>
+        <View style={styles.imageWrapper}>
+          <Image
+            source={{ uri: "https://via.placeholder.com/150" }}
+            style={styles.image}
+          />
+        </View>
         <View style={styles.peekContent}>
           <ThemedText
             style={styles.text}
@@ -55,7 +57,7 @@ export const CardPeek = ({
             {options?.description}
           </ThemedText>
         </View>
-      </Animated.View>
+      </View>
     </Animated.View>
   );
 };
@@ -132,10 +134,13 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderCurve: "continuous",
   },
+  imageWrapper: {
+    borderRadius: "50%",
+    overflow: "hidden",
+  },
   image: {
     height: "100%",
     aspectRatio: 1,
-    borderRadius: "50%",
     backgroundColor: "#88888888",
   },
   peekContent: {

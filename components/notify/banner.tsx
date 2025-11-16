@@ -1,5 +1,6 @@
 import {
   BackHandler,
+  Platform,
   Pressable,
   StyleSheet,
   useColorScheme,
@@ -26,6 +27,7 @@ import { scheduleOnRN } from "react-native-worklets";
 import { Feedback } from "@/functions";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { ThemedView } from "../ThemedView";
 
 const TOP_OFFSET = 60;
 const HEIGHT = 78;
@@ -38,6 +40,9 @@ const VELOCITY_THRESHOLD = 500;
 const DRAG_THRESHOLD = 30;
 const HANDLE_HEIGHT = 10;
 const KEYBOARD_OFFSET = 20;
+
+const isAndroid = Platform.OS === "android";
+const isWeb = Platform.OS === "web";
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -69,7 +74,7 @@ export default function Banner({
   const height = useSharedValue(HEIGHT);
   const { top } = useSafeAreaInsets();
   const { options } = message;
-  const bg = useThemeColor("barColor");
+  const bg = useThemeColor("popUpCardBg");
   const theme = useColorScheme();
   const isDark = theme === "dark";
 
@@ -203,13 +208,14 @@ export default function Banner({
     return {
       pointerEvents: hasExceededThreshold.value ? "auto" : "none",
       backgroundColor: isLiquidGlass ? "rgb(0, 0, 0)" : "transparent",
-      opacity: isLiquidGlass
-        ? withTiming(hasExceededThreshold.value ? 0.3 : 0)
-        : 1,
+      opacity:
+        isLiquidGlass || isAndroid
+          ? withTiming(hasExceededThreshold.value ? (isAndroid ? 1 : 0.3) : 0)
+          : 1,
     };
   });
 
-  const Blur = isLiquidGlass ? Fragment : BlurView;
+  const Blur = isLiquidGlass ? Fragment : isAndroid ? View : BlurView;
   const blurProps = isLiquidGlass
     ? {}
     : {
@@ -217,7 +223,7 @@ export default function Banner({
         style: [
           styles.content,
           {
-            backgroundColor: bg + "99",
+            backgroundColor: bg + `${isAndroid ? "FF" : "99"}`,
           },
         ],
       };
@@ -241,20 +247,29 @@ export default function Banner({
       >
         {isLiquidGlass ? (
           <Fragment />
+        ) : isAndroid ? (
+          <ThemedView style={{ flex: 1 }} />
         ) : (
           <AnimatedBlurView intensity={overLayIntensity} style={{ flex: 1 }} />
         )}
       </AnimatedPressable>
       <Animated.View
-        entering={SlideInUp.withInitialValues({
-          originY: -SLIDE_UP_DISTANCE * 2,
-        }).springify()}
+        entering={
+          isWeb
+            ? SlideInUp
+            : SlideInUp.withInitialValues({
+                originY: -SLIDE_UP_DISTANCE * 2,
+              }).springify()
+        }
       >
         <Wrapper
           style={[
             styles.banner,
             {
-              boxShadow: isLiquidGlass || isDark ? "" : "0 4px 20px #00000010",
+              boxShadow:
+                isLiquidGlass || isDark || isAndroid
+                  ? ""
+                  : "0 4px 20px #00000010",
             },
             animatedStyle,
           ]}
