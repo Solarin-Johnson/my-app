@@ -110,8 +110,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: 12,
-    // experimental_backgroundImage:
-    //   "linear-gradient(120deg, #ff006624, #00ff8824)",
+    experimental_backgroundImage:
+      "linear-gradient(120deg, #ff006624, #00ff8824)",
   },
   title: {
     fontSize: 23,
