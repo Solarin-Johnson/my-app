@@ -9,6 +9,7 @@ import { DrawerNavigationProp } from "@react-navigation/drawer";
 import TextArea from "@/components/TextArea";
 import { ThemedTextWrapper } from "@/components/ThemedText";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import Slider from "@/components/Slider";
 
 export default function Index() {
   const text = useThemeColor("text");

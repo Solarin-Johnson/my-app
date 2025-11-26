@@ -85,12 +85,18 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="slider-demo"
+        options={{
+          drawerLabel: "Slider Demo",
+          swipeEdgeWidth: 10,
+        }}
+      />
+      <Drawer.Screen
         name="in-app-notif"
         options={{
           drawerLabel: "In-App Notification",
         }}
       />
-
       <Drawer.Screen
         name="re-captcha"
         options={{
