@@ -261,6 +261,7 @@ const styles = StyleSheet.create({
   },
   time: {
     fontVariant: ["tabular-nums"],
-    fontSize: 13,
+    fontSize: 13.5,
+    maxWidth: 70,
   },
 });
