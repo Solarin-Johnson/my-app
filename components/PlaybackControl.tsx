@@ -1,9 +1,8 @@
-import { View, Text, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import React from "react";
 import Animated, {
   cancelAnimation,
   Easing,
-  SharedValue,
   useAnimatedReaction,
   useAnimatedStyle,
   useDerivedValue,
@@ -186,7 +185,7 @@ export default function PlaybackControl() {
       style={[
         styles.wrapper,
         {
-          backgroundColor: isLiquidGlass ? "#FFFFFF20" : "transparent",
+          backgroundColor: isLiquidGlass ? "transparent" : "#FFFFFF20",
         },
         controlAnimatedStyle,
       ]}
@@ -213,7 +212,15 @@ export default function PlaybackControl() {
           <AnimatedText text={valueToTime} style={styles.time} />
         </ThemedTextWrapper>
         <ThemedTextWrapper>
-          <AnimatedText text={remainingTime} style={styles.time} />
+          <AnimatedText
+            text={remainingTime}
+            style={[
+              styles.time,
+              {
+                textAlign: "right",
+              },
+            ]}
+          />
         </ThemedTextWrapper>
       </Animated.View>
       <Animated.View style={[styles.slider, sliderAnimatedStyle]}>

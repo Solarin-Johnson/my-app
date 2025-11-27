@@ -71,6 +71,9 @@ export default function Slider({
     .onTouchesUp(() => {
       pressed.value = false;
     })
+    .onTouchesCancelled(() => {
+      pressed.value = false;
+    })
     .onStart(() => {
       startValue.value = value.value;
     })
