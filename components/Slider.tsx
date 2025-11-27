@@ -1,5 +1,5 @@
 import { Feedback } from "@/functions";
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -11,8 +11,11 @@ import Animated, {
   withTiming,
   withDecay,
   useAnimatedReaction,
+  measure,
+  useAnimatedRef,
+  useDerivedValue,
 } from "react-native-reanimated";
-import { scheduleOnRN } from "react-native-worklets";
+import { scheduleOnRN, scheduleOnUI } from "react-native-worklets";
 
 type SliderProps = {
   value?: SharedValue<number>;
@@ -22,12 +25,11 @@ type SliderProps = {
   pressed?: SharedValue<boolean>;
 };
 
-const SLIDER_WIDTH = 300;
 const TRACK_HEIGHT = 8;
-const EXPANDED_TRACK_HEIGHT = 16;
-const VELOCITY_RESISTANCE = 0.1;
-const MAX_OVERDRAG = 18;
-const OVERDRAG_RESISTANCE = 0.25;
+const EXPANDED_TRACK_HEIGHT = 14;
+const VELOCITY_RESISTANCE = 0.8;
+const MAX_OVERDRAG = 12;
+const OVERDRAG_RESISTANCE = 0.1;
 
 export default function Slider({
   value: externalValue,
@@ -40,6 +42,8 @@ export default function Slider({
   const startValue = useSharedValue(0);
   const pressed = externalPressed || useSharedValue(false);
   const overDrag = useSharedValue(0);
+  const trackRef = useAnimatedRef();
+  const sliderWidth = useSharedValue(0);
 
   const HapticFeedback = () => {
     Feedback.selection();
@@ -72,17 +76,19 @@ export default function Slider({
       startValue.value = value.value;
     })
     .onUpdate((e) => {
-      const fraction = e.translationX / SLIDER_WIDTH;
+      const fraction = e.translationX / sliderWidth.value;
       let newValue = startValue.value + fraction * max;
 
       if (newValue < 0 || newValue > max) {
-        const excess = newValue < 0 ? newValue : newValue - max;
-        let rawOverDrag = excess * OVERDRAG_RESISTANCE;
-        const clampedOverDrag = Math.max(
+        const overflowFraction =
+          newValue < 0 ? newValue / max : (newValue - max) / max;
+
+        const px = overflowFraction * sliderWidth.value;
+
+        overDrag.value = Math.max(
           -MAX_OVERDRAG,
-          Math.min(rawOverDrag, MAX_OVERDRAG)
+          Math.min(px * OVERDRAG_RESISTANCE, MAX_OVERDRAG)
         );
-        overDrag.value = clampedOverDrag;
       } else {
         overDrag.value = 0;
       }
@@ -91,20 +97,27 @@ export default function Slider({
       value.value = newValue;
     })
     .onEnd((e) => {
-      value.value = withDecay({
-        velocity: e.velocityX * VELOCITY_RESISTANCE,
-        deceleration: 0.985,
-        clamp: [0, max],
-      });
+      const normalizedVelocity = (e.velocityX / sliderWidth.value) * max;
+
+      if (value.value > 0 && value.value < max) {
+        value.value = withDecay({
+          velocity: normalizedVelocity * VELOCITY_RESISTANCE,
+          deceleration: 0.995,
+          clamp: [0, max],
+        });
+      }
 
       overDrag.value = withSpring(0);
+    })
+    .onFinalize(() => {
+      pressed.value = false;
     });
 
   const animatedStyle = useAnimatedStyle(() => {
-    console.log(overDrag.value);
+    console.log("value:", value.value);
 
     return {
-      width: interpolate(value.value, [0, max], [0, SLIDER_WIDTH]),
+      width: interpolate(value.value, [0, max], [0, sliderWidth.value]),
       height: EXPANDED_TRACK_HEIGHT,
     };
   });
@@ -128,19 +141,39 @@ export default function Slider({
             ),
         },
         {
-          scaleX: 1 + absDrag / SLIDER_WIDTH,
+          scaleX: 1 + absDrag / sliderWidth.value,
+        },
+        {
+          scaleY:
+            1 -
+            Math.min(
+              0.15,
+              Math.abs(overDrag.value) / (EXPANDED_TRACK_HEIGHT * 4)
+            ),
         },
       ],
     };
   });
 
+  const measureSlider = () => {
+    scheduleOnUI(() => {
+      const m = measure(trackRef);
+      if (m) {
+        sliderWidth.value = m.width;
+      }
+    });
+  };
+
   return (
     <GestureDetector gesture={panGesture}>
-      <View
+      <Animated.View
         style={{
-          height: EXPANDED_TRACK_HEIGHT * 2,
+          height: EXPANDED_TRACK_HEIGHT,
           justifyContent: "center",
+          width: "100%",
         }}
+        ref={trackRef}
+        onLayout={measureSlider}
       >
         <Animated.View
           style={[
@@ -161,14 +194,14 @@ export default function Slider({
             collapsable={false}
           />
         </Animated.View>
-      </View>
+      </Animated.View>
     </GestureDetector>
   );
 }
 
 const styles = StyleSheet.create({
   track: {
-    width: SLIDER_WIDTH,
+    width: "100%",
     borderRadius: EXPANDED_TRACK_HEIGHT / 2,
     backgroundColor: "#eee",
     overflow: "hidden",

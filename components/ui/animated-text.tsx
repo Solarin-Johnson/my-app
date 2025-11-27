@@ -7,7 +7,7 @@ import Animated, {
 import type { TextInputProps } from "react-native";
 
 interface TextProps extends Omit<TextInputProps, "value"> {
-  text: SharedValue<string | number>;
+  text: SharedValue<string> | SharedValue<number>;
 }
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
