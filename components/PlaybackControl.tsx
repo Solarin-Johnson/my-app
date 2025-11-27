@@ -17,6 +17,11 @@ import { AnimatedText } from "./ui/animated-text";
 import Slider from "./Slider";
 import { Pause, Volume2 } from "lucide-react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import PressableBounce from "./PresableBounce";
+
+const isLiquidGlass = isLiquidGlassAvailable();
+const AnimatedGlassView = Animated.createAnimatedComponent(GlassView);
 
 const DURATION = 30000;
 const COLLAPSED_HEIGHT = 54;
@@ -27,15 +32,6 @@ const WIDTH = 320;
 const ADJUSTMENT = 11;
 const EXPANDED_SLIDER_WIDTH = WIDTH - 2 * PADDING - ADJUSTMENT;
 const SLIDER_WIDTH = EXPANDED_SLIDER_WIDTH - 2 * ICON_WIDTH + ADJUSTMENT;
-
-const SPRING_CONFIG = {
-  stiffness: 180,
-  damping: 28,
-  mass: 1,
-  overshootClamping: true,
-  restDisplacementThreshold: 0.000001,
-  restSpeedThreshold: 0.000001,
-};
 
 export default function PlaybackControl() {
   const value = useSharedValue(0);
@@ -131,6 +127,7 @@ export default function PlaybackControl() {
       }
     }
   );
+
   const controlAnimatedStyle = useAnimatedStyle(() => {
     const isExpanded = expanded.value;
 
@@ -182,13 +179,27 @@ export default function PlaybackControl() {
     getOpacityStyle(expanded.value, expanded.value ? 120 : 0, {})
   );
 
+  const Wrapper = isLiquidGlass ? AnimatedGlassView : Animated.View;
+
   return (
-    <Animated.View style={[styles.wrapper, controlAnimatedStyle]}>
+    <Wrapper
+      style={[
+        styles.wrapper,
+        {
+          backgroundColor: isLiquidGlass ? "#FFFFFF20" : "transparent",
+        },
+        controlAnimatedStyle,
+      ]}
+    >
       <Animated.View
         style={[styles.buttons, buttonsAnimatedStyle, topAnimatedStyle]}
       >
-        <Pause size={24} fill={text} stroke={"none"} />
-        <Volume2 size={24} stroke={text} />
+        <PressableBounce bounceScale={0.85}>
+          <Pause size={24} fill={text} stroke={"none"} />
+        </PressableBounce>
+        <PressableBounce bounceScale={0.85}>
+          <Volume2 size={24} stroke={text} />
+        </PressableBounce>
       </Animated.View>
       <Animated.View
         style={[
@@ -214,13 +225,12 @@ export default function PlaybackControl() {
           pressed={pressed}
         />
       </Animated.View>
-    </Animated.View>
+    </Wrapper>
   );
 }
 
 const styles = StyleSheet.create({
   wrapper: {
-    backgroundColor: "#ffffff10",
     padding: 14,
     borderRadius: 24,
     borderCurve: "continuous",

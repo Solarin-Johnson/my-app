@@ -1,6 +1,6 @@
 import { Feedback } from "@/functions";
-import React, { useEffect } from "react";
-import { StyleSheet, View } from "react-native";
+import React from "react";
+import { StyleSheet } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   SharedValue,
@@ -13,7 +13,6 @@ import Animated, {
   useAnimatedReaction,
   measure,
   useAnimatedRef,
-  useDerivedValue,
 } from "react-native-reanimated";
 import { scheduleOnRN, scheduleOnUI } from "react-native-worklets";
 
@@ -114,8 +113,6 @@ export default function Slider({
     });
 
   const animatedStyle = useAnimatedStyle(() => {
-    console.log("value:", value.value);
-
     return {
       width: interpolate(value.value, [0, max], [0, sliderWidth.value]),
       height: EXPANDED_TRACK_HEIGHT,
@@ -168,7 +165,7 @@ export default function Slider({
     <GestureDetector gesture={panGesture}>
       <Animated.View
         style={{
-          height: EXPANDED_TRACK_HEIGHT,
+          height: EXPANDED_TRACK_HEIGHT * 2,
           justifyContent: "center",
           width: "100%",
         }}
