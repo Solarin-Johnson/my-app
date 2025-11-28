@@ -4,17 +4,15 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import Head from "expo-router/head";
 import { Drawer } from "expo-router/drawer";
-import { Platform, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { DarkTheme, LightTheme } from "@/constants/Theme";
 import DrawerContent from "@/components/DrawerContent";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { NotifyProvider } from "@/components/notify";
-
-const isWeb = Platform.OS === "web";
+import HeadComponent from "@/components/HeadComponent";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -32,7 +30,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      {isWeb && <HeadComponent />}
+      <HeadComponent />
       <KeyboardProvider>
         <SafeAreaProvider>
           <ThemeProvider
@@ -191,45 +189,5 @@ export function NavigationDrawer() {
         }}
       />
     </Drawer>
-  );
-}
-
-function HeadComponent() {
-  return (
-    <Head>
-      <title>My App</title>
-      <meta
-        name="description"
-        content="My personal Expo playground for React Native animations and UI experiments"
-      />
-      <meta name="color-scheme" content="light dark" />
-      <meta name="author" content="Solarin Johnson" />
-
-      {/* Open Graph / Facebook */}
-      <meta
-        name="og:image"
-        content="https://raw.githubusercontent.com/Solarin-Johnson/my-app/refs/heads/main/assets/images/twitter-cover.png"
-      />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="675" />
-      <meta property="og:title" content="My App" />
-      <meta
-        property="og:description"
-        content="My personal Expo playground for React Native animations and UI experiments"
-      />
-      <meta property="og:url" content="https://solarin.expo.app" />
-
-      {/* Twitter */}
-      <meta
-        name="twitter:image"
-        content="https://raw.githubusercontent.com/Solarin-Johnson/my-app/refs/heads/main/assets/images/twitter-cover.png"
-      />
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content="My App" />
-      <meta
-        name="twitter:description"
-        content="My personal Expo playground for React Native animations and UI experiments"
-      />
-    </Head>
   );
 }
