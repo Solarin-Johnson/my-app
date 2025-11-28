@@ -90,13 +90,13 @@ export default function PlaybackControl() {
             value.value === lastValueOnPress.value
           ) {
             expanded.value = false;
-            return;
+            playing.value = previousPlaying.value;
           }
         }
       }
       // Handle scrubbing changes
-      if (previousPlaying.value && !s) {
-        playing.value = true;
+      if (!s) {
+        playing.value = previousPlaying.value;
       }
       if (!s && !p && value.value !== 0 && value.value !== DURATION) {
         expanded.value = false;
@@ -204,16 +204,17 @@ export default function PlaybackControl() {
       ...getOpacityStyle(!expanded.value),
     };
   });
+
   const timeAnimatedStyle = useAnimatedStyle(() =>
     getOpacityStyle(expanded.value, expanded.value ? 120 : 0, {})
   );
 
   const playAnimatedStyle = useAnimatedStyle(() =>
-    getOpacityStyle(!playing.value, 0, { duration: 0 })
+    getOpacityStyle(!playing.value, pressed.value ? 500 : 0, { duration: 0 })
   );
 
   const pauseAnimatedStyle = useAnimatedStyle(() =>
-    getOpacityStyle(playing.value, 0, { duration: 0 })
+    getOpacityStyle(playing.value, pressed.value ? 500 : 0, { duration: 0 })
   );
 
   const Wrapper = isLiquidGlass ? AnimatedGlassView : Animated.View;
