@@ -1,5 +1,5 @@
-import { StyleSheet } from "react-native";
-import React from "react";
+import { StyleSheet, TouchableOpacity } from "react-native";
+import React, { useEffect } from "react";
 import Animated, {
   cancelAnimation,
   Easing,
@@ -14,7 +14,7 @@ import Animated, {
 import { ThemedTextWrapper } from "./ThemedText";
 import { AnimatedText } from "./ui/animated-text";
 import Slider from "./Slider";
-import { Pause, Volume2 } from "lucide-react-native";
+import { Pause, Play, Volume2 } from "lucide-react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import PressableBounce from "./PresableBounce";
@@ -35,9 +35,14 @@ const SLIDER_WIDTH = EXPANDED_SLIDER_WIDTH - 2 * ICON_WIDTH + ADJUSTMENT;
 export default function PlaybackControl() {
   const value = useSharedValue(0);
   const pressed = useSharedValue(false);
+  const scrubbing = useSharedValue(false);
   const expanded = useSharedValue(false);
-  const delayProgress = useSharedValue(0);
   const text = useThemeColor("text");
+  const delayTimeout = useSharedValue(0);
+  const lastValueOnPress = useSharedValue(value.value);
+  const playing = useSharedValue(true);
+  const previousPlaying = useSharedValue(false);
+  const internalAnimating = useSharedValue(false);
 
   const valueToTime = useDerivedValue(() => {
     const totalMilliseconds = value.value;
@@ -68,22 +73,16 @@ export default function PlaybackControl() {
     return `-${minStr}:${secStr}`;
   }, [value]);
 
-  const delayTimeout = useSharedValue(0);
-
-  const lastValueOnPress = useSharedValue(value.value);
-
   useAnimatedReaction(
-    () => pressed.value,
-    (p, prev) => {
-      if (p !== prev) {
-        if (delayTimeout.value) {
-          cancelAnimation(delayTimeout);
-          delayTimeout.value = 0;
-        }
-
+    () => ({ pressed: pressed.value, scrubbing: scrubbing.value }),
+    ({ pressed: p, scrubbing: s }, prev) => {
+      // Handle pressed changes
+      if (prev && p !== prev.pressed) {
         if (p) {
           expanded.value = true;
-          lastValueOnPress.value = value.value; // store value on press
+          lastValueOnPress.value = value.value;
+          previousPlaying.value = playing.value;
+          playing.value = false;
         } else {
           if (
             value.value === 0 ||
@@ -93,21 +92,14 @@ export default function PlaybackControl() {
             expanded.value = false;
             return;
           }
-
-          delayTimeout.value = withDelay(
-            500,
-            withTiming(0, { duration: 0 }, () => {
-              if (
-                !pressed.value &&
-                value.value !== 0 &&
-                value.value !== DURATION
-              ) {
-                expanded.value = false;
-              }
-              delayTimeout.value = 0;
-            })
-          );
         }
+      }
+      // Handle scrubbing changes
+      if (previousPlaying.value && !s) {
+        playing.value = true;
+      }
+      if (!s && !p && value.value !== 0 && value.value !== DURATION) {
+        expanded.value = false;
       }
     }
   );
@@ -124,6 +116,41 @@ export default function PlaybackControl() {
         }
         expanded.value = false;
       }
+    }
+  );
+
+  useAnimatedReaction(
+    () => ({ isPlaying: playing.value, v: value.value }),
+    ({ isPlaying, v }, prev) => {
+      const prevPlaying = prev?.isPlaying;
+
+      if (!isPlaying && prevPlaying) {
+        cancelAnimation(value);
+        internalAnimating.value = false;
+        return;
+      }
+
+      if (!isPlaying) return;
+
+      if (v >= DURATION) {
+        playing.value = false;
+        internalAnimating.value = false;
+        return;
+      }
+
+      if (internalAnimating.value) return;
+
+      internalAnimating.value = true;
+      const remaining = DURATION - v;
+
+      value.value = withTiming(
+        DURATION,
+        { duration: remaining, easing: Easing.linear },
+        (finished) => {
+          internalAnimating.value = false;
+          if (finished) playing.value = false;
+        }
+      );
     }
   );
 
@@ -171,14 +198,40 @@ export default function PlaybackControl() {
     };
   };
 
-  const buttonsAnimatedStyle = useAnimatedStyle(() =>
-    getOpacityStyle(!expanded.value)
-  );
+  const buttonsAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      pointerEvents: expanded.value ? "none" : "auto",
+      ...getOpacityStyle(!expanded.value),
+    };
+  });
   const timeAnimatedStyle = useAnimatedStyle(() =>
     getOpacityStyle(expanded.value, expanded.value ? 120 : 0, {})
   );
 
+  const playAnimatedStyle = useAnimatedStyle(() =>
+    getOpacityStyle(!playing.value, 0, { duration: 0 })
+  );
+
+  const pauseAnimatedStyle = useAnimatedStyle(() =>
+    getOpacityStyle(playing.value, 0, { duration: 0 })
+  );
+
   const Wrapper = isLiquidGlass ? AnimatedGlassView : Animated.View;
+
+  useEffect(() => {
+    playing.value = true;
+    return () => {
+      playing.value = false;
+    };
+  }, []);
+
+  const onPausePress = React.useCallback(() => {
+    playing.value = !playing.value;
+    if (value.value >= DURATION) {
+      value.value = 0;
+      playing.value = true;
+    }
+  }, []);
 
   return (
     <Wrapper
@@ -190,16 +243,6 @@ export default function PlaybackControl() {
         controlAnimatedStyle,
       ]}
     >
-      <Animated.View
-        style={[styles.buttons, buttonsAnimatedStyle, topAnimatedStyle]}
-      >
-        <PressableBounce bounceScale={0.85}>
-          <Pause size={24} fill={text} stroke={"none"} />
-        </PressableBounce>
-        <PressableBounce bounceScale={0.85}>
-          <Volume2 size={24} stroke={text} />
-        </PressableBounce>
-      </Animated.View>
       <Animated.View
         style={[
           styles.buttons,
@@ -223,6 +266,25 @@ export default function PlaybackControl() {
           />
         </ThemedTextWrapper>
       </Animated.View>
+      <Animated.View
+        style={[styles.buttons, buttonsAnimatedStyle, topAnimatedStyle]}
+      >
+        <TouchableOpacity
+          onPress={onPausePress}
+          style={styles.toggleButton}
+          activeOpacity={0.8}
+        >
+          <Animated.View style={[styles.toggleIcon, pauseAnimatedStyle]}>
+            <Pause size={26} fill={text} stroke={"none"} />
+          </Animated.View>
+          <Animated.View style={[styles.toggleIcon, playAnimatedStyle]}>
+            <Play size={22} fill={text} color={text} />
+          </Animated.View>
+        </TouchableOpacity>
+        <PressableBounce bounceScale={0.85}>
+          <Volume2 size={24} stroke={text} />
+        </PressableBounce>
+      </Animated.View>
       <Animated.View style={[styles.slider, sliderAnimatedStyle]}>
         <Slider
           value={value}
@@ -230,6 +292,7 @@ export default function PlaybackControl() {
           trackColor="#FFFFFF50"
           thumbColor="#FFFFFF"
           pressed={pressed}
+          scrubbing={scrubbing}
         />
       </Animated.View>
     </Wrapper>
@@ -245,7 +308,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: WIDTH,
   },
-  slider: {},
+  slider: {
+    cursor: "grabbing" as any,
+  },
   buttons: {
     position: "absolute",
     right: PADDING,
@@ -258,10 +323,20 @@ const styles = StyleSheet.create({
   },
   timeContainer: {
     paddingHorizontal: 6,
+    pointerEvents: "none",
   },
   time: {
     fontVariant: ["tabular-nums"],
     fontSize: 13.5,
     maxWidth: 70,
+    cursor: "default",
+  },
+  toggleButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: ICON_WIDTH - 6,
+  },
+  toggleIcon: {
+    position: "absolute",
   },
 });

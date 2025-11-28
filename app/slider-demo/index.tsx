@@ -1,7 +1,9 @@
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import PlaybackControl from "@/components/PlaybackControl";
+
+const isWeb = Platform.OS === "web";
 
 export default function SliderDemo() {
   return (
@@ -14,8 +16,8 @@ export default function SliderDemo() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: isWeb ? "center" : "flex-end",
     alignItems: "center",
-    paddingBottom: 72,
+    paddingBottom: isWeb ? 0 : 72,
   },
 });

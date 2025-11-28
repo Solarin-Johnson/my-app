@@ -1,6 +1,6 @@
 import { Feedback } from "@/functions";
 import React from "react";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   SharedValue,
@@ -22,11 +22,14 @@ type SliderProps = {
   trackColor?: string;
   thumbColor?: string;
   pressed?: SharedValue<boolean>;
+  scrubbing?: SharedValue<boolean>;
 };
+
+const isWeb = Platform.OS === "web";
 
 const TRACK_HEIGHT = 8;
 const EXPANDED_TRACK_HEIGHT = 14;
-const VELOCITY_RESISTANCE = 0.8;
+const VELOCITY_RESISTANCE = isWeb ? 0.2 : 0.8;
 const MAX_OVERDRAG = 12;
 const OVERDRAG_RESISTANCE = 0.1;
 
@@ -36,6 +39,7 @@ export default function Slider({
   thumbColor = "#007AFF",
   trackColor = "#CCCCCC",
   pressed: externalPressed,
+  scrubbing: externalScrubbing,
 }: SliderProps) {
   const value = externalValue || useSharedValue(0);
   const startValue = useSharedValue(0);
@@ -43,6 +47,7 @@ export default function Slider({
   const overDrag = useSharedValue(0);
   const trackRef = useAnimatedRef();
   const sliderWidth = useSharedValue(0);
+  const scrubbing = externalScrubbing || useSharedValue(false);
 
   const HapticFeedback = () => {
     Feedback.selection();
@@ -67,12 +72,14 @@ export default function Slider({
   const panGesture = Gesture.Pan()
     .onTouchesDown(() => {
       pressed.value = true;
+      scrubbing.value = true;
     })
     .onTouchesUp(() => {
       pressed.value = false;
     })
     .onTouchesCancelled(() => {
       pressed.value = false;
+      scrubbing.value = false;
     })
     .onStart(() => {
       startValue.value = value.value;
@@ -102,11 +109,16 @@ export default function Slider({
       const normalizedVelocity = (e.velocityX / sliderWidth.value) * max;
 
       if (value.value > 0 && value.value < max) {
-        value.value = withDecay({
-          velocity: normalizedVelocity * VELOCITY_RESISTANCE,
-          deceleration: 0.995,
-          clamp: [0, max],
-        });
+        value.value = withDecay(
+          {
+            velocity: normalizedVelocity * VELOCITY_RESISTANCE,
+            deceleration: 0.995,
+            clamp: [0, max],
+          },
+          () => {
+            scrubbing.value = false;
+          }
+        );
       }
 
       overDrag.value = withSpring(0);
