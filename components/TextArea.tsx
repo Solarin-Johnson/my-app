@@ -50,7 +50,7 @@ const TIMING_CONFIG: WithTimingConfig = {
 export default function TextArea({
   style,
   containerStyle,
-  maxHeight,
+  maxHeight = 200,
   minHeight = MIN_SIZE,
   maxWidth,
   minWidth = MIN_SIZE,
@@ -110,7 +110,9 @@ export default function TextArea({
 
     return {
       width: layout.value.width + cordX.value,
-      height: applyConfig(layout.value.height + cordY.value),
+      height: applyConfig(
+        Math.min(maxHeight, layout.value.height + cordY.value)
+      ),
     };
   });
 
@@ -150,7 +152,7 @@ export default function TextArea({
 
   return (
     <Animated.View
-      style={[containerStyle, maxStyle, animatedStyle]}
+      style={[containerStyle, animatedStyle, maxStyle]}
       ref={textContainerRef}
     >
       <TextInput

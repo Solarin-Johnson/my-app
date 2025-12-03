@@ -290,8 +290,8 @@ export default function PlaybackControl() {
         <Slider
           value={value}
           max={DURATION}
-          trackColor="#FFFFFF50"
-          thumbColor="#FFFFFF"
+          trackColor={text + "20"}
+          thumbColor={text}
           pressed={pressed}
           scrubbing={scrubbing}
         />

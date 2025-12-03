@@ -39,6 +39,7 @@ import {
 import { GrokIcon } from "@/components/icons";
 import { useNavigation } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import TextArea from "@/components/TextArea";
 
 const CHAT_BOX_HEIGHT = 100;
 const CHAT_BOX_MARGIN_V = 6;
@@ -138,7 +139,14 @@ const ChatBox = () => {
       ]}
     >
       <ThemedTextWrapper style={styles.chatInput}>
-        <TextInput placeholder="Ask Anything" selectionColor={text} />
+        <TextArea
+          placeholder="Ask Anything"
+          selectionColor={text}
+          padding={14}
+          minHeight={32}
+          maxHeight={100}
+          lineHeight={20}
+        />
       </ThemedTextWrapper>
       <View style={styles.chatActionBar}>
         <View style={styles.cluster}>
@@ -277,8 +285,6 @@ const styles = StyleSheet.create({
   chatInput: {
     flex: 1,
     width: "100%",
-    padding: 14,
-    paddingBottom: 8,
   },
   chatActionBar: {
     flexDirection: "row",
