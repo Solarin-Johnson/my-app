@@ -146,7 +146,7 @@ export const CheckBox: React.FC<CheckBoxProps> = ({
       onPress={handlePress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      {...pressableAnimatedProps}
+      animatedProps={pressableAnimatedProps}
     >
       <Animated.View
         style={[

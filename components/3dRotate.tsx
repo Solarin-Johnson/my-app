@@ -96,7 +96,7 @@ export default function Rotate3d({
   );
 
   return (
-    <View style={style}>
+    <View style={style} collapsable={false}>
       <Animated.View
         style={[styles.flipCardItem, itemStyle, frontAnimatedStyle]}
       >

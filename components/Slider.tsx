@@ -13,6 +13,7 @@ import Animated, {
   useAnimatedReaction,
   measure,
   useAnimatedRef,
+  Extrapolation,
 } from "react-native-reanimated";
 import { scheduleOnRN, scheduleOnUI } from "react-native-worklets";
 
@@ -129,7 +130,12 @@ export default function Slider({
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      width: interpolate(value.value, [0, max], [0, sliderWidth.value]),
+      width: interpolate(
+        value.value,
+        [0, max],
+        [0, sliderWidth.value],
+        Extrapolation.CLAMP
+      ),
       height: EXPANDED_TRACK_HEIGHT,
     };
   });

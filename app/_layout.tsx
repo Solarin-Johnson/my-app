@@ -14,6 +14,10 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { NotifyProvider } from "@/components/notify";
 import HeadComponent from "@/components/HeadComponent";
 
+const edgeSwipe = {
+  swipeEdgeWidth: 20,
+};
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
@@ -79,10 +83,16 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="open-gift"
+        options={{
+          drawerLabel: "Open Gift",
+        }}
+      />
+      <Drawer.Screen
         name="slider-demo"
         options={{
           drawerLabel: "Slider Demo",
-          swipeEdgeWidth: 10,
+          ...edgeSwipe,
         }}
       />
       <Drawer.Screen
@@ -101,6 +111,7 @@ export function NavigationDrawer() {
         name="3d-rotate"
         options={{
           drawerLabel: "3D Rotate",
+          ...edgeSwipe,
         }}
       />
       <Drawer.Screen
