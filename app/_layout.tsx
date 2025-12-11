@@ -83,6 +83,12 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="shared-option"
+        options={{
+          drawerLabel: "Shared Option",
+        }}
+      />
+      <Drawer.Screen
         name="open-gift"
         options={{
           drawerLabel: "Open Gift",
