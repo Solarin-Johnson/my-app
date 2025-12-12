@@ -83,6 +83,13 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="3d-card-scrolling"
+        options={{
+          drawerLabel: "3D Card Scrolling",
+          ...edgeSwipe,
+        }}
+      />
+      <Drawer.Screen
         name="shared-option"
         options={{
           drawerLabel: "Shared Option",

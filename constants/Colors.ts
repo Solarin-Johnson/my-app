@@ -31,6 +31,7 @@ export const Colors = {
     captchaCheckboxBg: "#272727",
     captchaCheckboxInitialBg: "#FFFFFF",
     popUpCardBg: "#FFFFFF",
+    cardBg3D: "#E2E2E8",
     ...globalColors,
   },
   dark: {
@@ -53,6 +54,7 @@ export const Colors = {
     captchaCheckboxBg: "#343434",
     captchaCheckboxInitialBg: "#656565",
     popUpCardBg: "#1A1A1A",
+    cardBg3D: "#252528",
     ...globalColors,
   },
 };
