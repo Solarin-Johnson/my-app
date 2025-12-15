@@ -9,6 +9,8 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { ThemedView, ThemedViewWrapper } from "@/components/ThemedView";
+import { ThemedText } from "@/components/ThemedText";
+import { GlassView } from "expo-glass-effect";
 
 const LENGTH = 10;
 
@@ -28,17 +30,21 @@ export default function Index() {
       <Animated.ScrollView
         style={styles.container}
         onScroll={scrollHandler}
-        contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 180 }}
-        // contentInsetAdjustmentBehavior="automatic"
-        contentInset={{ top: LENGTH * -1 }}
-        scrollEventThrottle={16}
+        contentContainerStyle={{
+          padding: 16,
+          gap: 16,
+          paddingBottom: LENGTH < 3 ? 0 : Math.min(180, LENGTH * 30),
+        }}
+        contentInsetAdjustmentBehavior="automatic"
+        contentInset={{ top: Math.max(-100, LENGTH * -10) }}
+        showsVerticalScrollIndicator={false}
       >
         {Array.from({ length: LENGTH }).map((_, index) => (
           <Card
             key={index}
+            index={index}
             scrollY={scrollY}
             scrollHeight={scrollHeight}
-            totalCards={LENGTH}
           />
         ))}
       </Animated.ScrollView>
@@ -49,28 +55,35 @@ export default function Index() {
 const Card = ({
   scrollY,
   scrollHeight,
+  index,
 }: {
   scrollY: SharedValue<number>;
   scrollHeight: SharedValue<number>;
-  totalCards?: number;
+  index?: number;
 }) => {
   const animatedStyle = useAnimatedStyle(() => {
     const h = scrollHeight.value;
-    const rotateX = interpolate(
-      scrollY.value,
-      [-200, 0, h, h + 200],
-      [-80, -75, -70, -65]
-      //   Extrapolation.EXTEND
-    );
+    console.log(h);
+
+    const indexFactor = 1 - (1 - (index ?? 0)) * (0.015 / (LENGTH / 10));
+    const rotateX =
+      interpolate(
+        scrollY.value,
+        h <= 0 ? [-200, 0, h + 200] : [-200, 0, h, h + 200],
+        h <= 0 ? [-80, -65, -70] : [-80, -75, -70, -60]
+        //   Extrapolation.EXTEND
+      ) *
+      Math.max(1, (5 - LENGTH) * 0.4) *
+      indexFactor;
 
     return {
       transform: [
         {
-          perspective: 1500,
+          perspective: 1600,
         },
         { rotateX: `${rotateX}deg` },
-        { scaleY: 1.4 },
-        { scaleX: 0.8 },
+        { scaleY: 1.6 },
+        { scaleX: 0.78 },
       ],
       zIndex: 1,
     };
@@ -86,13 +99,19 @@ const Card = ({
       ]}
     >
       <Animated.View style={[animatedStyle]}>
-        <ThemedView style={styles.card}>
-          <ThemedView style={styles.box} colorName="cardBg3D" />
+        <GlassView
+          style={styles.card}
+          tintColor="#FFFFFF0D"
+          //   isInteractive
+          //   glassEffectStyle="clear"
+        >
+          {/* <ThemedText>Hello There</ThemedText> */}
+          <ThemedView style={styles.box} />
           <View style={styles.dotWrapper}>
-            <ThemedView style={styles.dot} colorName="cardBg3D" />
-            <ThemedView style={styles.textBlock} colorName="cardBg3D" />
+            <ThemedView style={styles.dot} />
+            <ThemedView style={styles.textBlock} />
           </View>
-        </ThemedView>
+        </GlassView>
       </Animated.View>
     </View>
   );
@@ -111,8 +130,8 @@ const styles = StyleSheet.create({
     borderCurve: "continuous",
     gap: 12,
     // backgroundColor: "grey",
-    experimental_backgroundImage:
-      "linear-gradient(to bottom, #ffffff08 0%, #ffffff08 100%)",
+    // experimental_backgroundImage:
+    //   "linear-gradient(to bottom, #888888 0%, #88888880 100%)",
   },
   cardWrapper: {
     // width: "100%",
