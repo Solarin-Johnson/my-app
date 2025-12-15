@@ -12,7 +12,7 @@ import { ThemedView, ThemedViewWrapper } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { GlassView } from "expo-glass-effect";
 
-const LENGTH = 10;
+const LENGTH = 8;
 
 export default function Index() {
   const scrollY = useSharedValue(0);
@@ -65,7 +65,7 @@ const Card = ({
     const h = scrollHeight.value;
     console.log(h);
 
-    const indexFactor = 1 - (1 - (index ?? 0)) * (0.015 / (LENGTH / 10));
+    const indexFactor = 1 - (1 - (index ?? 0)) * (0.015 / (LENGTH / 5));
     const rotateX =
       interpolate(
         scrollY.value,
