@@ -9,6 +9,8 @@ import React from "react";
 import { ThemedView } from "./ThemedView";
 import Animated, {
   Easing,
+  Extrapolation,
+  interpolate,
   SharedValue,
   useAnimatedReaction,
   useAnimatedStyle,
@@ -48,6 +50,7 @@ export default function IOSCameraControl() {
   const tapped = useSharedValue(false);
   const appleRed = useThemeColor("appleRed");
   const snappedToRight = useSharedValue(false);
+  const text = useThemeColor("text");
 
   const escaped = useDerivedValue(() => {
     return progress.value > 0.25;
@@ -72,29 +75,31 @@ export default function IOSCameraControl() {
     })
     .onUpdate((e) => {
       if (snappedToRight.value) return;
-      tapped.value = false;
 
       progress.value = Math.min(
         1,
         Math.max(0, e.translationX / TRANSLATE_X_THRESHOLD)
       );
+      tapped.value = false;
     })
     .onEnd(() => {
       progress.value = withSpring(escaped.value ? 1 : 0);
       pressed.value = false;
-      snappedToRight.value = progress.value === 1;
+      snappedToRight.value = escaped.value;
     });
 
   const tapGesture = Gesture.Tap().onEnd(() => {
-    tapped.value = true;
     progress.value = progress.value > 0 ? 0 : 1;
+    snappedToRight.value = progress.value === 1;
+    tapped.value = snappedToRight.value;
   });
 
-  const combinedGesture = Gesture.Simultaneous(panGesture, tapGesture);
+  const combinedGesture = Gesture.Exclusive(panGesture, tapGesture);
 
   const snappedPanGesture = Gesture.Pan()
     .onTouchesDown(() => {
-      snappedToRight.value && (pressed.value = true);
+      if (!snappedToRight.value) return;
+      pressed.value = true;
     })
     .onTouchesCancelled(() => {
       pressed.value = false;
@@ -103,18 +108,22 @@ export default function IOSCameraControl() {
       pressed.value = false;
     })
     .onUpdate((e) => {
+      if (!snappedToRight.value) return;
       progress.value = Math.max(
         0,
         Math.min(1, 1 + e.translationX / TRANSLATE_X_THRESHOLD)
       );
-      console.log(progress.value);
+      tapped.value = false;
     })
     .onEnd(() => {
       progress.value = withSpring(escaped.value ? 1 : 0);
       pressed.value = false;
+      snappedToRight.value = escaped.value;
     });
 
   const draggableAnimatedStyle = useAnimatedStyle(() => {
+    console.log(tapped.value);
+
     return {
       transform: [
         {
@@ -124,7 +133,7 @@ export default function IOSCameraControl() {
       left: withTiming(DRAGGABLE_LEFT + (escaped.value ? REC_SIZE / 2 : 0), {
         duration: tapped.value ? 0 : 200,
       }),
-      backgroundColor: withTiming(escaped.value ? "#FFFFFF" : appleRed, {
+      backgroundColor: withTiming(escaped.value ? text : appleRed, {
         duration: escaped.value ? 100 : 40,
         easing: Easing.in(Easing.ease),
       }),
@@ -134,7 +143,7 @@ export default function IOSCameraControl() {
 
   const recButtonAnimatedStyle = useAnimatedStyle(() => {
     const scale = escaped.value
-      ? 0.55
+      ? 0.5
       : pressed.value
       ? 0.9 - progress.value / 3
       : 1;
@@ -166,15 +175,43 @@ export default function IOSCameraControl() {
     };
   });
 
+  const controlVisible = useDerivedValue(() => {
+    return (progress.value > 0 && pressed.value) || escaped.value;
+  });
+
+  const pauseControlVisible = useDerivedValue(() => {
+    return escaped.value;
+  });
+
+  const lineAnimatedStyle = useAnimatedStyle(() => {
+    const p = interpolate(
+      progress.value,
+      [0.25, 0.8],
+      [0, 1],
+      Extrapolation.CLAMP
+    );
+    const SPACE = 8;
+
+    return {
+      width: (1 - p) * (GAP - SPACE),
+      left: REC_CONTAINER_SIZE + GAP - SPACE / 2 - (1 - p) * (GAP - SPACE),
+      opacity: withTiming(controlVisible.value ? 1 : 0, {
+        duration: tapped ? 0 : 100,
+      }),
+    };
+  });
+
   return (
     <View style={styles.container}>
-      <ControlItem>
+      <ControlItem visible={pauseControlVisible}>
         <ThemedTextWrapper>
           <Octicons name="pause" size={24} color="black" />
         </ThemedTextWrapper>
       </ControlItem>
+
       <GestureDetector gesture={combinedGesture}>
         <ControlItem size={REC_CONTAINER_SIZE} glass style={{ zIndex: 2 }}>
+          <Animated.View style={[styles.line, lineAnimatedStyle]} />
           <Animated.View
             style={[styles.recButton, styles.draggable, draggableAnimatedStyle]}
           />
@@ -186,7 +223,7 @@ export default function IOSCameraControl() {
       </GestureDetector>
       <GestureDetector gesture={snappedPanGesture}>
         <Animated.View style={lockAnimatedStyle}>
-          <ControlItem>
+          <ControlItem visible={controlVisible}>
             <Animated.View style={lockIconAnimatedStyle}>
               <ThemedTextWrapper style={{ opacity: 0.5 }}>
                 <Ionicons name="lock-closed" size={23} />
@@ -211,7 +248,9 @@ const ControlItem: React.FC<
   const animatedStyle = useAnimatedStyle(() => {
     const isVisible = visible?.value ?? true;
     return {
-      opacity: withTiming(isVisible ? 1 : 0),
+      opacity: withTiming(isVisible ? 1 : 0, {
+        duration: isVisible ? 300 : 0,
+      }),
       transform: [
         {
           scale: withTiming(isVisible ? 1 : 0.5),
@@ -273,5 +312,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: DRAGGABLE_SIZE,
     borderRadius: "50%",
+  },
+  line: {
+    position: "absolute",
+    backgroundColor: "#888888A0",
+    height: 1,
   },
 });
