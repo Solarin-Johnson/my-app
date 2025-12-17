@@ -8,6 +8,7 @@ const tintColorDark = "#fff";
 
 const globalColors = {
   systemBlue: "#2D6AF6",
+  appleRed: "#FF3B30",
 };
 
 export const Colors = {
