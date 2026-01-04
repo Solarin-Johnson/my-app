@@ -83,6 +83,12 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="record-voice"
+        options={{
+          drawerLabel: "Record Voice",
+        }}
+      />
+      <Drawer.Screen
         name="ios-camera"
         options={{
           drawerLabel: "iOS Camera",
