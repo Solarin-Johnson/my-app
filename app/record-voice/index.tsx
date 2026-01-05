@@ -106,8 +106,9 @@ type ItemProps = {
 };
 
 const MessageBox = ({ recording, timer, isDeleting }: ItemProps) => {
-  const notRecording = useDerivedValue(
-    () => !recording.value && !isDeleting.value
+  const notRecording = useDerivedValue(() => !recording.value);
+  const notRecordAndDelete = useDerivedValue(
+    () => notRecording.value && !isDeleting.value
   );
   const deletingOrRecording = useDerivedValue(
     () => isDeleting.value || recording.value
@@ -157,7 +158,7 @@ const MessageBox = ({ recording, timer, isDeleting }: ItemProps) => {
       };
     });
 
-  const plusAnimatedStyle = createIconAnimatedStyle(notRecording);
+  const plusAnimatedStyle = createIconAnimatedStyle(notRecordAndDelete);
   const inputAnimatedStyle = createIconAnimatedStyle(notRecording, 1);
   const shimmerAnimatedStyle = createIconAnimatedStyle(recording, 1);
   const binAnimatedStyle = createIconAnimatedStyle(isDeleting);
@@ -220,7 +221,9 @@ const MessageBox = ({ recording, timer, isDeleting }: ItemProps) => {
       <AnimatedThemedView
         style={[styles.durationContainer, shimmerAnimatedStyle]}
       >
-        <AnimatedText text={time} style={styles.durationText} />
+        <ThemedTextWrapper ignoreStyle={false}>
+          <AnimatedText text={time} style={styles.durationText} />
+        </ThemedTextWrapper>
       </AnimatedThemedView>
     </ThemedView>
   );
@@ -231,9 +234,8 @@ const RecordButton = ({ recording, timer, isDeleting }: ItemProps) => {
 
   const onEnd = () => {
     "worklet";
-    recording.value = false;
+
     translateX.value = withSpring(0);
-    timer.value = 0;
   };
 
   const panGesture = Gesture.Pan()
@@ -242,8 +244,11 @@ const RecordButton = ({ recording, timer, isDeleting }: ItemProps) => {
     })
     .onUpdate((e) => {
       if (e.translationX < -TRESHOLD_CANCEL) {
+        if (recording.value) {
+          recording.value = false;
+          isDeleting.value = timer.value >= 1;
+        }
         onEnd();
-        isDeleting.value = true;
         return;
       }
       translateX.value = e.translationX;
@@ -252,7 +257,7 @@ const RecordButton = ({ recording, timer, isDeleting }: ItemProps) => {
       onEnd();
     })
     .onTouchesCancelled(() => {
-      recording.value = false;
+      onEnd();
     })
     .onEnd(() => {
       onEnd();
@@ -401,12 +406,13 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
-    width: 180,
+    width: 200,
   },
   shimmerText: {
     fontSize: 17,
     textAlign: "right",
     opacity: 0.8,
+    lineHeight: 18,
   },
   durationContainer: {
     position: "absolute",
@@ -419,8 +425,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   durationText: {
-    fontSize: 15,
+    fontSize: 16,
     width: 40,
     fontVariant: ["tabular-nums"],
+    color: "grey",
+    opacity: 0.6,
   },
 });
