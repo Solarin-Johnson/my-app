@@ -5,9 +5,11 @@ import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import Animated, {
   SharedValue,
+  useAnimatedReaction,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
+  withRepeat,
   withSequence,
   withSpring,
   withTiming,
@@ -17,10 +19,18 @@ import ShimmeringText from "@/components/ui/ShimmeringText";
 import FadeLoop from "@/components/ui/FadeLoop";
 import { ViewProps } from "react-native-svg/lib/typescript/fabric/utils";
 import { TrashBase, TrashCover } from "@/components/icons";
+import { AnimatedText } from "@/components/ui/animated-text";
 
 const TRESHOLD_CANCEL = 150;
 
 const AnimatedThemedView = Animated.createAnimatedComponent(ThemedView);
+
+function formatTime(seconds: number) {
+  "worklet";
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+}
 
 export default function Index() {
   return (
@@ -30,21 +40,45 @@ export default function Index() {
   );
 }
 
+let TIMER = 0;
+
 const MessageCard = () => {
   const recording = useSharedValue(false);
-  const timer = useSharedValue(0);
   const isDeleting = useSharedValue(false);
+
+  const seconds = useSharedValue(0);
+
+  useAnimatedReaction(
+    () => recording.value,
+    (isRecording, prevIsRecording) => {
+      if (isRecording && !prevIsRecording) {
+        const tick = () => {
+          seconds.value = withTiming(
+            seconds.value + 1,
+            { duration: 1000 },
+            () => {
+              if (recording.value) tick();
+            }
+          );
+        };
+        tick();
+      } else if (!isRecording && prevIsRecording) {
+        seconds.value = 0;
+      }
+    }
+  );
+
   return (
     <>
       <View style={styles.messageCard}>
         <MessageBox
           recording={recording}
-          timer={timer}
+          timer={seconds}
           isDeleting={isDeleting}
         />
         <RecordButton
           recording={recording}
-          timer={timer}
+          timer={seconds}
           isDeleting={isDeleting}
         />
       </View>
@@ -144,6 +178,10 @@ const MessageBox = ({ recording, timer, isDeleting }: ItemProps) => {
     };
   });
 
+  const time = useDerivedValue(() => {
+    return formatTime(timer.value);
+  });
+
   return (
     <ThemedView style={styles.messageBox}>
       <View style={styles.msgBoxButton}>
@@ -182,7 +220,7 @@ const MessageBox = ({ recording, timer, isDeleting }: ItemProps) => {
       <AnimatedThemedView
         style={[styles.durationContainer, shimmerAnimatedStyle]}
       >
-        <ThemedText>0:12</ThemedText>
+        <AnimatedText text={time} style={styles.durationText} />
       </AnimatedThemedView>
     </ThemedView>
   );
@@ -195,11 +233,12 @@ const RecordButton = ({ recording, timer, isDeleting }: ItemProps) => {
     "worklet";
     recording.value = false;
     translateX.value = withSpring(0);
+    timer.value = 0;
   };
+
   const panGesture = Gesture.Pan()
     .onTouchesDown(() => {
       recording.value = true;
-      timer.value = 0;
     })
     .onUpdate((e) => {
       if (e.translationX < -TRESHOLD_CANCEL) {
@@ -210,7 +249,7 @@ const RecordButton = ({ recording, timer, isDeleting }: ItemProps) => {
       translateX.value = e.translationX;
     })
     .onTouchesUp(() => {
-      recording.value = false;
+      onEnd();
     })
     .onTouchesCancelled(() => {
       recording.value = false;
@@ -377,7 +416,11 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: "50%",
     borderBottomLeftRadius: "50%",
     paddingLeft: 48,
-    paddingRight: 12,
     justifyContent: "center",
+  },
+  durationText: {
+    fontSize: 15,
+    width: 40,
+    fontVariant: ["tabular-nums"],
   },
 });
