@@ -1,7 +1,7 @@
 import { View, StyleSheet, TextInput, Button } from "react-native";
 import React from "react";
-import { Mic, Plus, Trash } from "lucide-react-native";
-import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
+import { Mic, Plus } from "lucide-react-native";
+import { ThemedTextWrapper } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import Animated, {
   SharedValue,
@@ -9,7 +9,6 @@ import Animated, {
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
-  withRepeat,
   withSequence,
   withSpring,
   withTiming,
@@ -20,6 +19,8 @@ import FadeLoop from "@/components/ui/FadeLoop";
 import { ViewProps } from "react-native-svg/lib/typescript/fabric/utils";
 import { TrashBase, TrashCover } from "@/components/icons";
 import { AnimatedText } from "@/components/ui/animated-text";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 
 const TRESHOLD_CANCEL = 150;
 
@@ -34,8 +35,16 @@ function formatTime(seconds: number) {
 
 export default function Index() {
   return (
-    <ThemedView style={styles.container} colorName="barColor">
-      <MessageCard />
+    <ThemedView style={{ flex: 1 }} colorName="theme">
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior="height"
+        keyboardVerticalOffset={-10}
+      >
+        <SafeAreaView style={styles.container}>
+          <MessageCard />
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </ThemedView>
   );
 }
@@ -184,7 +193,7 @@ const MessageBox = ({ recording, timer, isDeleting }: ItemProps) => {
   });
 
   return (
-    <ThemedView style={styles.messageBox}>
+    <ThemedView style={styles.messageBox} colorName="recordBg">
       <View style={styles.msgBoxButton}>
         <Animated.View style={[styles.buttonItem, plusAnimatedStyle]}>
           <ThemedTextWrapper>
@@ -204,9 +213,12 @@ const MessageBox = ({ recording, timer, isDeleting }: ItemProps) => {
         </Animated.View>
         <TrashComponent isDeleting={isDeleting} style={binAnimatedStyle} />
       </View>
-      <Animated.View style={[inputAnimatedStyle]}>
+      <Animated.View style={[{ flex: 1 }, inputAnimatedStyle]}>
         <ThemedTextWrapper style={styles.input} ignoreStyle={false}>
-          <TextInput placeholder="Type your message..." />
+          <TextInput
+            placeholder="Type your message..."
+            placeholderTextColor={"grey"}
+          />
         </ThemedTextWrapper>
       </Animated.View>
       <Animated.View style={[styles.shimmerContainer, shimmerAnimatedStyle]}>
@@ -220,6 +232,7 @@ const MessageBox = ({ recording, timer, isDeleting }: ItemProps) => {
       </Animated.View>
       <AnimatedThemedView
         style={[styles.durationContainer, shimmerAnimatedStyle]}
+        colorName="recordBg"
       >
         <ThemedTextWrapper ignoreStyle={false}>
           <AnimatedText text={time} style={styles.durationText} />
@@ -234,8 +247,8 @@ const RecordButton = ({ recording, timer, isDeleting }: ItemProps) => {
 
   const onEnd = () => {
     "worklet";
-
     translateX.value = withSpring(0);
+    recording.value = timer.value >= 1;
   };
 
   const panGesture = Gesture.Pan()
@@ -244,11 +257,11 @@ const RecordButton = ({ recording, timer, isDeleting }: ItemProps) => {
     })
     .onUpdate((e) => {
       if (e.translationX < -TRESHOLD_CANCEL) {
+        onEnd();
         if (recording.value) {
           recording.value = false;
           isDeleting.value = timer.value >= 1;
         }
-        onEnd();
         return;
       }
       translateX.value = e.translationX;
@@ -359,8 +372,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 16,
+    justifyContent: "flex-end",
+    paddingHorizontal: 8,
   },
   messageCard: {
     width: "100%",
@@ -385,7 +398,7 @@ const styles = StyleSheet.create({
   msgBoxButton: {
     borderRadius: "50%",
     aspectRatio: 1,
-    height: 24,
+    width: 28,
     alignItems: "center",
     justifyContent: "center",
     // backgroundColor: "red",
@@ -419,14 +432,14 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    borderTopLeftRadius: "50%",
-    borderBottomLeftRadius: "50%",
+    borderTopLeftRadius: 50,
+    borderBottomLeftRadius: 50,
     paddingLeft: 48,
     justifyContent: "center",
   },
   durationText: {
     fontSize: 16,
-    width: 40,
+    width: 42,
     fontVariant: ["tabular-nums"],
     color: "grey",
     opacity: 0.6,
