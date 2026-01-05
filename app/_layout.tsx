@@ -86,6 +86,7 @@ export function NavigationDrawer() {
         name="record-voice"
         options={{
           drawerLabel: "Record Voice",
+          ...edgeSwipe,
         }}
       />
       <Drawer.Screen
