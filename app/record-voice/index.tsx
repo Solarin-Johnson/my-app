@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-end",
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
   },
   messageCard: {
     width: "100%",
