@@ -45,3 +45,36 @@ export const GrokIcon = (props: IconProps) => {
     </Svg>
   );
 };
+
+export const TrashBase = (props: IconProps) => {
+  const { size = 22, color = "black", weight = 2 } = props;
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M19 4V18C19 18.5304 18.7893 19.0391 18.4142 19.4142C18.0391 19.7893 17.5304 20 17 20H7C6.46957 20 5.96086 19.7893 5.58579 19.4142C5.21071 19.0391 5 18.5304 5 18C5 18 5 9.46734 5 4"
+        stroke={color}
+        fill={color}
+        strokeWidth={weight}
+        // strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+};
+
+export const TrashCover = (props: IconProps) => {
+  const { size = 22, color = "black", weight = 2 } = props;
+  const height = (size / 24) * 8;
+  return (
+    <Svg width={size} height={height} viewBox="0 0 24 8" fill="none">
+      <Path
+        d="M1 7H12H23M7.11111 7V4C7.11111 3.20435 7.36865 2.44129 7.82707 1.87868C8.28549 1.31607 8.90725 1 9.55556 1H14.4444C15.0928 1 15.7145 1.31607 16.1729 1.87868C16.6313 2.44129 16.8889 3.20435 16.8889 4V7"
+        stroke={color}
+        strokeWidth={weight}
+        fill={color}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+};
