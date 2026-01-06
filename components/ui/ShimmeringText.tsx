@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import MaskedView from "@react-native-masked-view/masked-view";
 import Animated, {
+  interpolate,
   measure,
   SharedValue,
   useAnimatedRef,
@@ -36,6 +37,8 @@ export type ShimmeringTextProps = {
   color?: string;
   rtl?: boolean;
   start?: SharedValue<boolean>;
+  progress?: SharedValue<number>;
+  textWrapperStyle?: StyleProp<ViewStyle>;
 };
 
 export default function ShimmeringText({
@@ -47,8 +50,13 @@ export default function ShimmeringText({
   layerStyle,
   color = "#ffffff90",
   rtl = false,
-  start,
+  start: _start,
+  progress: _progress,
+  textWrapperStyle,
 }: ShimmeringTextProps) {
+  const __start = useSharedValue(true);
+  const start = _start || __start;
+
   const { width: windowWidth } = useWindowDimensions();
   const textRef = useAnimatedRef();
   const dimensions = useSharedValue<{ width: number; x: number }>({
@@ -67,24 +75,26 @@ export default function ShimmeringText({
     });
   }, [windowWidth]);
 
-  const translateX = useDerivedValue(() => {
-    const { width, x } = dimensions.value;
-    if (start?.value) {
+  const progress = useDerivedValue(() => {
+    if (start.value) {
       return withRepeat(
         withSequence(
-          withTiming(width + x, { duration: speed }),
-          withTiming(-size, { duration: 0 })
+          withTiming(0, { duration: 0 }),
+          withTiming(1, { duration: speed })
         ),
         -1,
         true
       );
+    } else {
+      return _progress?.value || 0;
     }
-    return 0;
   });
 
   const animatedSliderStyle = useAnimatedStyle(() => {
+    const { width, x } = dimensions.value;
+
     return {
-      left: translateX.value,
+      left: interpolate(progress.value, [0, 1], [-size + x, x + width]),
       width: size,
     };
   });
@@ -100,18 +110,21 @@ export default function ShimmeringText({
       ]}
       maskElement={
         <View
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100%",
-          }}
+          style={[
+            {
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            },
+            textWrapperStyle,
+          ]}
         >
           <AnimatedThemedText
             ref={textRef}
             style={[
               {
-                fontSize: 30,
-                fontWeight: "500",
+                // backgroundColor: "red",
+                fontSize: 24,
               },
               textStyle,
               {
