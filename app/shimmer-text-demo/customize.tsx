@@ -1,23 +1,22 @@
 import {
   View,
-  Text,
   StyleSheet,
   Switch,
   StyleProp,
   ViewStyle,
+  TextInput,
 } from "react-native";
-import React, { useState } from "react";
+import React from "react";
 import { useShimmerText } from "./_layout";
 import Slider from "@/components/Slider";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { ThemedText } from "@/components/ThemedText";
+import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { ColorPicker, Host } from "@expo/ui/swift-ui";
 
 export default function CustomizeScreen() {
   const {
     progress,
     pressed,
-    playing,
     rtl,
     setRtl,
     color,
@@ -26,8 +25,10 @@ export default function CustomizeScreen() {
     duration,
     tintColor,
     setTintColor,
+    text,
+    setText,
   } = useShimmerText();
-  const text = useThemeColor("text");
+  const textColor = useThemeColor("text");
 
   return (
     <View style={styles.container}>
@@ -36,8 +37,8 @@ export default function CustomizeScreen() {
           value={progress}
           max={1}
           pressed={pressed}
-          trackColor={text + "40"}
-          thumbColor={text}
+          trackColor={textColor + "40"}
+          thumbColor={textColor}
         />
       </Cluster>
       <View
@@ -65,16 +66,17 @@ export default function CustomizeScreen() {
         <Slider
           value={duration}
           max={5000}
-          trackColor={text + "40"}
-          thumbColor={text}
+          trackColor={textColor + "40"}
+          thumbColor={textColor}
         />
       </Cluster>
       <Cluster label="Size">
         <Slider
+          pressed={pressed}
           value={size}
           max={200}
-          trackColor={text + "40"}
-          thumbColor={text}
+          trackColor={textColor + "40"}
+          thumbColor={textColor}
         />
       </Cluster>
 
@@ -85,6 +87,14 @@ export default function CustomizeScreen() {
           onValueChange={setRtl}
         />
       </Cluster>
+      <Cluster label="Preview">
+        <ThemedTextWrapper style={[styles.label, styles.input]}>
+          <TextInput
+            defaultValue={text}
+            onSubmitEditing={(e) => setText(e.nativeEvent.text)}
+          />
+        </ThemedTextWrapper>
+      </Cluster>
     </View>
   );
 }
@@ -94,13 +104,13 @@ const Cluster = ({
   children,
   style,
 }: {
-  label: string;
+  label?: string;
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
 }) => {
   return (
     <View style={[styles.cluster, style]}>
-      <ThemedText style={styles.label}>{label}</ThemedText>
+      {label && <ThemedText style={styles.label}>{label}</ThemedText>}
       <View style={{ maxWidth: 200, flex: 1 }}>{children}</View>
     </View>
   );
@@ -121,5 +131,11 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 19,
+  },
+  input: {
+    textAlign: "right",
+    borderBottomWidth: 2,
+    paddingVertical: 6,
+    borderColor: "#888888AB",
   },
 });

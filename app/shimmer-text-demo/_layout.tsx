@@ -25,6 +25,8 @@ export const ShimmerTextContext = createContext<{
   setColor: Dispatch<SetStateAction<string>>;
   tintColor: string;
   setTintColor: Dispatch<SetStateAction<string>>;
+  text: string;
+  setText: Dispatch<SetStateAction<string>>;
 } | null>(null);
 
 export function ShimmerTextProvider({
@@ -32,14 +34,15 @@ export function ShimmerTextProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const text = useThemeColor("shimmerText");
+  const textColor = useThemeColor("shimmerText");
 
   const progress = useSharedValue(0.35);
   const pressed = useSharedValue(false);
   const playing = useDerivedValue(() => !pressed.value);
   const [rtl, setRtl] = useState(false);
+  const [text, setText] = useState("Cooking...");
 
-  const [color, setColor] = useState(text);
+  const [color, setColor] = useState(textColor);
   const [tintColor, setTintColor] = useState("#FFFFFF");
   const duration = useSharedValue(3000);
   const size = useSharedValue(60);
@@ -58,6 +61,8 @@ export function ShimmerTextProvider({
         setColor,
         tintColor,
         setTintColor,
+        text,
+        setText,
       }}
     >
       {children}
@@ -90,6 +95,7 @@ export default function Layout() {
             sheetAllowedDetents: [0.2, 0.4],
             // gestureEnabled: false,
             sheetLargestUndimmedDetentIndex: 1,
+            // sheetGrabberVisible: true,
             contentStyle: {
               backgroundColor: "transparent",
             },

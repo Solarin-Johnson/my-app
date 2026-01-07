@@ -1,12 +1,11 @@
-import { Pressable, View } from "react-native";
+import { Pressable } from "react-native";
 import React from "react";
 import ShimmeringText from "@/components/ui/ShimmeringText";
 import { useShimmerText } from "./_layout";
 import { Link } from "expo-router";
-import { useThemeColor } from "@/hooks/useThemeColor";
 
 export default function Index() {
-  const { progress, playing, rtl, color, size, duration, tintColor } =
+  const { progress, playing, rtl, color, size, duration, tintColor, text } =
     useShimmerText();
   console.log(color);
 
@@ -16,7 +15,7 @@ export default function Index() {
         style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
       >
         <ShimmeringText
-          text="Cooking..."
+          text={text}
           // layerStyle={{ backgroundColor: "red" }}
           textStyle={{ fontSize: 28 }}
           progress={progress}

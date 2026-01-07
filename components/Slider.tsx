@@ -14,6 +14,7 @@ import Animated, {
   measure,
   useAnimatedRef,
   Extrapolation,
+  useDerivedValue,
 } from "react-native-reanimated";
 import { scheduleOnRN, scheduleOnUI } from "react-native-worklets";
 
@@ -42,13 +43,24 @@ export default function Slider({
   pressed: externalPressed,
   scrubbing: externalScrubbing,
 }: SliderProps) {
-  const value = externalValue || useSharedValue(0);
+  const defaultValue = useSharedValue(0);
+  const value = externalValue || defaultValue;
   const startValue = useSharedValue(0);
-  const pressed = externalPressed || useSharedValue(false);
+  const pressed = useSharedValue(false);
   const overDrag = useSharedValue(0);
   const trackRef = useAnimatedRef();
   const sliderWidth = useSharedValue(0);
-  const scrubbing = externalScrubbing || useSharedValue(false);
+  const defaultScrubbing = useSharedValue(false);
+  const scrubbing = externalScrubbing || defaultScrubbing;
+
+  useAnimatedReaction(
+    () => pressed.value,
+    (current) => {
+      if (externalPressed) {
+        externalPressed.value = current;
+      }
+    }
+  );
 
   const HapticFeedback = () => {
     Feedback.selection();
