@@ -41,6 +41,7 @@ export type ShimmeringTextProps = {
   start?: SharedValue<boolean>;
   progress?: SharedValue<number>;
   textWrapperStyle?: StyleProp<ViewStyle>;
+  tintColor?: string;
 };
 
 export default function ShimmeringText({
@@ -57,6 +58,7 @@ export default function ShimmeringText({
   start: _start,
   progress: _progress,
   textWrapperStyle,
+  tintColor = "#FFFFFF",
 }: ShimmeringTextProps) {
   const __start = useSharedValue(true);
   const start = _start || __start;
@@ -165,7 +167,7 @@ export default function ShimmeringText({
         ]}
       >
         <AnimatedLinearGradient
-          colors={["#ffffff00", "#ffffff", "#ffffff00"]}
+          colors={[`${tintColor}00`, tintColor, `${tintColor}00`]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={[styles.slider, animatedSliderStyle]}

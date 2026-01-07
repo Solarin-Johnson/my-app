@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, Switch } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Switch,
+  StyleProp,
+  ViewStyle,
+} from "react-native";
 import React, { useState } from "react";
 import { useShimmerText } from "./_layout";
 import Slider from "@/components/Slider";
@@ -15,10 +22,10 @@ export default function CustomizeScreen() {
     setRtl,
     color,
     setColor,
-    loop,
-    setLoop,
     size,
     duration,
+    tintColor,
+    setTintColor,
   } = useShimmerText();
   const text = useThemeColor("text");
 
@@ -33,11 +40,27 @@ export default function CustomizeScreen() {
           thumbColor={text}
         />
       </Cluster>
-      <Cluster label="Color">
-        <Host style={{ width: "100%", height: "100%" }}>
-          <ColorPicker selection={color} onValueChanged={setColor} />
-        </Host>
-      </Cluster>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <Cluster label="Color" style={{ maxWidth: 100 }}>
+          <Host style={{ height: "100%" }}>
+            <ColorPicker selection={color} onValueChanged={setColor} />
+          </Host>
+        </Cluster>
+        <Cluster label="Tint Color" style={{ maxWidth: 140 }}>
+          <Host style={{ height: "100%" }}>
+            <ColorPicker
+              selection={tintColor}
+              onValueChanged={setTintColor}
+              supportsOpacity={false}
+            />
+          </Host>
+        </Cluster>
+      </View>
       <Cluster label="Duration">
         <Slider
           value={duration}
@@ -54,6 +77,7 @@ export default function CustomizeScreen() {
           thumbColor={text}
         />
       </Cluster>
+
       <Cluster label="Invert">
         <Switch
           style={{ alignSelf: "flex-end" }}
@@ -68,12 +92,14 @@ export default function CustomizeScreen() {
 const Cluster = ({
   label,
   children,
+  style,
 }: {
   label: string;
   children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
 }) => {
   return (
-    <View style={styles.cluster}>
+    <View style={[styles.cluster, style]}>
       <ThemedText style={styles.label}>{label}</ThemedText>
       <View style={{ maxWidth: 200, flex: 1 }}>{children}</View>
     </View>

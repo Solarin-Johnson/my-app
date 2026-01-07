@@ -23,8 +23,8 @@ export const ShimmerTextContext = createContext<{
   setRtl: Dispatch<SetStateAction<boolean>>;
   color: string;
   setColor: Dispatch<SetStateAction<string>>;
-  loop: boolean;
-  setLoop: Dispatch<SetStateAction<boolean>>;
+  tintColor: string;
+  setTintColor: Dispatch<SetStateAction<string>>;
 } | null>(null);
 
 export function ShimmerTextProvider({
@@ -40,9 +40,10 @@ export function ShimmerTextProvider({
   const [rtl, setRtl] = useState(false);
 
   const [color, setColor] = useState(text);
+  const [tintColor, setTintColor] = useState("#FFFFFF");
   const duration = useSharedValue(3000);
   const size = useSharedValue(60);
-  const [loop, setLoop] = useState(true);
+
   return (
     <ShimmerTextContext.Provider
       value={{
@@ -53,10 +54,10 @@ export function ShimmerTextProvider({
         color,
         duration,
         size,
-        loop,
         setRtl,
         setColor,
-        setLoop,
+        tintColor,
+        setTintColor,
       }}
     >
       {children}
@@ -86,7 +87,7 @@ export default function Layout() {
           name="customize"
           options={{
             presentation: "formSheet",
-            sheetAllowedDetents: [0.2, 0.38],
+            sheetAllowedDetents: [0.2, 0.4],
             // gestureEnabled: false,
             sheetLargestUndimmedDetentIndex: 1,
             contentStyle: {

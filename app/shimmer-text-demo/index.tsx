@@ -6,7 +6,8 @@ import { Link } from "expo-router";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
 export default function Index() {
-  const { progress, playing, rtl, color, loop, size, duration } = useShimmerText();
+  const { progress, playing, rtl, color, size, duration, tintColor } =
+    useShimmerText();
   console.log(color);
 
   return (
@@ -24,6 +25,7 @@ export default function Index() {
           duration={duration}
           size={size}
           rtl={rtl}
+          tintColor={tintColor}
         />
       </Pressable>
     </Link>
