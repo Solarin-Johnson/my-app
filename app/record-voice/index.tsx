@@ -1,4 +1,4 @@
-import { View, StyleSheet, TextInput, Button } from "react-native";
+import { View, StyleSheet, TextInput } from "react-native";
 import React from "react";
 import { Mic, Plus } from "lucide-react-native";
 import { ThemedTextWrapper } from "@/components/ThemedText";
@@ -21,7 +21,6 @@ import { TrashBase, TrashCover } from "@/components/icons";
 import { AnimatedText } from "@/components/ui/animated-text";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
-import Slider from "@/components/Slider";
 
 const TRESHOLD_CANCEL = 150;
 
@@ -35,9 +34,6 @@ function formatTime(seconds: number) {
 }
 
 export default function Index() {
-  const progress = useSharedValue(0);
-  const pressed = useSharedValue(false);
-  const playing = useDerivedValue(() => !pressed.value);
   return (
     <ThemedView style={{ flex: 1 }} colorName="theme">
       <KeyboardAvoidingView
@@ -46,15 +42,6 @@ export default function Index() {
         keyboardVerticalOffset={-10}
       >
         <SafeAreaView style={styles.container}>
-          <ShimmeringText
-            text="Cooking..."
-            // layerStyle={{ backgroundColor: "red" }}
-            textStyle={{ fontSize: 28 }}
-            progress={progress}
-            start={playing}
-          />
-          <Slider value={progress} max={1} pressed={pressed} />
-
           <MessageCard />
         </SafeAreaView>
       </KeyboardAvoidingView>

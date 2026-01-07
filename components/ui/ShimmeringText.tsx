@@ -31,8 +31,10 @@ export type ShimmeringTextProps = {
   text: string;
   textStyle?: StyleProp<TextStyle>;
   style?: StyleProp<ViewStyle>;
-  speed?: number;
-  size?: number;
+  initDuration?: number;
+  duration?: SharedValue<number>;
+  initSize?: number;
+  size?: SharedValue<number>;
   layerStyle?: StyleProp<ViewStyle>;
   color?: string;
   rtl?: boolean;
@@ -45,8 +47,10 @@ export default function ShimmeringText({
   text,
   textStyle,
   style,
-  speed = 3000,
-  size = 60,
+  initDuration = 3000,
+  initSize = 60,
+  duration: _duration,
+  size: _size,
   layerStyle,
   color = "#ffffff90",
   rtl = false,
@@ -56,6 +60,13 @@ export default function ShimmeringText({
 }: ShimmeringTextProps) {
   const __start = useSharedValue(true);
   const start = _start || __start;
+
+  const duration = useDerivedValue(() => {
+    return _duration ? _duration.value : initDuration;
+  });
+  const size = useDerivedValue(() => {
+    return _size ? _size.value : initSize;
+  });
 
   const { width: windowWidth } = useWindowDimensions();
   const textRef = useAnimatedRef();
@@ -80,7 +91,7 @@ export default function ShimmeringText({
       return withRepeat(
         withSequence(
           withTiming(0, { duration: 0 }),
-          withTiming(1, { duration: speed })
+          withTiming(1, { duration: duration.value })
         ),
         -1,
         true
@@ -94,8 +105,8 @@ export default function ShimmeringText({
     const { width, x } = dimensions.value;
 
     return {
-      left: interpolate(progress.value, [0, 1], [-size + x, x + width]),
-      width: size,
+      left: interpolate(progress.value, [0, 1], [-size.value + x, x + width]),
+      width: size.value,
     };
   });
 

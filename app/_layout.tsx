@@ -83,6 +83,13 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="shimmer-text-demo"
+        options={{
+          drawerLabel: "Shimmer Text Demo",
+          ...edgeSwipe,
+        }}
+      />
+      <Drawer.Screen
         name="record-voice"
         options={{
           drawerLabel: "Record Voice",
