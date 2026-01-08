@@ -12,6 +12,7 @@ import {
   useSharedValue,
 } from "react-native-reanimated";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { Platform } from "react-native";
 
 export const ShimmerTextContext = createContext<{
   progress: SharedValue<number>;
@@ -28,6 +29,8 @@ export const ShimmerTextContext = createContext<{
   text: string;
   setText: Dispatch<SetStateAction<string>>;
 } | null>(null);
+
+const isIos = Platform.OS === "ios";
 
 export function ShimmerTextProvider({
   children,
@@ -85,19 +88,19 @@ export default function Layout() {
         screenOptions={{
           headerShown: false,
         }}
-        initialRouteName="customize"
       >
         <Stack.Screen name="index" options={{}} />
         <Stack.Screen
           name="customize"
           options={{
             presentation: "formSheet",
-            sheetAllowedDetents: [0.2, 0.4],
-            // gestureEnabled: false,
+            sheetAllowedDetents: [0.2, 0.37],
             sheetLargestUndimmedDetentIndex: 1,
-            // sheetGrabberVisible: true,
+            sheetInitialDetentIndex: 1,
             contentStyle: {
-              backgroundColor: "transparent",
+              ...(isIos && {
+                backgroundColor: "transparent",
+              }),
             },
           }}
         />
