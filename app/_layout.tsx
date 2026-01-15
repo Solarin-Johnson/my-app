@@ -26,6 +26,7 @@ export default function RootLayout() {
     InterMedium: require("../assets/fonts/Inter-Medium.ttf"),
     InterSemiBold: require("../assets/fonts/Inter-SemiBold.ttf"),
     InterBold: require("../assets/fonts/Inter-Bold.ttf"),
+    LoraMediumItalic: require("../assets/fonts/Lora-MediumItalic.ttf"),
   });
 
   if (!loaded) {
@@ -83,10 +84,15 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="fancy-text-demo"
+        options={{
+          drawerLabel: "Fancy Text Demo",
+        }}
+      />
+      <Drawer.Screen
         name="shimmer-text-demo"
         options={{
           drawerLabel: "Shimmer Text Demo",
-          ...edgeSwipe,
         }}
       />
       <Drawer.Screen
