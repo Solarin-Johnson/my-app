@@ -13,80 +13,39 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { ColorPicker, Host } from "@expo/ui/swift-ui";
 import { useFancyText } from "./_layout";
+import Button from "@/components/ui/Button";
+import PressableBounce from "@/components/PresableBounce";
+import { ThemedViewWrapper } from "@/components/ThemedView";
 
 const isIos = Platform.OS === "ios";
-
 export default function CustomizeScreen() {
-  const {} = useFancyText();
+  const { bounce, setBounce, currentIndex } = useFancyText();
   const textColor = useThemeColor("text");
 
   return (
     <View style={styles.container}>
-      <Cluster label="Progress">
-        <Slider
-          value={progress}
-          max={1}
-          pressed={pressed}
-          trackColor={textColor + "40"}
-          thumbColor={textColor}
-        />
-      </Cluster>
-      {isIos && (
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
-          <Cluster label="Color" style={{ maxWidth: 100 }}>
-            <Host style={{ height: "100%" }}>
-              <ColorPicker selection={color} onValueChanged={setColor} />
-            </Host>
-          </Cluster>
-          <Cluster label="Tint Color" style={{ maxWidth: 140 }}>
-            <Host style={{ height: "100%" }}>
-              <ColorPicker
-                selection={tintColor}
-                onValueChanged={setTintColor}
-                supportsOpacity={false}
-              />
-            </Host>
-          </Cluster>
-        </View>
-      )}
-      <Cluster label="Duration">
-        <Slider
-          value={duration}
-          max={5000}
-          trackColor={textColor + "40"}
-          thumbColor={textColor}
-        />
-      </Cluster>
-      <Cluster label="Size">
-        <Slider
-          pressed={pressed}
-          value={size}
-          max={200}
-          trackColor={textColor + "40"}
-          thumbColor={textColor}
-        />
-      </Cluster>
-
-      <Cluster label="Invert">
-        <Switch
-          style={{ alignSelf: "flex-end" }}
-          value={rtl}
-          onValueChange={setRtl}
-        />
-      </Cluster>
-      {/* <Cluster label="Preview">
-        <ThemedTextWrapper style={[styles.label, styles.input]}>
-          <TextInput
-            defaultValue={text}
-            onSubmitEditing={(e) => setText(e.nativeEvent.text)}
+      {setBounce && (
+        <Cluster label="Bounce">
+          <Switch
+            style={{ alignSelf: "flex-end" }}
+            value={bounce}
+            onValueChange={setBounce}
           />
-        </ThemedTextWrapper>
-      </Cluster> */}
+        </Cluster>
+      )}
+      <ThemedViewWrapper colorName="text">
+        <PressableBounce
+          onPress={() => {
+            currentIndex.value = (currentIndex.value + 1) % 3;
+          }}
+          style={styles.button}
+          bounceScale={0.99}
+        >
+          <ThemedText colorName="background" type="semiBold">
+            Next
+          </ThemedText>
+        </PressableBounce>
+      </ThemedViewWrapper>
     </View>
   );
 }
@@ -129,5 +88,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     paddingVertical: 6,
     borderColor: "#888888AB",
+  },
+  button: {
+    width: "100%",
+    alignItems: "center",
+    borderCurve: "continuous",
+    paddingVertical: 16,
+    borderRadius: 20,
+    marginTop: 12,
   },
 });

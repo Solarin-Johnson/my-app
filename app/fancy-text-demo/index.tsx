@@ -1,36 +1,38 @@
 import { Pressable } from "react-native";
 import React from "react";
-import ShimmeringText from "@/components/ui/ShimmeringText";
 import { Link } from "expo-router";
 import CustomizeScreen from "./customize";
 import { ThemedView, ThemedViewWrapper } from "@/components/ThemedView";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useFancyText } from "./_layout";
 import FancyText from "@/components/FancyText";
-import { useSharedValue } from "react-native-reanimated";
 
 const words = ["Fancy Text Here", "Here comes another", "And another one!"];
 
 export default function Index() {
-  const {} = useFancyText();
-  const currentIndex = useSharedValue(0);
+  const { bounce, currentIndex } = useFancyText();
 
   return (
     <>
-      <Pressable
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        onPress={() => {
-          currentIndex.value = (currentIndex.value + 1) % words.length;
-        }}
-      >
-        <FancyText
-          words={words}
-          currentIndex={currentIndex}
-          // initDuration={800}
-          // initOffsetY={50}
-          // initDelay={90}
-        />
-      </Pressable>
+      <Link href="/fancy-text-demo/customize" asChild>
+        <Pressable
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            paddingTop: 320,
+          }}
+          onPress={() => {
+            currentIndex.value = (currentIndex.value + 1) % words.length;
+          }}
+        >
+          <FancyText
+            words={words}
+            currentIndex={currentIndex}
+            textProps={{ style: { fontSize: 30 } }}
+            bounce={bounce}
+          />
+        </Pressable>
+      </Link>
       {/* <ThemedView
         style={{
           position: "absolute",
