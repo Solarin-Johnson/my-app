@@ -84,6 +84,12 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="toast-demo"
+        options={{
+          drawerLabel: "Toast Demo",
+        }}
+      />
+      <Drawer.Screen
         name="fancy-text-demo"
         options={{
           drawerLabel: "Fancy Text Demo",

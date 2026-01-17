@@ -27,7 +27,7 @@ const Button: React.FC<ButtonProps> = ({
       onPress={onPress}
     >
       <ThemedText
-        type="defaultSemiBold"
+        type="semiBold"
         style={[styles.text, { color }, textStyle]}
         {...textProps}
       >
