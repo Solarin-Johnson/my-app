@@ -55,7 +55,7 @@ export default function UntitledHeader({
     >
       <View style={[styles.header, contentStyle]}>
         {title && (
-          <ThemedText type="defaultSemiBold" style={styles.title}>
+          <ThemedText type="semiBold" style={styles.title}>
             {title}
           </ThemedText>
         )}

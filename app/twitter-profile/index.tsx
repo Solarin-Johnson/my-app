@@ -84,8 +84,8 @@ function Header({ scrollY }: { scrollY: SharedValue<number> }) {
       Math.abs(scrollY.value),
       [0, FULL_HEADER_HEIGHT],
       [0, 32],
-      Extrapolation.CLAMP
-    )
+      Extrapolation.CLAMP,
+    ),
   );
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -93,7 +93,7 @@ function Header({ scrollY }: { scrollY: SharedValue<number> }) {
       scrollY.value,
       [0, swapDistance],
       [FULL_HEADER_HEIGHT, COLLAPSED_HEADER_HEIGHT + top],
-      Extrapolation.CLAMP
+      Extrapolation.CLAMP,
     ),
     transform: [
       {
@@ -101,7 +101,7 @@ function Header({ scrollY }: { scrollY: SharedValue<number> }) {
           -scrollY.value,
           [0, FULL_HEADER_HEIGHT],
           [1, 1.3],
-          Extrapolation.CLAMP
+          Extrapolation.CLAMP,
         ),
       },
     ],
@@ -195,7 +195,7 @@ const Button = memo(
         <Icon size={20} color="white" strokeWidth={2.1} {...iconProps} />
       </TouchableOpacity>
     );
-  }
+  },
 );
 
 const HeaderTitle = ({ scrollY }: { scrollY: SharedValue<number> }) => {
@@ -213,7 +213,7 @@ const HeaderTitle = ({ scrollY }: { scrollY: SharedValue<number> }) => {
           scrollY.value,
           [start, end],
           [COLLAPSED_HEADER_HEIGHT, 0],
-          Extrapolation.CLAMP
+          Extrapolation.CLAMP,
         ),
       },
     ],
@@ -222,7 +222,7 @@ const HeaderTitle = ({ scrollY }: { scrollY: SharedValue<number> }) => {
   return (
     <Animated.View style={animatedStyle}>
       <ThemedText
-        type="defaultSemiBold"
+        type="semiBold"
         style={{
           fontSize: 18,
           color: "white",
@@ -252,7 +252,7 @@ const ProfileMain = ({ scrollY }: { scrollY: SharedValue<number> }) => {
           scrollY.value,
           [0, COLLAPSED_HEADER_HEIGHT + (isWeb ? PP_SIZE / 3 : 0)],
           [1, 0.6],
-          Extrapolation.CLAMP
+          Extrapolation.CLAMP,
         ),
       },
     ],
@@ -274,18 +274,18 @@ const ProfileMain = ({ scrollY }: { scrollY: SharedValue<number> }) => {
         {DATA.name}
       </ThemedText>
       <TouchableOpacity style={styles.profileBtn} activeOpacity={0.7}>
-        <ThemedText type="defaultSemiBold" style={{ fontSize: 16 }}>
+        <ThemedText type="semiBold" style={{ fontSize: 16 }}>
           Edit Profile
         </ThemedText>
       </TouchableOpacity>
       <ThemedText style={styles.uname}>{`@${DATA.username}`}</ThemedText>
       <ThemedText style={styles.bio}>{DATA.bio}</ThemedText>
       <View style={[styles.navCluster, styles.followContainer]}>
-        <ThemedText type="defaultSemiBold">
+        <ThemedText type="semiBold">
           {DATA.following}
           <ThemedText style={styles.followLabel}>{" Following"}</ThemedText>
         </ThemedText>
-        <ThemedText type="defaultSemiBold">
+        <ThemedText type="semiBold">
           {DATA.followers}
           <ThemedText style={styles.followLabel}>{" Followers"}</ThemedText>
         </ThemedText>

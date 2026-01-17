@@ -19,7 +19,7 @@ export const UntitledCardMini = ({
         <View style={styles.content}>
           <View style={styles.box}></View>
           <View style={styles.details}>
-            <ThemedText type="defaultSemiBold" style={styles.title}>
+            <ThemedText type="semiBold" style={styles.title}>
               {name}
             </ThemedText>
             <View style={styles.cluster}>
@@ -60,7 +60,7 @@ export const UntitledCardLarge = ({
       <View style={styles.content}>
         <View style={[styles.box, styles.boxLarge]}></View>
         <View style={styles.details}>
-          <ThemedText type="defaultSemiBold" style={styles.titleLarge}>
+          <ThemedText type="semiBold" style={styles.titleLarge}>
             {name}
           </ThemedText>
           <View style={styles.cluster}>

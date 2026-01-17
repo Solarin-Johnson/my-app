@@ -43,7 +43,7 @@ export const CardPeek = ({
         <View style={styles.peekContent}>
           <ThemedText
             style={styles.text}
-            type="defaultSemiBold"
+            type="semiBold"
             numberOfLines={1}
             ellipsizeMode="clip"
           >

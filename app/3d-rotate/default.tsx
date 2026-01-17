@@ -135,7 +135,7 @@ const SubmitButton = ({
   return (
     <ThemedViewWrapper colorName="text">
       <PressableBounce onPress={onPress} style={[styles.button]}>
-        <ThemedText colorName="background" type="defaultSemiBold">
+        <ThemedText colorName="background" type="semiBold">
           {title}
         </ThemedText>
         {!hideIcon && (

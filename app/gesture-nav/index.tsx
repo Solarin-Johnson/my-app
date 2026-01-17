@@ -35,7 +35,7 @@ export default function GestureNav() {
       const damped = e.translationY * 0.7;
       translateY.value = Math.max(
         0,
-        damped - 0.0005 * Math.pow(Math.max(0, damped), 2)
+        damped - 0.0005 * Math.pow(Math.max(0, damped), 2),
       );
     })
     .onEnd(() => {
@@ -71,7 +71,7 @@ export default function GestureNav() {
             }}
           >
             <ThemedText
-              type="defaultSemiBold"
+              type="semiBold"
               style={{
                 fontSize: 20,
               }}

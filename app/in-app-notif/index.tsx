@@ -23,7 +23,7 @@ const ExpandedContent = () => {
         flexGrow: 1,
       }}
     >
-      <ThemedText type="defaultSemiBold" style={styles.title}>
+      <ThemedText type="semiBold" style={styles.title}>
         Expanded content goes here
       </ThemedText>
       <ThemedText style={styles.description}>

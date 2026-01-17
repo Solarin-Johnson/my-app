@@ -85,11 +85,7 @@ const InfoBar = ({ name, tabs }: { name: string; tabs: number }) => {
         flex: 1,
       }}
     >
-      <ThemedText
-        type="defaultSemiBold"
-        style={styles.nameText}
-        colorName="slackText"
-      >
+      <ThemedText type="semiBold" style={styles.nameText} colorName="slackText">
         {name}
       </ThemedText>
       <ThemedText
@@ -179,7 +175,7 @@ const QuickActionsItem = ({
     <Pressable style={[styles.quickItem, { borderColor: text + "16" }]}>
       <ThemedTextWrapper colorName="slackText">{icon}</ThemedTextWrapper>
       <ThemedText
-        type="defaultSemiBold"
+        type="semiBold"
         style={{ fontSize: 13.5 }}
         colorName="slackText"
       >

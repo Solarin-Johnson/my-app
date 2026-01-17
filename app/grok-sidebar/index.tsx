@@ -58,7 +58,7 @@ export default function GrokSidebar() {
     () => drawerProgress.value,
     (progress) => {
       intensity.value = progress * BLUR_INTENSITY;
-    }
+    },
   );
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -112,7 +112,7 @@ const Header = () => {
         </ThemedTextWrapper>
       </Pressable>
       <View>
-        <ThemedText style={styles.headerTitle} type="defaultSemiBold">
+        <ThemedText style={styles.headerTitle} type="semiBold">
           Grok
         </ThemedText>
       </View>
@@ -168,7 +168,7 @@ const ChatBox = () => {
           </ThemedTextWrapper>
           <ThemedText
             colorName="background"
-            type="defaultSemiBold"
+            type="semiBold"
             style={{ fontSize: 15 }}
           >
             Speak

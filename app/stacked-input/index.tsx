@@ -85,7 +85,7 @@ const StackInputContainer = () => {
                 color: "#888888",
                 fontSize: 16,
               },
-              type: "defaultSemiBold",
+              type: "semiBold",
             }}
             trackColor={{ true: text }}
             thumbColor={bg}
@@ -219,7 +219,7 @@ const RightButtonCluster = ({
         </Animated.View>
       )}
       <ThemedText
-        type="defaultSemiBold"
+        type="semiBold"
         style={{ fontSize: 18 }}
         colorName="background"
       >

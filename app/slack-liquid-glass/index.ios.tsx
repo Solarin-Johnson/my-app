@@ -10,7 +10,7 @@ export default function Index() {
     <ThemedView style={styles.container} colorName="slackBg">
       <SafeAreaView>
         <GlassView glassEffectStyle="clear" isInteractive style={styles.glass}>
-          <ThemedTextWrapper style={styles.text} type="defaultSemiBold">
+          <ThemedTextWrapper style={styles.text} type="semiBold">
             <Link href="/slack-liquid-glass/chat" suppressHighlighting>
               Open Chat
             </Link>

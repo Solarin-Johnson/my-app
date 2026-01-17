@@ -92,7 +92,7 @@ const Button = ({
         onPress={onPress}
         style={[styles.button, styles.buttonWrapper]}
       >
-        <ThemedText type="defaultSemiBold" style={{ color: "#fff" }}>
+        <ThemedText type="semiBold" style={{ color: "#fff" }}>
           {title}
         </ThemedText>
       </Pressable>

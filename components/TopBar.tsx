@@ -70,7 +70,7 @@ export default function TopBar({
               style={[styles.bar, { backgroundColor: "#ffffff40" }]}
             >
               <ThemedText
-                type="defaultSemiBold"
+                type="semiBold"
                 style={{
                   fontSize: 16,
                 }}
@@ -94,14 +94,14 @@ export default function TopBar({
 const getInterpolate = (
   value: number,
   outputRange: [number, number],
-  inputRange?: [number, number]
+  inputRange?: [number, number],
 ) => {
   "worklet";
   return interpolate(
     value,
     inputRange || [0, DRAG_THRESHOLD + BAR_HEIGHT],
     outputRange,
-    Extrapolation.CLAMP
+    Extrapolation.CLAMP,
   );
 };
 
@@ -120,7 +120,7 @@ const Actions = ({ translateX, translateY, pressed }: TopBarProps) => {
       translateY.value,
       [DRAG_THRESHOLD / 2, DRAG_THRESHOLD + BAR_HEIGHT / 2],
       [0, 1],
-      "clamp"
+      "clamp",
     ),
   }));
 
@@ -235,7 +235,7 @@ const Actions = ({ translateX, translateY, pressed }: TopBarProps) => {
                   (ICON_SIZE + BAR_HEIGHT) +
                   stretchProgress.value * (ICON_SIZE / 4)
               : 0,
-            SPRING_CONFIG
+            SPRING_CONFIG,
           ),
         },
       ],
@@ -309,7 +309,7 @@ const ActionItem = ({
     opacity: getInterpolate(
       translateY.value,
       [0, 1],
-      [ICON_SIZE, DRAG_THRESHOLD + BAR_HEIGHT]
+      [ICON_SIZE, DRAG_THRESHOLD + BAR_HEIGHT],
     ),
   }));
 
@@ -318,7 +318,7 @@ const ActionItem = ({
       {icon}
       <Animated.View style={labelStyle}>
         <Animated.View style={animatedStyle}>
-          <ThemedText type="defaultSemiBold" style={styles.actionLabel}>
+          <ThemedText type="semiBold" style={styles.actionLabel}>
             {label}
           </ThemedText>
         </Animated.View>

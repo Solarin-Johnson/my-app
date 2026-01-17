@@ -30,7 +30,7 @@ const MessageBox = () => {
       <View style={styles.rightContainer}>
         <ThemedText
           colorName="slackText"
-          type="defaultSemiBold"
+          type="semiBold"
           style={styles.senderName}
         >
           {DATA.name}
@@ -48,7 +48,6 @@ const MessageBox = () => {
               icon="square.and.arrow.down"
               onPress={saveImage}
             />
-           
           </Link.Menu>
         </Link>
       </View>

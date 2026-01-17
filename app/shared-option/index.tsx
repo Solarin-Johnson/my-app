@@ -97,7 +97,7 @@ const CardItem = ({ app }: { app: (typeof SHARED_DATA.apps)[0] }) => {
               },
             ]}
           >
-            <ThemedText style={{ fontSize: 12 }} type="defaultSemiBold">
+            <ThemedText style={{ fontSize: 12 }} type="semiBold">
               {platform}
             </ThemedText>
           </View>
@@ -114,7 +114,7 @@ const CardItem = ({ app }: { app: (typeof SHARED_DATA.apps)[0] }) => {
         <Animated.View>
           <Image source={app.logo} style={styles.logo} contentFit="cover" />
         </Animated.View>
-        <ThemedText style={styles.cardTitle} type="defaultSemiBold">
+        <ThemedText style={styles.cardTitle} type="semiBold">
           {app.name}
         </ThemedText>
       </View>
@@ -176,7 +176,7 @@ const PaginationDot = ({
       scrollX.value,
       inputRange,
       [0.2, 1, 0.2],
-      Extrapolation.CLAMP
+      Extrapolation.CLAMP,
     );
 
     return {

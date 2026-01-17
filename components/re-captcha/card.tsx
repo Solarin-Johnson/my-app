@@ -57,7 +57,7 @@ export default function CaptchaCard({
               shrinkProgress.value = withSpring(checked ? 1 : 0, SPRING_CONFIG);
             }}
           />
-          <ThemedText style={styles.title} type="defaultSemiBold">
+          <ThemedText style={styles.title} type="semiBold">
             I'm not a robot
           </ThemedText>
         </View>
