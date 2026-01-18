@@ -5,33 +5,39 @@ import {
   useWindowDimensions,
   Pressable,
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { Children, useEffect } from "react";
 import Animated, {
   SharedValue,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
+  withDelay,
   withSpring,
   withTiming,
 } from "react-native-reanimated";
 import { Feedback } from "@/functions";
 import { BlurView } from "expo-blur";
-import { Download, Pause, Play, StopCircle } from "lucide-react-native";
-import { ThemedText, ThemedTextWrapper } from "../ThemedText";
+import { Download, Pause, Play, StopCircle, X } from "lucide-react-native";
+import { ThemedText, ThemedTextProps, ThemedTextWrapper } from "../ThemedText";
 import Button from "../ui/Button";
 import { Image } from "expo-image";
 import { RadialProgress } from "../ui/radial-progress";
-import { FontAwesome6 } from "@expo/vector-icons";
+import { FontAwesome6, Ionicons } from "@expo/vector-icons";
+import { AnimatedText } from "../ui/animated-text";
+import PressableBounce from "../PresableBounce";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { withPause } from "react-native-redash";
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const AnimatedIonicons = Animated.createAnimatedComponent(Ionicons);
 
 const COLLAPSED_WIDTH = 194;
-const EXPANDED_HEIGHT = 80;
+const EXPANDED_HEIGHT = 75;
 const COLLAPSED_HEIGHT = 40;
 const SPACE = 20;
 const COLLAPSED_SPACE = 8;
-const EXPANDED_SPACE = 18;
+const EXPANDED_SPACE = 12;
 
 const SPRING_CONFIG = {
   stiffness: 210,
@@ -62,9 +68,10 @@ export default function DynamicToast() {
   const expanded = useSharedValue(false);
   const pressed = useSharedValue(false);
   const presented = useSharedValue(true);
+  const paused = useSharedValue(false);
   const { width } = useWindowDimensions();
   const EXPANDED_WIDTH = width - SPACE * 2;
-  const downloadProgress = useSharedValue(10);
+  const downloadProgress = useSharedValue(0);
 
   const applyBounceSpring = (toValue: number) => {
     "worklet";
@@ -92,77 +99,159 @@ export default function DynamicToast() {
         },
       ],
       opacity: applySpring(presented.value ? 1 : 0),
-      pointerEvents: presented.value ? "auto" : "none",
+      pointerEvents: presented.value || !expanded.value ? "box" : "box-none",
     };
   });
 
+  const percentage = useDerivedValue(() => {
+    return `${Math.round(downloadProgress.value)}%`;
+  });
+
+  useEffect(() => {
+    downloadProgress.value = withPause(
+      withTiming(100, { duration: 10000 }),
+      paused,
+    );
+  }, []);
+
+  const togglePlayPause = () => {
+    paused.value = !paused.value;
+  };
+
+  const overlayAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      pointerEvents: expanded.value ? "auto" : "none",
+    };
+  });
+
+  const createIconAnimatedStyle = (
+    isVisible: SharedValue<boolean>,
+    scale: number = 0.5,
+  ) =>
+    useAnimatedStyle(() => {
+      const shouldShow = isVisible.value;
+      return {
+        opacity: withTiming(shouldShow ? 1 : 0, {
+          duration: shouldShow ? 300 : 50,
+        }),
+        transform: [
+          {
+            scale: withTiming(shouldShow ? 1 : scale, {
+              duration: shouldShow ? 300 : 100,
+            }),
+          },
+        ],
+      };
+    });
+
+  const playing = useDerivedValue(() => !paused.value);
+
+  const playIconAnimatedStyle = createIconAnimatedStyle(paused, 0.5);
+  const pauseIconAnimatedStyle = createIconAnimatedStyle(playing, 0.5);
+
   return (
-    <View style={styles.wrapper}>
-      {/* <Button
+    <>
+      <AnimatedPressable
+        style={[StyleSheet.absoluteFill, overlayAnimatedStyle]}
+        onPressIn={() => {
+          expanded.value = false;
+        }}
+      />
+      <View style={styles.wrapper}>
+        {/* <Button
         title="Toggle Toast"
         onPress={() => {
           presented.value = !presented.value;
         }}
       /> */}
-      <AnimatedPressable
-        onLongPress={() => {
-          pressed.value = false;
-          expanded.value = !expanded.value;
-          Feedback.light();
-        }}
-        onPressIn={() => {
-          pressed.value = true;
-        }}
-        onPressOut={() => {
-          pressed.value = false;
-        }}
-        delayLongPress={200}
-        style={[styles.toastContainer, animatedStyle]}
-      >
-        <Inner expanded={expanded} type="collapsed">
-          <Image
-            source={require("@/assets/images/dp.png")}
-            style={styles.collapsedBlock}
-          />
-          <View>
-            <View style={styles.float}>
+        <AnimatedPressable
+          onLongPress={() => {
+            pressed.value = false;
+            expanded.value = !expanded.value;
+            Feedback.light();
+          }}
+          onPressIn={() => {
+            pressed.value = true;
+          }}
+          onPressOut={() => {
+            pressed.value = false;
+          }}
+          delayLongPress={200}
+          style={[styles.toastContainer, animatedStyle]}
+        >
+          <Inner expanded={expanded} type="collapsed">
+            <Image
+              source={require("@/assets/images/dp.png")}
+              style={styles.collapsedBlock}
+            />
+            <View>
+              <View style={styles.float}>
+                <ThemedTextWrapper colorName="orange">
+                  <FontAwesome6 name="arrow-down" size={13} />
+                </ThemedTextWrapper>
+              </View>
               <ThemedTextWrapper colorName="orange">
-                <FontAwesome6 name="arrow-down" size={13} />
+                <RadialProgress
+                  progress={downloadProgress}
+                  weight={5}
+                  size={28}
+                  fadeOpacity={0.32}
+                />
               </ThemedTextWrapper>
             </View>
-            <ThemedTextWrapper colorName="orange">
-              <RadialProgress
-                progress={downloadProgress}
-                weight={5}
-                size={30}
-                fadeOpacity={0.32}
-              />
-            </ThemedTextWrapper>
-          </View>
-          {/* <ThemedText style={styles.toastText} type="semiBold">
+            {/* <ThemedText style={styles.toastText} type="semiBold">
             10%
           </ThemedText> */}
-        </Inner>
-        <Inner expanded={expanded} type="expanded">
-          <View style={styles.cluster}>
-            {/* <Image
+          </Inner>
+          <Inner expanded={expanded} type="expanded">
+            <View style={styles.cluster}>
+              {/* <Image
               source={require("@/assets/images/dp.png")}
               style={styles.expandedBlock}
             /> */}
-            <Pause color={"white"} size={32} strokeWidth={1.8} />
-            <StopCircle color={"white"} size={32} strokeWidth={1.8} />
-          </View>
-          <View style={styles.cluster}>
-            <ThemedText style={styles.toastText} colorName="orange">
-              Download
-            </ThemedText>
-            <ThemedText style={styles.toastTextLarge} colorName="orange">
-              10%
-            </ThemedText>
-          </View>
-        </Inner>
-      </AnimatedPressable>
-    </View>
+              <ButtonWrapper color="orange" onPress={togglePlayPause}>
+                <Animated.View
+                  style={[styles.buttonIcon, playIconAnimatedStyle]}
+                >
+                  <ThemedTextWrapper colorName="orange">
+                    <Ionicons name="play" size={30} style={{ marginLeft: 2 }} />
+                  </ThemedTextWrapper>
+                </Animated.View>
+                <Animated.View
+                  style={[styles.buttonIcon, pauseIconAnimatedStyle]}
+                >
+                  <ThemedTextWrapper colorName="orange">
+                    <Ionicons name="pause" size={30} />
+                  </ThemedTextWrapper>
+                </Animated.View>
+              </ButtonWrapper>
+              <ButtonWrapper
+                fadeOpacity={0.2}
+                onPress={() => {
+                  expanded.value = false;
+                }}
+              >
+                <X color={"white"} size={30} strokeWidth={2.2} />
+              </ButtonWrapper>
+            </View>
+            <Animated.View style={[styles.cluster, { gap: 4 }]}>
+              {/* <ThemedText
+                style={[styles.toastText, styles.numberDesc]}
+                colorName="orange"
+              >
+                Download
+              </ThemedText> */}
+              <ThemedTextWrapper
+                style={[styles.toastTextLarge, styles.numberText]}
+                colorName="orange"
+              >
+                <AnimatedText text={percentage} />
+              </ThemedTextWrapper>
+            </Animated.View>
+          </Inner>
+        </AnimatedPressable>
+      </View>
+    </>
   );
 }
 
@@ -179,8 +268,15 @@ const Inner = ({ expanded, type = "collapsed", children }: innerType) => {
   });
 
   const animatedStyle = useAnimatedStyle(() => {
+    const slower = (type === "collapsed") !== expanded.value;
+    const exp = type === "expanded" && expanded.value;
     return {
-      opacity: applySpring((type === "collapsed") === !expanded.value ? 1 : 0),
+      opacity: withDelay(
+        exp ? 100 : 0,
+        withTiming(slower ? 1 : 0, {
+          duration: !exp ? 300 : 200,
+        }),
+      ),
     };
   });
   return (
@@ -192,13 +288,47 @@ const Inner = ({ expanded, type = "collapsed", children }: innerType) => {
       ]}
     >
       {children}
-      <AnimatedBlurView intensity={intensity} style={styles.blur} />
+      <AnimatedBlurView
+        intensity={intensity}
+        style={styles.blur}
+        pointerEvents="none"
+      />
     </Animated.View>
   );
 };
 
-const InnerLeft = ({}) => {
-  return <View></View>;
+const ButtonWrapper = ({
+  children,
+  color = "white",
+  fadeOpacity = 0.35,
+  onPress,
+}: {
+  children: React.ReactNode;
+  color?: ThemedTextProps["colorName"];
+  fadeOpacity?: number;
+  onPress?: () => void;
+}) => {
+  const bg = useThemeColor(color);
+  return (
+    <PressableBounce
+      style={[
+        styles.button,
+        {
+          backgroundColor: `${bg}${Math.floor(fadeOpacity * 255).toString(16)}`,
+        },
+      ]}
+      onPress={(e) => {
+        e.stopPropagation();
+        onPress?.();
+      }}
+    >
+      {Children.map(children, (child) =>
+        React.isValidElement(child) ? (
+          <ThemedTextWrapper colorName={color}>{child}</ThemedTextWrapper>
+        ) : null,
+      )}
+    </PressableBounce>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -229,11 +359,16 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   toastTextLarge: {
-    fontSize: 28,
+    fontSize: 36,
   },
   inner: {
     flexDirection: "row",
     ...StyleSheet.absoluteFillObject,
+    // position: "absolute",
+    // top: 0,
+    // left: 0,
+    // right: 0,
+    // bottom: 0,
     alignItems: "center",
     justifyContent: "space-between",
   },
@@ -250,9 +385,9 @@ const styles = StyleSheet.create({
   },
   cluster: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-end",
     justifyContent: "center",
-    gap: 10,
+    gap: 8,
   },
   collapsedBlock: {
     width: COLLAPSED_SPACE * 3,
@@ -273,5 +408,24 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: "center",
     justifyContent: "center",
+  },
+  numberText: {
+    paddingRight: 8,
+    width: 150,
+    textAlign: "right",
+    fontVariant: ["tabular-nums"],
+  },
+  numberDesc: {
+    lineHeight: 32,
+  },
+  button: {
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    aspectRatio: 1,
+    borderRadius: "50%",
+  },
+  buttonIcon: {
+    position: "absolute",
   },
 });

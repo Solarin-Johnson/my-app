@@ -1,3 +1,5 @@
+import { Easing } from "react-native-reanimated";
+
 export const SHARED_DATA = {
   text: "I've found the top 5 music apps that match your preferences best.",
   apps: [
@@ -37,4 +39,16 @@ export const SHARED_DATA = {
       platforms: ["iOS", "Android", "Web"],
     },
   ],
+};
+
+export const TIMING_CONFIG = {
+  duration: 300,
+  easing: Easing.inOut(Easing.ease),
+};
+
+export const SPRING_CONFIG = {
+  damping: 30,
+  mass: 0.45,
+  stiffness: 150,
+  overshootClamping: true,
 };
