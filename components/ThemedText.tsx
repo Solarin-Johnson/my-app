@@ -6,7 +6,14 @@ import { StyleSheet, Text, type TextProps } from "react-native";
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: "default" | "semiBold" | "subtitle" | "regular" | "bold" | "italic";
+  type?:
+    | "default"
+    | "title"
+    | "semiBold"
+    | "subtitle"
+    | "regular"
+    | "bold"
+    | "italic";
   colorName?: keyof typeof Colors.light & keyof typeof Colors.dark;
 };
 
@@ -56,6 +63,10 @@ const styles = StyleSheet.create({
   default: {
     fontSize: 16,
     fontFamily: "InterMedium",
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: "InterSemiBold",
   },
   semiBold: {
     fontSize: 17,
