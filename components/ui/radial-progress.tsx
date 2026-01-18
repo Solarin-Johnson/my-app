@@ -6,8 +6,11 @@ import Animated, {
   useAnimatedProps,
 } from "react-native-reanimated";
 import Svg, { Path } from "react-native-svg";
+import { svgPathProperties } from "svg-path-properties";
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
+
+const PATH_LENGTH_ADJUSTMENT = 0;
 
 export interface RadialProgressProps extends IconProps {
   progress: SharedValue<number>;
@@ -26,27 +29,44 @@ export const RadialProgress: React.FC<RadialProgressProps> = ({
   style,
 }) => {
   const { width, height, viewBox } = useDimensions(100, 100, size);
-  const circumference = 2 * Math.PI * radius;
 
-  const animatedProps = useAnimatedProps(() => {
-    const strokeDashoffset =
-      circumference - (progress.value / 100) * circumference;
-    return {
-      strokeDashoffset,
-    };
-  });
+  const getArc = (deg: number) => {
+    const r = radius - weight;
+    const cx = 50;
+    const cy = 50;
+    const startAngle = -90;
+    const endAngle = startAngle + deg;
+    const toRad = (d: number) => (d * Math.PI) / 180;
+
+    const x1 = cx + r * Math.cos(toRad(startAngle));
+    const y1 = cy + r * Math.sin(toRad(startAngle));
+    const x2 = cx + r * Math.cos(toRad(endAngle));
+    const y2 = cy + r * Math.sin(toRad(endAngle));
+
+    const largeArcFlag = deg > 180 ? 1 : 0;
+
+    return `M ${x1} ${y1} A ${r} ${r} 0 ${largeArcFlag} 1 ${x2} ${y2}`;
+  };
 
   const pathProps = {
-    d: `M50 ${50 - radius + weight} a ${radius - weight} ${
-      radius - weight
-    } 0 1 1 0 ${2 * (radius - weight)} a ${radius - weight} ${
-      radius - weight
-    } 0 1 1 0 -${2 * (radius - weight)}`,
+    d: getArc(350),
     stroke: color,
     strokeWidth: weight * 2,
     strokeLinecap: "round",
     fill: "none",
   } as const;
+
+  const pathLength = new svgPathProperties(pathProps.d).getTotalLength();
+
+  console.log(pathLength);
+
+  const animatedProps = useAnimatedProps(() => {
+    console.log(progress.value);
+
+    return {
+      strokeDashoffset: pathLength * (1 - progress.value / 100),
+    };
+  });
 
   return (
     <Svg
@@ -60,7 +80,7 @@ export const RadialProgress: React.FC<RadialProgressProps> = ({
       <AnimatedPath
         animatedProps={animatedProps}
         {...pathProps}
-        strokeDasharray={circumference}
+        strokeDasharray={pathLength}
       />
     </Svg>
   );
