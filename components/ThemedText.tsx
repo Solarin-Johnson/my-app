@@ -34,15 +34,16 @@ export function ThemedTextWrapper({
   type = "default",
   colorName = "text",
   style,
+  ignoreStyle = true,
   ...rest
-}: ThemedTextProps & { children: ReactElement<any> }) {
+}: ThemedTextProps & { children: ReactElement<any>; ignoreStyle?: boolean }) {
   const color = useThemeColor(colorName, {
     light: lightColor,
     dark: darkColor,
   });
   const textColor = { color };
 
-  const combinedStyle = [textColor, styles[type], style];
+  const combinedStyle = [textColor, !ignoreStyle && styles[type], style];
 
   return cloneElement(children, {
     style: [(children.props as any).style ?? {}, ...combinedStyle],
