@@ -1,33 +1,24 @@
 import {
   View,
-  Text,
   StyleSheet,
   useWindowDimensions,
   Pressable,
+  Platform,
 } from "react-native";
-import React, { Children, useEffect } from "react";
+import React, { Children } from "react";
 import Animated, {
   SharedValue,
-  useAnimatedReaction,
   useAnimatedStyle,
   useDerivedValue,
-  useSharedValue,
   withDelay,
   withSpring,
   withTiming,
 } from "react-native-reanimated";
 import { Feedback } from "@/functions";
 import { BlurView } from "expo-blur";
-import { Download, Pause, Play, StopCircle, X } from "lucide-react-native";
-import { ThemedText, ThemedTextProps, ThemedTextWrapper } from "../ThemedText";
-import Button from "../ui/Button";
-import { Image } from "expo-image";
-import { RadialProgress } from "../ui/radial-progress";
-import { FontAwesome6, Ionicons } from "@expo/vector-icons";
-import { AnimatedText } from "../ui/animated-text";
+import { ThemedTextProps, ThemedTextWrapper } from "../ThemedText";
 import PressableBounce from "../PresableBounce";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { withPause } from "react-native-redash";
 import {
   COLLAPSED_WIDTH,
   COLLAPSED_SPACE,
@@ -49,10 +40,13 @@ type ToastProps = {
   children?: React.ReactNode;
 };
 
+const isIOS = Platform.OS === "ios";
+const isWeb = Platform.OS === "web";
+
 export function Toast({ children }: ToastProps) {
   const { expanded, pressed, presented } = useDynamicToast();
   const { width } = useWindowDimensions();
-  const EXPANDED_WIDTH = width - SPACE * 2;
+  const EXPANDED_WIDTH = Math.min(width - SPACE * 2, 430);
 
   const applyBounceSpring = (toValue: number, callback?: () => void) => {
     "worklet";
@@ -152,7 +146,8 @@ export const Inner = ({
       opacity: withDelay(
         shouldShow && isExpanded ? 100 : 0,
         withTiming(shouldShow ? 1 : 0, {
-          duration: shouldShow && isExpanded ? 200 : 300,
+          duration:
+            shouldShow && isExpanded ? 200 : !isIOS && isExpanded ? 200 : 300,
         }),
       ),
       pointerEvents: shouldShow ? "auto" : "none",
@@ -168,11 +163,13 @@ export const Inner = ({
       ]}
     >
       {children}
-      <AnimatedBlurView
-        intensity={intensity}
-        style={styles.blur}
-        pointerEvents="none"
-      />
+      {isIOS && (
+        <AnimatedBlurView
+          intensity={intensity}
+          style={styles.blur}
+          pointerEvents="none"
+        />
+      )}
     </Animated.View>
   );
 };
@@ -220,9 +217,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 24,
     zIndex: 1000,
+    userSelect: "none",
   },
   toastContainer: {
-    // flex: 1,
     width: COLLAPSED_WIDTH,
     height: COLLAPSED_HEIGHT,
     borderRadius: 45,

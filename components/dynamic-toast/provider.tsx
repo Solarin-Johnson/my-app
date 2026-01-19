@@ -1,5 +1,5 @@
 import { createContext, useContext, type ReactNode } from "react";
-import { Pressable, StyleSheet } from "react-native";
+import { Platform, Pressable, StyleSheet } from "react-native";
 import Animated, {
   useAnimatedReaction,
   useAnimatedStyle,
@@ -37,6 +37,8 @@ export const SPRING_CONFIG_BOUNCE = {
   restSpeedThreshold: 0.000001,
 };
 
+const isWeb = Platform.OS === "web";
+
 export const applySpring = (toValue: number, callback?: () => void) => {
   "worklet";
   return withSpring(toValue, SPRING_CONFIG, callback);
@@ -73,6 +75,15 @@ export function Provider({ children }: { children: ReactNode }) {
     },
   );
 
+  const onPressIn = () => {
+    expanded.value = false;
+    backdropPressed.value = true;
+  };
+
+  const onPressOut = () => {
+    backdropPressed.value = false;
+  };
+
   return (
     <DynamicToastContext
       value={{
@@ -86,13 +97,9 @@ export function Provider({ children }: { children: ReactNode }) {
       {children}
       <AnimatedPressable
         style={[StyleSheet.absoluteFill, overlayAnimatedStyle]}
-        onPressIn={() => {
-          expanded.value = false;
-          backdropPressed.value = true;
-        }}
-        onPressOut={() => {
-          backdropPressed.value = false;
-        }}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        onPress={isWeb ? onPressOut : undefined}
       />
     </DynamicToastContext>
   );

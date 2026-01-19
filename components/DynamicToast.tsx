@@ -1,5 +1,5 @@
 import { View, StyleSheet } from "react-native";
-import React, { useEffect } from "react";
+import React from "react";
 import { DynamicToast } from "./dynamic-toast";
 import {
   COLLAPSED_SPACE,
@@ -23,7 +23,6 @@ import { withPause } from "react-native-redash";
 import { ButtonWrapper } from "./dynamic-toast/toast";
 import { AnimatedText } from "./ui/animated-text";
 import { X } from "lucide-react-native";
-import Button from "./ui/Button";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PressableBounce from "./PresableBounce";
 import { scheduleOnUI } from "react-native-worklets";
@@ -43,7 +42,12 @@ export default function DynamicToastWrapper() {
   return (
     <>
       <SafeAreaView
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          paddingTop: 360,
+        }}
       >
         <PressableBounce
           onPress={() => {
@@ -51,20 +55,19 @@ export default function DynamicToastWrapper() {
             paused.value = false;
 
             if (downloadProgress.value > 0) {
-              console.log("heyyo");
-
               return;
             }
             downloadProgress.value = withPause(
-              withTiming(100, { duration: 10000 }, () => {
+              withTiming(100, { duration: 6000 }, () => {
                 expanded.value = false;
                 paused.value = true;
               }),
               paused,
             );
           }}
+          style={styles.downloadButton}
         >
-          <ThemedText type="italic" style={{ fontSize: 24 }}>
+          <ThemedText type="italic" style={{ fontSize: 22 }}>
             Start Download
           </ThemedText>
         </PressableBounce>
@@ -99,8 +102,9 @@ const CollapsedChild = ({ downloadProgress, downloadCompleted }: ItemProps) => {
         downloadProgress.value = withDelay(
           3000,
           withTiming(0, { duration: 0 }, () => {
-            expanded.value = false;
             presented.value = false;
+            downloadCompleted.value = false;
+            expanded.value = false;
           }),
         );
       }
@@ -302,6 +306,9 @@ const styles = StyleSheet.create({
     width: 150,
     textAlign: "right",
     fontVariant: ["tabular-nums"],
+    outlineWidth: 0,
+    cursor: "default",
+    userSelect: "none",
   },
   numberDesc: {
     lineHeight: 32,
@@ -315,5 +322,14 @@ const styles = StyleSheet.create({
   },
   buttonIcon: {
     position: "absolute",
+  },
+
+  downloadButtonWrapper: {
+    borderRadius: 18,
+    borderCurve: "continuous",
+  },
+  downloadButton: {
+    paddingHorizontal: 28,
+    paddingVertical: 14,
   },
 });
