@@ -12,6 +12,7 @@ import { useShimmerText } from "./_layout";
 import Slider from "@/components/Slider";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
+import { ColorPicker, Host } from "@expo/ui/swift-ui";
 
 const isIos = Platform.OS === "ios";
 
@@ -43,6 +44,29 @@ export default function CustomizeScreen() {
           thumbColor={textColor}
         />
       </Cluster>
+      {isIos && (
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <Cluster label="Color" style={{ maxWidth: 100 }}>
+            <Host style={{ height: "100%" }}>
+              <ColorPicker selection={color} onValueChanged={setColor} />
+            </Host>
+          </Cluster>
+          <Cluster label="Tint Color" style={{ maxWidth: 140 }}>
+            <Host style={{ height: "100%" }}>
+              <ColorPicker
+                selection={tintColor}
+                onValueChanged={setTintColor}
+                supportsOpacity={false}
+              />
+            </Host>
+          </Cluster>
+        </View>
+      )}
       <Cluster label="Duration">
         <Slider
           value={duration}
