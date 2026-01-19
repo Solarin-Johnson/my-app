@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
     alignItems: "center",
     overflow: "hidden",
-    borderWidth: 0.5,
+    borderWidth: isWeb ? 0.8 : 0.5,
     borderColor: Colors.dark.orange + "80",
     transformOrigin: "bottom",
   },
