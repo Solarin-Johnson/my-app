@@ -83,7 +83,7 @@ export function Toast({ children }: ToastProps) {
         { translateY: applyBounceSpring(targetTranslateY) },
       ],
       opacity: applySpring(presented.value ? 1 : 0),
-      pointerEvents: presented.value || !expanded.value ? "box" : "box-none",
+      pointerEvents: presented.value || !expanded.value ? "auto" : "box-none",
     };
   });
 
@@ -139,7 +139,10 @@ export const Inner = ({
 
   const animatedStyle = useAnimatedStyle(() => {
     if (hide?.value) {
-      return { opacity: withTiming(0, { duration: 300 }) };
+      return {
+        opacity: withTiming(0, { duration: 300 }),
+        pointerEvents: "none",
+      };
     }
 
     const isExpanded = type === "expanded";

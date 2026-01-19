@@ -58,11 +58,7 @@ export const RadialProgress: React.FC<RadialProgressProps> = ({
 
   const pathLength = new svgPathProperties(pathProps.d).getTotalLength();
 
-  console.log(pathLength);
-
   const animatedProps = useAnimatedProps(() => {
-    console.log(progress.value);
-
     return {
       strokeDashoffset: pathLength * (1 - progress.value / 100),
     };
