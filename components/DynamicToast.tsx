@@ -46,7 +46,7 @@ export default function DynamicToastWrapper() {
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          paddingTop: 360,
+          // paddingTop: 360,
         }}
       >
         <PressableBounce

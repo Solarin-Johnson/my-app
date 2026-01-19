@@ -1,11 +1,10 @@
-import { Pressable } from "react-native";
+import { Platform, Pressable } from "react-native";
 import React from "react";
 import ShimmeringText from "@/components/ui/ShimmeringText";
 import { useShimmerText } from "./_layout";
-import { Link } from "expo-router";
-import CustomizeScreen from "./customize";
-import { ThemedView, ThemedViewWrapper } from "@/components/ThemedView";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Link, router } from "expo-router";
+
+const isIOS = Platform.OS === "ios";
 
 export default function Index() {
   const { progress, playing, rtl, color, size, duration, tintColor, text } =
@@ -14,24 +13,25 @@ export default function Index() {
 
   return (
     <>
-      <Link href="/shimmer-text-demo/customize" asChild>
-        <Pressable
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <ShimmeringText
-            text={text}
-            // layerStyle={{ backgroundColor: "red" }}
-            textStyle={{ fontSize: 36 }}
-            progress={progress}
-            start={playing}
-            color={color}
-            duration={duration}
-            size={size}
-            rtl={rtl}
-            tintColor={tintColor}
-          />
-        </Pressable>
-      </Link>
+      <Pressable
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        onPress={() => {
+          isIOS && router.push("/shimmer-text-demo/customize");
+        }}
+      >
+        <ShimmeringText
+          text={text}
+          // layerStyle={{ backgroundColor: "red" }}
+          textStyle={{ fontSize: 36 }}
+          progress={progress}
+          start={playing}
+          color={color}
+          duration={duration}
+          size={size}
+          rtl={rtl}
+          tintColor={tintColor}
+        />
+      </Pressable>
       {/* <ThemedView
         style={{
           position: "absolute",
