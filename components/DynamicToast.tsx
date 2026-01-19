@@ -12,6 +12,7 @@ import Animated, {
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
+  withDelay,
   withTiming,
 } from "react-native-reanimated";
 import { Image } from "expo-image";
@@ -25,6 +26,7 @@ import { X } from "lucide-react-native";
 import Button from "./ui/Button";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PressableBounce from "./PresableBounce";
+import { scheduleOnUI } from "react-native-worklets";
 
 export default function DynamicToastWrapper() {
   const { expanded, presented } = useDynamicToast();
@@ -82,7 +84,7 @@ type ItemProps = {
 };
 
 const CollapsedChild = ({ downloadProgress, downloadCompleted }: ItemProps) => {
-  const { expanded, expandAnimationState } = useDynamicToast();
+  const { expanded, expandAnimationState, presented } = useDynamicToast();
 
   useAnimatedReaction(
     () => ({
@@ -92,8 +94,15 @@ const CollapsedChild = ({ downloadProgress, downloadCompleted }: ItemProps) => {
     ({ expandState, progress }) => {
       if (progress >= 100 && expandState === 0) {
         expanded.value = true;
-        downloadProgress.value = 0;
         downloadCompleted.value = true;
+        downloadProgress.value = 0;
+        downloadProgress.value = withDelay(
+          3000,
+          withTiming(0, { duration: 0 }, () => {
+            expanded.value = false;
+            presented.value = false;
+          }),
+        );
       }
     },
   );
@@ -136,7 +145,7 @@ const ExpandedChild = ({
   });
 
   const percentage = useDerivedValue(() => {
-    return `${Math.round(downloadProgress.value)}%`;
+    return `${Math.floor(downloadProgress.value)}%`;
   });
 
   const togglePlayPause = () => {
@@ -168,12 +177,19 @@ const ExpandedChild = ({
   const playIconAnimatedStyle = createIconAnimatedStyle(paused, 0.5);
   const pauseIconAnimatedStyle = createIconAnimatedStyle(playing, 0.5);
 
+  const close = () => {
+    "worklet";
+    presented.value = false;
+    downloadCompleted.value = false;
+    downloadProgress.value = 0;
+    expanded.value = false;
+  };
+
   useAnimatedReaction(
     () => backdropPressed.value,
     (value) => {
       if (value && downloadCompleted.value) {
-        presented.value = false;
-        downloadCompleted.value = false;
+        close();
       }
     },
   );
@@ -200,10 +216,7 @@ const ExpandedChild = ({
           <ButtonWrapper
             fadeOpacity={0.2}
             onPress={() => {
-              downloadProgress.value = 0;
-              downloadCompleted.value = false;
-              presented.value = false;
-              expanded.value = false;
+              scheduleOnUI(close);
             }}
           >
             <X color={"white"} size={30} strokeWidth={2.2} />
@@ -230,15 +243,13 @@ const ExpandedChild = ({
         hide={downloadPending}
       >
         <ThemedText colorName="orange" style={styles.toastTextMedium}>
-          Completed
+          Downloaded
         </ThemedText>
         <View style={styles.cluster}>
           <ButtonWrapper
             fadeOpacity={0.2}
             onPress={() => {
-              presented.value = false;
-              expanded.value = false;
-              downloadCompleted.value = false;
+              scheduleOnUI(close);
             }}
           >
             <X size={30} strokeWidth={2.2} />
