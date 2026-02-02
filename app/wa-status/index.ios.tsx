@@ -7,16 +7,16 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { Link } from "expo-router";
 import { Ellipsis } from "lucide-react-native";
 import GlassViewComponent from "@/components/ui/glassy-view";
-import {
-  Button,
-  ContextMenu,
-  Host,
-  Picker,
-  Label,
-  Submenu,
-  Switch,
-  Spacer,
-} from "@expo/ui/swift-ui";
+// import {
+//   Button,
+//   ContextMenu,
+//   Host,
+//   Picker,
+//   Label,
+//   Submenu,
+//   Switch,
+//   Spacer,
+// } from "@expo/ui/swift-ui";
 
 export default function Index() {
   return (
@@ -89,7 +89,7 @@ export const ClusterItem = ({
             </ThemedText>
           </View>
           <Pressable hitSlop={20}>
-            <Host style={{ width: 40 }}>
+            {/* <Host style={{ width: 40 }}>
               <ContextMenu>
                 <ContextMenu.Items>
                   <Button
@@ -119,7 +119,7 @@ export const ClusterItem = ({
                   </ThemedTextWrapper>
                 </ContextMenu.Trigger>
               </ContextMenu>
-            </Host>
+            </Host> */}
           </Pressable>
         </View>
       </ThemedView>

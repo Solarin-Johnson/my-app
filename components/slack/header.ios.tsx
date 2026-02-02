@@ -2,7 +2,7 @@ import { Sparkles } from "lucide-react-native";
 import { View, Text, StyleSheet, Modal, Pressable } from "react-native";
 import { NativeStackHeaderRightProps } from "react-native-screen-transitions";
 import { ThemedTextWrapper } from "../ThemedText";
-import { Button, ContextMenu, Host } from "@expo/ui/swift-ui";
+// import { Button, ContextMenu, Host } from "@expo/ui/swift-ui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
 import Island, { Cords } from "./island";
@@ -89,23 +89,22 @@ const ModalHeader = ({
 };
 
 export const HeaderRight = ({}: NativeStackHeaderRightProps) => {
-  return (
-    <Host>
-      <ContextMenu>
-        <ContextMenu.Items>
-          <Button disabled>Unreads</Button>
-          <Button variant="bordered">Last 7 days</Button>
-        </ContextMenu.Items>
-        <ContextMenu.Trigger>
-          <View style={styles.rightContainer}>
-            <ThemedTextWrapper colorName="slackText">
-              <Sparkles size={20} strokeWidth={1.8} />
-            </ThemedTextWrapper>
-          </View>
-        </ContextMenu.Trigger>
-      </ContextMenu>
-    </Host>
-  );
+  return null;
+  // <Host>
+  //   <ContextMenu>
+  //     <ContextMenu.Items>
+  //       <Button disabled>Unreads</Button>
+  //       <Button variant="bordered">Last 7 days</Button>
+  //     </ContextMenu.Items>
+  //     <ContextMenu.Trigger>
+  //       <View style={styles.rightContainer}>
+  //         <ThemedTextWrapper colorName="slackText">
+  //           <Sparkles size={20} strokeWidth={1.8} />
+  //         </ThemedTextWrapper>
+  //       </View>
+  //     </ContextMenu.Trigger>
+  //   </ContextMenu>
+  // </Host>
 };
 
 const styles = StyleSheet.create({
