@@ -6,13 +6,14 @@ import {
   ViewStyle,
   TextInput,
   Platform,
+  ScrollView,
 } from "react-native";
 import React from "react";
 import { useShimmerText } from "./_layout";
 import Slider from "@/components/Slider";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
-import { ColorPicker, Host } from "@expo/ui/swift-ui";
+// import { ColorPicker, Host } from "@expo/ui/swift-ui";
 
 const isIos = Platform.OS === "ios";
 
@@ -34,7 +35,7 @@ export default function CustomizeScreen() {
   const textColor = useThemeColor("text");
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} bounces={false}>
       <Cluster label="Progress">
         <Slider
           value={progress}
@@ -51,7 +52,7 @@ export default function CustomizeScreen() {
             justifyContent: "space-between",
           }}
         >
-          <Cluster label="Color" style={{ maxWidth: 100 }}>
+          {/* <Cluster label="Color" style={{ maxWidth: 100 }}>
             <Host style={{ height: "100%" }}>
               <ColorPicker selection={color} onValueChanged={setColor} />
             </Host>
@@ -64,7 +65,7 @@ export default function CustomizeScreen() {
                 supportsOpacity={false}
               />
             </Host>
-          </Cluster>
+          </Cluster> */}
         </View>
       )}
       <Cluster label="Duration">
@@ -100,7 +101,7 @@ export default function CustomizeScreen() {
           />
         </ThemedTextWrapper>
       </Cluster> */}
-    </View>
+    </ScrollView>
   );
 }
 

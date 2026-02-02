@@ -24,7 +24,7 @@ export default function Index() {
         }}
         onPress={() => {
           currentIndex.value = (currentIndex.value + 1) % words.length;
-          isIOS && router.push("/fancy-text-demo/customize");
+          isIOS && router.navigate("/fancy-text-demo/customize");
         }}
       >
         <FancyText

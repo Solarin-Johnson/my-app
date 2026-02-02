@@ -16,7 +16,7 @@ export default function Index() {
       <Pressable
         style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         onPress={() => {
-          isIOS && router.push("/shimmer-text-demo/customize");
+          isIOS && router.navigate("/shimmer-text-demo/customize");
         }}
       >
         <ShimmeringText

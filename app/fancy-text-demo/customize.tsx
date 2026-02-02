@@ -6,12 +6,13 @@ import {
   ViewStyle,
   TextInput,
   Platform,
+  ScrollView,
 } from "react-native";
 import React from "react";
 import Slider from "@/components/Slider";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
-import { ColorPicker, Host } from "@expo/ui/swift-ui";
+// import { ColorPicker, Host } from "@expo/ui/swift-ui";
 import { useFancyText } from "./_layout";
 import Button from "@/components/ui/Button";
 import PressableBounce from "@/components/PresableBounce";
@@ -24,15 +25,17 @@ export default function CustomizeScreen() {
 
   return (
     <View style={styles.container}>
-      {setBounce && (
-        <Cluster label="Bounce">
-          <Switch
-            style={{ alignSelf: "flex-end" }}
-            value={bounce}
-            onValueChange={setBounce}
-          />
-        </Cluster>
-      )}
+      <ScrollView style={{ flex: 1 }} bounces={false}>
+        {setBounce && (
+          <Cluster label="Bounce">
+            <Switch
+              style={{ alignSelf: "flex-end" }}
+              value={bounce}
+              onValueChange={setBounce}
+            />
+          </Cluster>
+        )}
+      </ScrollView>
       <ThemedViewWrapper colorName="text">
         <PressableBounce
           onPress={() => {
