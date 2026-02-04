@@ -6,13 +6,13 @@ export default function Layout() {
     <Stack
       screenOptions={{
         headerTransparent: true,
-        headerShown: false,
       }}
     >
       <Stack.Screen
         name="index"
         options={
           {
+            //   headerShown: false,
             //   title: "Freeform",
           }
         }

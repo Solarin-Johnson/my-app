@@ -87,6 +87,7 @@ export function NavigationDrawer() {
         name="freeform"
         options={{
           drawerLabel: "Freeform",
+          ...edgeSwipe,
         }}
       />
       <Drawer.Screen
