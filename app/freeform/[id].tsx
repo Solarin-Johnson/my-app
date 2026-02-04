@@ -1,8 +1,11 @@
 import { View } from "react-native";
-import React, { useState } from "react";
-import { Link, Stack } from "expo-router";
+import React, { useRef, useState } from "react";
+import { Link, router, Stack } from "expo-router";
 import { Image, useImage } from "expo-image";
-import DrawPad from "expo-drawpad";
+import DrawPad, { BrushType, DrawPadHandle } from "expo-drawpad";
+import { useAnimatedReaction, useSharedValue } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
+import * as Clipboard from "expo-clipboard";
 
 const BRUSH_TYPES = [
   { id: "solid", icon: "circle", label: "Solid" },
@@ -16,32 +19,86 @@ const LINE_WEIGHTS = [
   { id: "thick", label: "Thick" },
 ] as const;
 
-const VARIABLE_WEIGHTS = ["2", "4", "6", "7", "8"] as const;
+const LINE_WEIGHTS_MAP = {
+  thin: "2",
+  medium: "4",
+  thick: "6",
+} as const;
+
+const VARIABLE_WEIGHTS = ["1", "5", "7", "8"];
 
 export default function Page() {
-  const [selectedBrush, setSelectedBrush] = React.useState<string>("solid");
-  const [selectedWeight, setSelectedWeight] = useState<string>("3");
-  const [canUndo, setCanUndo] = React.useState(false);
+  const [selectedBrush, setSelectedBrush] = useState<BrushType>("solid");
+  const [selectedWeight, setSelectedWeight] = useState<string>("4");
+  const [canUndo, setCanUndo] = useState(false);
+  const padRef = useRef<DrawPadHandle>(null);
+  const pathLength = useSharedValue(0);
+  const playing = useSharedValue(false);
 
   const customIcon = useImage("https://simpleicons.org/icons/expo.svg", {
     maxWidth: 21,
     maxHeight: 21,
   });
 
-  const LINE_WEIGHTS_MAP = {
-    thin: "1",
-    medium: "3",
-    thick: "5",
-  } as const;
-  
+  useAnimatedReaction(
+    () => pathLength.value,
+    (current) => {
+      scheduleOnRN(setCanUndo, current > 0);
+    },
+  );
+
+  const handleUndo = () => {
+    padRef.current?.undo();
+  };
+
+  const handleUndoAll = () => {
+    padRef.current?.erase();
+  };
+
+  const handlePlay = () => {
+    padRef.current?.play();
+  };
+
+  const copySVGToClipboard = async () => {
+    const svg = await padRef.current?.getSVG?.();
+
+    if (svg) {
+      await Clipboard.setStringAsync(svg);
+      alert("SVG copied to clipboard!");
+    }
+  };
 
   return (
     <>
       <Stack.Screen.BackButton displayMode="minimal" />
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon="arrow.uturn.backward" disabled={!canUndo} />
+        <Stack.Toolbar.Button
+          icon="arrow.uturn.backward"
+          disabled={!canUndo}
+          onPress={handleUndo}
+        />
         <Stack.Toolbar.Button icon="square.and.arrow.up" />
-        <Stack.Toolbar.Button icon="ellipsis" />
+        <Stack.Toolbar.Menu icon="ellipsis">
+          <Stack.Toolbar.MenuAction
+            icon="arrow.uturn.backward"
+            onPress={handleUndoAll}
+          >
+            Undo All
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction
+            icon="pencil.and.scribble"
+            onPress={handlePlay}
+            disabled={!canUndo}
+          >
+            Play Drawing
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction
+            icon="doc.on.doc"
+            onPress={copySVGToClipboard}
+          >
+            Copy SVG
+          </Stack.Toolbar.MenuAction>
+        </Stack.Toolbar.Menu>
       </Stack.Toolbar>
       <Stack.Toolbar placement="bottom">
         <Stack.Toolbar.Button icon="paintpalette" />
@@ -84,7 +141,10 @@ export default function Page() {
           </Stack.Toolbar.Menu>
         </Stack.Toolbar.Menu>
         <Stack.Toolbar.Spacer />
-        <Stack.Toolbar.Button icon="square.and.pencil" />
+        <Stack.Toolbar.Button
+          icon="square.and.pencil"
+          onPress={() => router.replace("/freeform/001")}
+        />
       </Stack.Toolbar>
       <View
         style={{
@@ -92,17 +152,15 @@ export default function Page() {
           backgroundColor: "#fff",
         }}
       >
-        {/* <Text>Page</Text> */}
-        {/* <Link.AppleZoomTarget>
-          <View style={{ flex: 1 }}>
-            <Image
-              source={require("@/assets/images/dp.png")}
-              style={{ width: "100%", height: 300 }}
-            />
-          </View>
-        </Link.AppleZoomTarget> */}
         <View style={{ flex: 1 }}>
-          <DrawPad />
+          <DrawPad
+            ref={padRef}
+            brushType={selectedBrush}
+            strokeWidth={parseInt(selectedWeight)}
+            pathLength={pathLength}
+            playing={playing}
+            stroke="#000000"
+          />
         </View>
       </View>
     </>

@@ -39,6 +39,7 @@ export const Colors = {
     recordBg: "#E2E4E8",
     theme: "#FFFFFF",
     shimmerText: "#000000",
+    invertedTheme: "#000000",
     ...globalColors,
   },
   dark: {
@@ -65,6 +66,7 @@ export const Colors = {
     recordBg: "#1B1B1C",
     theme: "#000000",
     shimmerText: "#888888",
+    invertedTheme: "#FFFFFF",
     ...globalColors,
   },
 };

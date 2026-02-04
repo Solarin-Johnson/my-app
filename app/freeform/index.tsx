@@ -6,10 +6,11 @@ import {
   StyleSheet,
 } from "react-native";
 import React from "react";
-import { Link, Stack } from "expo-router";
+import { Link, router, Stack } from "expo-router";
 import { Image } from "expo-image";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView, ThemedViewWrapper } from "@/components/ThemedView";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 const DATA = [
   {
@@ -34,9 +35,12 @@ const DATA = [
 ];
 
 export default function Index() {
+  const color = useThemeColor("invertedTheme");
   return (
     <>
-      <Stack.Screen.Title>Freeform</Stack.Screen.Title>
+      <Stack.Screen.Title style={{ textAlign: "left", fontSize: 20 }}>
+        Drawpad
+      </Stack.Screen.Title>
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu icon="ellipsis" palette></Stack.Toolbar.Menu>
       </Stack.Toolbar>
@@ -44,7 +48,10 @@ export default function Index() {
       <Stack.Toolbar placement="bottom">
         <Stack.Toolbar.SearchBarSlot />
         <Stack.Toolbar.Spacer />
-        <Stack.Toolbar.Button icon="square.and.pencil" />
+        <Stack.Toolbar.Button
+          icon={"square.and.pencil"}
+          onPress={() => router.navigate("/freeform/001")}
+        />
       </Stack.Toolbar>
 
       <ThemedViewWrapper colorName="captchaBg">
@@ -97,6 +104,7 @@ export default function Index() {
               </Link.Menu>
             </Link>
           ))}
+          <View style={{ height: 1200 }} />
         </ScrollView>
       </ThemedViewWrapper>
     </>
