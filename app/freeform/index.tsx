@@ -1,10 +1,4 @@
-import {
-  View,
-  ScrollView,
-  Pressable,
-  FlatList,
-  StyleSheet,
-} from "react-native";
+import { View, ScrollView, Pressable, StyleSheet } from "react-native";
 import React from "react";
 import { Link, router, Stack } from "expo-router";
 import { Image } from "expo-image";
@@ -38,9 +32,7 @@ export default function Index() {
   const color = useThemeColor("invertedTheme");
   return (
     <>
-      <Stack.Screen.Title style={{ textAlign: "left", fontSize: 20 }}>
-        Drawpad
-      </Stack.Screen.Title>
+      <Stack.Screen.Title style={{ fontSize: 20 }}>Drawpad</Stack.Screen.Title>
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu icon="ellipsis" palette></Stack.Toolbar.Menu>
       </Stack.Toolbar>
@@ -104,7 +96,7 @@ export default function Index() {
               </Link.Menu>
             </Link>
           ))}
-          <View style={{ height: 1200 }} />
+          {/* <View style={{ height: 1200 }} /> */}
         </ScrollView>
       </ThemedViewWrapper>
     </>
@@ -138,7 +130,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 12,
-    opacity: 0.7,
+    opacity: 0.5,
   },
   image: {
     width: 50,
