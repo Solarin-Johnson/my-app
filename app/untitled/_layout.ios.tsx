@@ -5,19 +5,20 @@ import type {
 } from "@react-navigation/native";
 import { withLayoutContext } from "expo-router";
 import { interpolate } from "react-native-reanimated";
-import Transition, {
-  createNativeStackNavigator,
-  type NativeStackNavigationEventMap,
-  type NativeStackNavigationOptions,
-} from "react-native-screen-transitions";
+import Transition from "react-native-screen-transitions";
+import {
+  createBlankStackNavigator,
+  type BlankStackNavigationEventMap,
+  type BlankStackNavigationOptions,
+} from "react-native-screen-transitions/blank-stack";
 
-const { Navigator } = createNativeStackNavigator();
+const { Navigator } = createBlankStackNavigator();
 
 export const Stack = withLayoutContext<
-  NativeStackNavigationOptions,
+  BlankStackNavigationOptions,
   typeof Navigator,
   StackNavigationState<ParamListBase>,
-  NativeStackNavigationEventMap
+  BlankStackNavigationEventMap
 >(Navigator);
 
 const SPRING_CONFIG = {
@@ -36,18 +37,20 @@ export default function Layout() {
   const bg = useThemeColor("untitledBg");
   return (
     <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
+      screenOptions={
+        {
+          // headerShown: false,
+        }
+      }
     >
       <Stack.Screen
         name="index"
-        options={{ contentStyle: { backgroundColor: bg } }}
+        // options={{ contentStyle: { backgroundColor: bg } }}
       />
       <Stack.Screen
         name="[id]"
         options={{
-          enableTransitions: true,
+          // enableTransitions: true,
           gestureEnabled: true,
           gestureDirection: "horizontal",
           screenStyleInterpolator: ({
