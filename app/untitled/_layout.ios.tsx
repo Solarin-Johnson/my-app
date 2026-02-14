@@ -5,7 +5,6 @@ import type {
 } from "@react-navigation/native";
 import { withLayoutContext } from "expo-router";
 import { interpolate } from "react-native-reanimated";
-import Transition from "react-native-screen-transitions";
 import {
   createBlankStackNavigator,
   type BlankStackNavigationEventMap,

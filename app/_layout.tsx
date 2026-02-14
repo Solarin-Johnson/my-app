@@ -5,7 +5,7 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Drawer } from "expo-router/drawer";
-import { useWindowDimensions } from "react-native";
+import { Pressable, useWindowDimensions } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { DarkTheme, LightTheme } from "@/constants/Theme";
 import DrawerContent from "@/components/DrawerContent";
@@ -13,6 +13,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { NotifyProvider } from "@/components/notify";
 import HeadComponent from "@/components/HeadComponent";
+import { router } from "expo-router";
 
 const edgeSwipe = {
   swipeEdgeWidth: 20,
@@ -48,6 +49,24 @@ export default function RootLayout() {
           </ThemeProvider>
         </SafeAreaProvider>
       </KeyboardProvider>
+      {/* <Pressable
+        style={{
+          width: 45,
+          height: 45,
+          borderRadius: 25,
+          backgroundColor: "red",
+          position: "absolute",
+          top: 62,
+          left: 16,
+          zIndex: 999,
+        }}
+        onPress={() => {
+          if (!router.canGoBack()) return;
+          router.back();
+
+          // router.back();
+        }}
+      /> */}
     </GestureHandlerRootView>
   );
 }
@@ -83,6 +102,13 @@ export function NavigationDrawer() {
       }}
       drawerContent={(props) => <DrawerContent {...props} />}
     >
+      <Drawer.Screen
+        name="custom-back"
+        options={{
+          drawerLabel: "Custom Back",
+          ...edgeSwipe,
+        }}
+      />
       <Drawer.Screen
         name="freeform"
         options={{
