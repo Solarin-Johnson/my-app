@@ -1,19 +1,21 @@
 import CustomBack from "@/components/custom-back";
-import { useNavigation } from "@react-navigation/native";
-import { router, Stack, usePathname, useSegments } from "expo-router";
-import { useEffect, useRef } from "react";
-
-import { Pressable, View } from "react-native";
+import { Stack } from "expo-router";
+import { View } from "react-native";
 
 export default function Layout() {
   return (
-    <CustomBack>
-      <Stack
-        screenOptions={{ headerBackVisible: false, headerShadowVisible: false }}
-      >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="[id]" />
-      </Stack>
-    </CustomBack>
+    <View style={{ flex: 1, paddingTop: 60 }}>
+      <CustomBack>
+        <Stack
+          screenOptions={{
+            headerBackVisible: false,
+            headerTitleAlign: "center",
+          }}
+        >
+          <Stack.Screen name="index" />
+          <Stack.Screen name="[id]" />
+        </Stack>
+      </CustomBack>
+    </View>
   );
 }

@@ -5,7 +5,7 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Drawer } from "expo-router/drawer";
-import { Pressable, useWindowDimensions } from "react-native";
+import { Platform, Pressable, useWindowDimensions } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { DarkTheme, LightTheme } from "@/constants/Theme";
 import DrawerContent from "@/components/DrawerContent";
@@ -13,11 +13,14 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { NotifyProvider } from "@/components/notify";
 import HeadComponent from "@/components/HeadComponent";
-import { router } from "expo-router";
 
-const edgeSwipe = {
-  swipeEdgeWidth: 20,
-};
+const isAndroid = Platform.OS === "android";
+
+const edgeSwipe = isAndroid
+  ? {}
+  : {
+      swipeEdgeWidth: 20,
+    };
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -106,7 +109,6 @@ export function NavigationDrawer() {
         name="custom-back"
         options={{
           drawerLabel: "Custom Back",
-          ...edgeSwipe,
         }}
       />
       <Drawer.Screen

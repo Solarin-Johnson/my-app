@@ -1,7 +1,7 @@
 import { router, usePathname } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Platform, Pressable, StyleSheet, View } from "react-native";
 import { ThemedViewWrapper } from "../ThemedView";
 import PressableBounce from "../PresableBounce";
 import Animated, {
@@ -60,13 +60,15 @@ const WIDTH = 48;
 const HEIGHT = 48;
 const EXPANDED_WIDTH = 240;
 
+const isAndroid = Platform.OS === "android";
+
 interface CustomBackProps {
   children: React.ReactNode;
 }
 
 const CustomBack: React.FC<CustomBackProps> = ({ children }) => {
   const [history, setHistory] = useState<string[]>([]);
-  const bg = useThemeColor("background");
+  const bg = useThemeColor("recordBg");
   const pathname = usePathname();
   const canGoBack = useSharedValue(false);
   const expanded = useSharedValue(false);
@@ -185,6 +187,7 @@ const CustomBack: React.FC<CustomBackProps> = ({ children }) => {
         duration: expanded.value ? 200 : 150,
         easing: Easing.inOut(Easing.ease),
       }),
+      pointerEvents: expanded.value ? "auto" : "none",
     };
   });
 
@@ -194,6 +197,8 @@ const CustomBack: React.FC<CustomBackProps> = ({ children }) => {
       expanded_animated.value = true;
     },
   );
+
+  console.log(history);
 
   return (
     <>
@@ -209,6 +214,7 @@ const CustomBack: React.FC<CustomBackProps> = ({ children }) => {
           styles.backButton,
           {
             outlineColor: "#ffffff20",
+            backgroundColor: isAndroid ? bg : "transparent",
           },
           animatedStyle,
         ]}
@@ -228,46 +234,46 @@ const CustomBack: React.FC<CustomBackProps> = ({ children }) => {
           expanded.value = !expanded.value;
           scale.value = 1;
         }}
-        delayLongPress={400}
+        // delayLongPress={400}
       >
-        <AnimatedBlurView
-          style={[
-            styles.blurUnderlay,
-            {
-              backgroundColor: bg + "20",
-            },
-          ]}
-          intensity={blurIntensity}
-        />
+        {!isAndroid && (
+          <AnimatedBlurView
+            style={[
+              styles.blurUnderlay,
+              {
+                backgroundColor: bg + "20",
+              },
+            ]}
+            intensity={blurIntensity}
+          />
+        )}
         <Animated.View style={[styles.icon, iconAnimatedStyle]}>
           <ThemedTextWrapper>
             <ChevronLeft size={30} style={{ marginLeft: -2 }} />
           </ThemedTextWrapper>
         </Animated.View>
-        <AnimatedBlurView
-          style={StyleSheet.absoluteFill}
-          intensity={iconBlurIntensity}
-        />
+        {!isAndroid && (
+          <AnimatedBlurView
+            style={StyleSheet.absoluteFill}
+            intensity={iconBlurIntensity}
+          />
+        )}
         <Animated.View style={[styles.history, historyAnimatedStyle]}>
-          {history.map((item, index) =>
-            index === history.length - 1 ? null : (
-              <Pressable
-                key={index}
-                style={styles.historyItem}
-                onPress={() => {
-                  const stepsBack = history.length - 1 - index;
-                  for (let i = 0; i < stepsBack; i++) {
-                    router.back();
-                  }
-                  expanded.value = false;
-                }}
-              >
-                <ThemedText>
-                  {item.split("/").slice(-1)[0] || "root"}
-                </ThemedText>
-              </Pressable>
-            ),
-          )}
+          {history.map((item, index) => (
+            <Pressable
+              key={index}
+              style={styles.historyItem}
+              onPress={() => {
+                const stepsBack = history.length - 1 - index;
+                for (let i = 0; i < stepsBack; i++) {
+                  router.back();
+                }
+                expanded.value = false;
+              }}
+            >
+              <ThemedText>{item.split("/").slice(-1)[0] || "root"}</ThemedText>
+            </Pressable>
+          ))}
         </Animated.View>
       </AnimatedPressable>
     </>
