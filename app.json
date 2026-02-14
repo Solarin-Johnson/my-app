@@ -11,7 +11,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.banana.myapp"
+      "bundleIdentifier": "com.myapp.solarin"
     },
     "android": {
       "adaptiveIcon": {

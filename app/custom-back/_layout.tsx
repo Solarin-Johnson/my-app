@@ -8,7 +8,9 @@ import { Pressable, View } from "react-native";
 export default function Layout() {
   return (
     <CustomBack>
-      <Stack screenOptions={{ headerBackVisible: false }}>
+      <Stack
+        screenOptions={{ headerBackVisible: false, headerShadowVisible: false }}
+      >
         <Stack.Screen name="index" />
         <Stack.Screen name="[id]" />
       </Stack>

@@ -46,10 +46,19 @@ const SLOW_SPRING_CONFIG = {
   overshootClamping: true,
 };
 
+const FAST_SPRING = {
+  damping: 18,
+  stiffness: 250,
+  mass: 1,
+  overshootClamping: true,
+  restDisplacementThreshold: 0.0001,
+  restSpeedThreshold: 0.0001,
+};
+
 const SPACING = 4;
-const WIDTH = 45;
-const HEIGHT = 45;
-const EXPANDED_WIDTH = 200 + SPACING * 2;
+const WIDTH = 48;
+const HEIGHT = 48;
+const EXPANDED_WIDTH = 240;
 
 interface CustomBackProps {
   children: React.ReactNode;
@@ -119,14 +128,23 @@ const CustomBack: React.FC<CustomBackProps> = ({ children }) => {
     const h = expanded.value ? HEIGHT * itemNum.value + SPACING * 2 : HEIGHT;
     const is_animated = animation_progress.value < 0.1;
     return {
-      width: applySpring(expanded.value ? EXPANDED_WIDTH : WIDTH, false, () => {
-        expanded_animated.value = false;
-      }),
-      height: applySpring(h),
+      width: withSpring(
+        expanded.value ? EXPANDED_WIDTH : WIDTH,
+        FAST_SPRING,
+        () => {
+          expanded_animated.value = false;
+        },
+      ),
+      height: withSpring(h, FAST_SPRING),
       opacity: applySpring(canGoBack.value || !is_animated ? 1 : 0),
       pointerEvents: canGoBack.value ? "auto" : "none",
       transform: [
-        { scale: applySpring(scale.value, !expanded.value) },
+        {
+          scale: withTiming(scale.value, {
+            duration: 250,
+            easing: Easing.inOut(Easing.ease),
+          }),
+        },
         {
           translateX: interpolate(
             animation_progress.value,
@@ -216,7 +234,7 @@ const CustomBack: React.FC<CustomBackProps> = ({ children }) => {
           style={[
             styles.blurUnderlay,
             {
-              backgroundColor: bg + "10",
+              backgroundColor: bg + "20",
             },
           ]}
           intensity={blurIntensity}
@@ -296,6 +314,6 @@ const styles = StyleSheet.create({
     borderRadius: HEIGHT / 2,
     justifyContent: "center",
     // backgroundColor: "#ffffff10",
-    paddingHorizontal: SPACING * 2.5,
+    paddingHorizontal: SPACING * 6,
   },
 });
