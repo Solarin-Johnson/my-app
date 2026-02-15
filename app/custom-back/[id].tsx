@@ -6,7 +6,7 @@ import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 
 export default function Id() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const nextId = id ? String(Number(id) + 1) : "1";
+  const nextId = id ? String(Number(id) + 1).padStart(3, "0") : "001";
 
   return (
     <SafeAreaView style={{ flex: 1, padding: 16 }}>

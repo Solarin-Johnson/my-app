@@ -8,7 +8,7 @@ export default function Index() {
   return (
     <SafeAreaView style={{ flex: 1, padding: 16 }}>
       <ThemedTextWrapper>
-        <Link href="/custom-back/123">Go to [id]</Link>
+        <Link href="/custom-back/001">Go to [id]</Link>
       </ThemedTextWrapper>
     </SafeAreaView>
   );

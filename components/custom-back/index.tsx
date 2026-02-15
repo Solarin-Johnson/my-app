@@ -1,9 +1,7 @@
-import { router, usePathname } from "expo-router";
+import { router, usePathname, useSegments } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
-import { ThemedViewWrapper } from "../ThemedView";
-import PressableBounce from "../PresableBounce";
 import Animated, {
   Easing,
   interpolate,
@@ -64,12 +62,26 @@ const isAndroid = Platform.OS === "android";
 
 interface CustomBackProps {
   children: React.ReactNode;
+  titles?: Record<string, string>;
+  usePathTitles?: boolean;
 }
 
-const CustomBack: React.FC<CustomBackProps> = ({ children }) => {
-  const [history, setHistory] = useState<string[]>([]);
-  const bg = useThemeColor("recordBg");
+type HistoryItem = {
+  path: string;
+  label: string;
+};
+
+const CustomBack: React.FC<CustomBackProps> = ({
+  children,
+  titles,
+  usePathTitles,
+}) => {
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const bg = useThemeColor("safariBg");
+
   const pathname = usePathname();
+  const segments = useSegments();
+
   const canGoBack = useSharedValue(false);
   const expanded = useSharedValue(false);
   const itemNum = useSharedValue(1);
@@ -104,27 +116,27 @@ const CustomBack: React.FC<CustomBackProps> = ({ children }) => {
   });
 
   useEffect(() => {
-    setHistory((prev) => {
-      const existingIndex = prev.lastIndexOf(pathname);
+    const lastSegment = segments[segments.length - 1];
 
-      let next: string[];
+    let label = lastSegment;
+
+    setHistory((prev) => {
+      const existingIndex = prev.findIndex((item) => item.path === pathname);
+
+      let next: HistoryItem[];
 
       if (existingIndex !== -1) {
-        // Going back (or revisiting)
         next = prev.slice(0, existingIndex + 1);
       } else {
-        // Going forward
-        next = [...prev, pathname];
+        next = [...prev, { path: pathname, label }];
       }
-
-      console.log("Route stack:", next);
 
       canGoBack.value = next.length > 1;
       itemNum.value = next.length - 1;
 
       return next;
     });
-  }, [pathname]);
+  }, [pathname, segments]);
 
   const animatedStyle = useAnimatedStyle(() => {
     const h = expanded.value ? HEIGHT * itemNum.value + SPACING * 2 : HEIGHT;
@@ -174,7 +186,7 @@ const CustomBack: React.FC<CustomBackProps> = ({ children }) => {
   const iconAnimatedStyle = useAnimatedStyle(() => {
     return {
       opacity: withTiming(expanded.value ? 0 : 1, {
-        duration: expanded.value ? 150 : 250,
+        duration: expanded.value ? 50 : 250,
         easing: Easing.inOut(Easing.ease),
       }),
       transform: [{ scale: applySpring(expanded.value ? 4 : 1) }],
@@ -259,21 +271,33 @@ const CustomBack: React.FC<CustomBackProps> = ({ children }) => {
           />
         )}
         <Animated.View style={[styles.history, historyAnimatedStyle]}>
-          {history.map((item, index) => (
-            <Pressable
-              key={index}
-              style={styles.historyItem}
-              onPress={() => {
-                const stepsBack = history.length - 1 - index;
-                for (let i = 0; i < stepsBack; i++) {
-                  router.back();
-                }
-                expanded.value = false;
-              }}
-            >
-              <ThemedText>{item.split("/").slice(-1)[0] || "root"}</ThemedText>
-            </Pressable>
-          ))}
+          {history.map((item, index) => {
+            const pathSegment = item.path.split("/").slice(-1)[0] || "index";
+            const labelSegment = item.label || "index";
+
+            console.log(labelSegment);
+
+            const title =
+              titles?.[item.path] ||
+              titles?.[labelSegment] ||
+              titles?.[pathSegment] ||
+              (usePathTitles ? pathSegment : labelSegment);
+            return (
+              <Pressable
+                key={index}
+                style={styles.historyItem}
+                onPress={() => {
+                  const stepsBack = history.length - 1 - index;
+                  for (let i = 0; i < stepsBack; i++) {
+                    router.back();
+                  }
+                  expanded.value = false;
+                }}
+              >
+                <ThemedText>{title}</ThemedText>
+              </Pressable>
+            );
+          })}
         </Animated.View>
       </AnimatedPressable>
     </>
