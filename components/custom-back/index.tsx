@@ -1,7 +1,13 @@
 import { router, usePathname, useSegments } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { Platform, Pressable, StyleSheet, useColorScheme } from "react-native";
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  useColorScheme,
+  View,
+} from "react-native";
 import Animated, {
   Easing,
   interpolate,
@@ -78,11 +84,11 @@ const CustomBack: React.FC<CustomBackProps> = ({
   usePathTitles,
 }) => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const bg = useThemeColor("safariBg");
+  const bg = useThemeColor("untitledBg");
   const { top } = useSafeAreaInsets();
 
   const isDark = useColorScheme() === "dark";
-  const size = isDark ? 45.6 : 44;
+  const size = isDark ? 45 : 44;
 
   const pathname = usePathname();
   const segments = useSegments();
@@ -221,7 +227,9 @@ const CustomBack: React.FC<CustomBackProps> = ({
 
   return (
     <>
-      {children}
+      <View style={{ flex: 1, paddingTop: isAndroid ? 52 : 0 }}>
+        {children}
+      </View>
       <AnimatedPressable
         style={[StyleSheet.absoluteFill, overlayStyle]}
         onPressIn={() => {
@@ -234,7 +242,7 @@ const CustomBack: React.FC<CustomBackProps> = ({
           {
             outlineColor: "#ffffff20",
             backgroundColor: isAndroid ? bg : "transparent",
-            top: top / 2 + 40,
+            top: top / 2 + 31,
             borderRadius: size / 2 + SPACING,
           },
           animatedStyle,
@@ -262,7 +270,7 @@ const CustomBack: React.FC<CustomBackProps> = ({
             style={[
               styles.blurUnderlay,
               {
-                backgroundColor: bg + "20",
+                backgroundColor: bg,
               },
             ]}
             intensity={blurIntensity}

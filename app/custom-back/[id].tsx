@@ -1,18 +1,37 @@
-import { View, Text } from "react-native";
 import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Link, useLocalSearchParams } from "expo-router";
-import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
+import { useLocalSearchParams } from "expo-router";
+import { ThemedView } from "@/components/ThemedView";
+import {
+  SectionContainer,
+  SectionDivider,
+  SectionItem,
+} from "@/components/custom-back/sections";
 
 export default function Id() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const nextId = id ? String(Number(id) + 1).padStart(3, "0") : "001";
+  const currentId = Number(id);
+  const nextId1 = String(currentId + 1).padStart(3, "0");
+  const nextId2 = String(currentId + 2).padStart(3, "0");
+  const nextId3 = String(currentId + 3).padStart(3, "0");
 
   return (
-    <SafeAreaView style={{ flex: 1, padding: 16 }}>
-      <ThemedTextWrapper>
-        <Link href={`/custom-back/${nextId}`}>Go to next ID ({nextId})</Link>
-      </ThemedTextWrapper>
-    </SafeAreaView>
+    <ThemedView style={{ flex: 1, padding: 16 }}>
+      <SectionContainer>
+        <SectionItem
+          title={`Page ${nextId1}`}
+          href={`/custom-back/${nextId1}`}
+        />
+        <SectionDivider />
+        <SectionItem
+          title={`Page ${nextId2}`}
+          href={`/custom-back/${nextId2}`}
+        />
+        <SectionDivider />
+        <SectionItem
+          title={`Page ${nextId3}`}
+          href={`/custom-back/${nextId3}`}
+        />
+      </SectionContainer>
+    </ThemedView>
   );
 }

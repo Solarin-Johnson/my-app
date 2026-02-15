@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import { Easing } from "react-native-reanimated";
 
 export const SHARED_DATA = {
@@ -52,3 +53,5 @@ export const SPRING_CONFIG = {
   stiffness: 150,
   overshootClamping: true,
 };
+
+export const isAndroid = Platform.OS === "android";

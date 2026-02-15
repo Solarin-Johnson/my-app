@@ -1,15 +1,22 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Link } from "expo-router";
-import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
+import {
+  SectionContainer,
+  SectionDivider,
+  SectionItem,
+} from "@/components/custom-back/sections";
+import { ThemedView } from "@/components/ThemedView";
 
 export default function Index() {
   return (
-    <SafeAreaView style={{ flex: 1, padding: 16 }}>
-      <ThemedTextWrapper>
-        <Link href="/custom-back/001">Go to [id]</Link>
-      </ThemedTextWrapper>
-    </SafeAreaView>
+    <ThemedView style={{ flex: 1, padding: 16 }}>
+      <SectionContainer>
+        <SectionItem title="Page 100" href="/custom-back/100" />
+        <SectionDivider />
+        <SectionItem title="Page 110" href="/custom-back/110" />
+        <SectionDivider />
+        <SectionItem title="Page 120" href="/custom-back/120" />
+      </SectionContainer>
+    </ThemedView>
   );
 }
