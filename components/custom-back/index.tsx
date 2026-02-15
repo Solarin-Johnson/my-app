@@ -15,6 +15,7 @@ import Animated, {
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { BlurView } from "expo-blur";
 import { ThemedText, ThemedTextWrapper } from "../ThemedText";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
@@ -54,8 +55,8 @@ const FAST_SPRING = {
 };
 
 const SPACING = 4;
-const WIDTH = 48;
-const HEIGHT = 48;
+const WIDTH = 44;
+const HEIGHT = 44;
 const EXPANDED_WIDTH = 240;
 
 const isAndroid = Platform.OS === "android";
@@ -78,6 +79,7 @@ const CustomBack: React.FC<CustomBackProps> = ({
 }) => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const bg = useThemeColor("safariBg");
+  const { top } = useSafeAreaInsets();
 
   const pathname = usePathname();
   const segments = useSegments();
@@ -212,7 +214,7 @@ const CustomBack: React.FC<CustomBackProps> = ({
     },
   );
 
-  console.log(history);
+  console.log(top);
 
   return (
     <>
@@ -229,6 +231,7 @@ const CustomBack: React.FC<CustomBackProps> = ({
           {
             outlineColor: "#ffffff20",
             backgroundColor: isAndroid ? bg : "transparent",
+            top: top / 2 + 39,
           },
           animatedStyle,
         ]}
@@ -248,7 +251,7 @@ const CustomBack: React.FC<CustomBackProps> = ({
           expanded.set(!expanded.get());
           scale.set(1);
         }}
-        // delayLongPress={400}
+        delayLongPress={400}
       >
         {!isAndroid && (
           <AnimatedBlurView
@@ -312,7 +315,7 @@ const styles = StyleSheet.create({
   backButton: {
     borderRadius: WIDTH / 2 + SPACING,
     position: "absolute",
-    top: 62,
+    // top: 70,
     left: 16,
     zIndex: 999,
     boxShadow: "0 5px 30px #00000024",
