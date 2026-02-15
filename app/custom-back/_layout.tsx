@@ -11,7 +11,7 @@ export default function Layout() {
           // "[id]": "Detail",
           "124": "Custom Label",
         }}
-        usePathTitles
+        // usePathTitles
       >
         <Stack
           screenOptions={{

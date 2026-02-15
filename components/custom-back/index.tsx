@@ -82,9 +82,14 @@ const CustomBack: React.FC<CustomBackProps> = ({
   const pathname = usePathname();
   const segments = useSegments();
 
-  const canGoBack = useSharedValue(false);
+  const canGoBack = useDerivedValue(() => {
+    return history.length > 1;
+  });
+  const itemNum = useDerivedValue(() => {
+    return history.length - 1;
+  });
+
   const expanded = useSharedValue(false);
-  const itemNum = useSharedValue(1);
   const scale = useSharedValue(1);
   const expanded_animated = useSharedValue(true);
 
@@ -98,7 +103,7 @@ const CustomBack: React.FC<CustomBackProps> = ({
       value,
       slow
         ? SLOW_SPRING_CONFIG
-        : expanded.value
+        : expanded.get()
           ? SPRING_CONFIG
           : COLLAPSE_SPRING_CONFIG,
       callback,
@@ -106,13 +111,13 @@ const CustomBack: React.FC<CustomBackProps> = ({
   };
 
   const animation_progress = useDerivedValue(() => {
-    return applySpring(expanded.value ? 1 : 0);
+    return applySpring(expanded.get() ? 1 : 0);
   });
   const iconBlurIntensity = useDerivedValue<undefined | number>(() => {
-    return applySpring(expanded.value ? 50 : 0);
+    return applySpring(expanded.get() ? 50 : 0);
   });
   const blurIntensity = useDerivedValue<undefined | number>(() => {
-    return applySpring(expanded.value ? 0 : 50);
+    return applySpring(expanded.get() ? 0 : 50);
   });
 
   useEffect(() => {
@@ -131,46 +136,43 @@ const CustomBack: React.FC<CustomBackProps> = ({
         next = [...prev, { path: pathname, label }];
       }
 
-      canGoBack.value = next.length > 1;
-      itemNum.value = next.length - 1;
-
       return next;
     });
   }, [pathname, segments]);
 
   const animatedStyle = useAnimatedStyle(() => {
-    const h = expanded.value ? HEIGHT * itemNum.value + SPACING * 2 : HEIGHT;
-    const is_animated = animation_progress.value < 0.1;
+    const h = expanded.get() ? HEIGHT * itemNum.get() + SPACING * 2 : HEIGHT;
+    const is_animated = animation_progress.get() < 0.1;
     return {
       width: withSpring(
-        expanded.value ? EXPANDED_WIDTH : WIDTH,
+        expanded.get() ? EXPANDED_WIDTH : WIDTH,
         FAST_SPRING,
         () => {
-          expanded_animated.value = false;
+          expanded_animated.set(false);
         },
       ),
       height: withSpring(h, FAST_SPRING),
-      opacity: applySpring(canGoBack.value || !is_animated ? 1 : 0),
-      pointerEvents: canGoBack.value ? "auto" : "none",
+      opacity: applySpring(canGoBack.get() || !is_animated ? 1 : 0),
+      pointerEvents: canGoBack.get() ? "auto" : "none",
       transform: [
         {
-          scale: withTiming(scale.value, {
+          scale: withTiming(scale.get(), {
             duration: 250,
             easing: Easing.inOut(Easing.ease),
           }),
         },
         {
           translateX: interpolate(
-            animation_progress.value,
+            animation_progress.get(),
             [0, 0.5, 1],
-            [0, expanded.value ? WIDTH / 4 : WIDTH / 2, 0],
+            [0, expanded.get() ? WIDTH / 4 : WIDTH / 2, 0],
           ),
         },
         {
           translateY: interpolate(
-            animation_progress.value,
+            animation_progress.get(),
             [0, 0.5, 1],
-            [0, expanded.value ? WIDTH / 4 : HEIGHT / 2, 0],
+            [0, expanded.get() ? WIDTH / 4 : HEIGHT / 2, 0],
           ),
         },
       ],
@@ -179,34 +181,34 @@ const CustomBack: React.FC<CustomBackProps> = ({
 
   const overlayStyle = useAnimatedStyle(() => {
     return {
-      pointerEvents: expanded.value ? "auto" : "none",
+      pointerEvents: expanded.get() ? "auto" : "none",
     };
   });
 
   const iconAnimatedStyle = useAnimatedStyle(() => {
     return {
-      opacity: withTiming(expanded.value ? 0 : 1, {
-        duration: expanded.value ? 50 : 250,
+      opacity: withTiming(expanded.get() ? 0 : 1, {
+        duration: expanded.get() ? 50 : 250,
         easing: Easing.inOut(Easing.ease),
       }),
-      transform: [{ scale: applySpring(expanded.value ? 4 : 1) }],
+      transform: [{ scale: applySpring(expanded.get() ? 4 : 1) }],
     };
   });
 
   const historyAnimatedStyle = useAnimatedStyle(() => {
     return {
-      opacity: withTiming(expanded.value ? 1 : 0, {
-        duration: expanded.value ? 200 : 150,
+      opacity: withTiming(expanded.get() ? 1 : 0, {
+        duration: expanded.get() ? 200 : 150,
         easing: Easing.inOut(Easing.ease),
       }),
-      pointerEvents: expanded.value ? "auto" : "none",
+      pointerEvents: expanded.get() ? "auto" : "none",
     };
   });
 
   useAnimatedReaction(
-    () => expanded.value,
-    (value) => {
-      expanded_animated.value = true;
+    () => expanded.get(),
+    () => {
+      expanded_animated.set(true);
     },
   );
 
@@ -218,7 +220,7 @@ const CustomBack: React.FC<CustomBackProps> = ({
       <AnimatedPressable
         style={[StyleSheet.absoluteFill, overlayStyle]}
         onPressIn={() => {
-          expanded.value = false;
+          expanded.set(false);
         }}
       />
       <AnimatedPressable
@@ -231,20 +233,20 @@ const CustomBack: React.FC<CustomBackProps> = ({
           animatedStyle,
         ]}
         onPressIn={() => {
-          scale.value = 1.2;
+          scale.set(1.2);
         }}
         onPressOut={() => {
-          scale.value = 1;
+          scale.set(1);
         }}
         onPress={() => {
-          if (!router.canGoBack() || expanded.value) return;
+          if (!router.canGoBack() || expanded.get()) return;
           router.back();
 
           // router.back();
         }}
         onLongPress={() => {
-          expanded.value = !expanded.value;
-          scale.value = 1;
+          expanded.set(!expanded.get());
+          scale.set(1);
         }}
         // delayLongPress={400}
       >
@@ -291,7 +293,7 @@ const CustomBack: React.FC<CustomBackProps> = ({
                   for (let i = 0; i < stepsBack; i++) {
                     router.back();
                   }
-                  expanded.value = false;
+                  expanded.set(false);
                 }}
               >
                 <ThemedText>{title}</ThemedText>
