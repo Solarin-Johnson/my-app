@@ -1,7 +1,7 @@
 import { router, usePathname, useSegments } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { Platform, Pressable, StyleSheet, View } from "react-native";
+import { Platform, Pressable, StyleSheet, useColorScheme } from "react-native";
 import Animated, {
   Easing,
   interpolate,
@@ -55,9 +55,9 @@ const FAST_SPRING = {
 };
 
 const SPACING = 4;
+const EXPANDED_WIDTH = 240;
 const WIDTH = 44;
 const HEIGHT = 44;
-const EXPANDED_WIDTH = 240;
 
 const isAndroid = Platform.OS === "android";
 
@@ -80,6 +80,9 @@ const CustomBack: React.FC<CustomBackProps> = ({
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const bg = useThemeColor("safariBg");
   const { top } = useSafeAreaInsets();
+
+  const isDark = useColorScheme() === "dark";
+  const size = isDark ? 45.6 : 44;
 
   const pathname = usePathname();
   const segments = useSegments();
@@ -143,11 +146,13 @@ const CustomBack: React.FC<CustomBackProps> = ({
   }, [pathname, segments]);
 
   const animatedStyle = useAnimatedStyle(() => {
-    const h = expanded.get() ? HEIGHT * itemNum.get() + SPACING * 2 : HEIGHT;
+    const h = expanded.get()
+      ? HEIGHT * itemNum.get() - HEIGHT + size + SPACING * 2
+      : size;
     const is_animated = animation_progress.get() < 0.1;
     return {
       width: withSpring(
-        expanded.get() ? EXPANDED_WIDTH : WIDTH,
+        expanded.get() ? EXPANDED_WIDTH : size,
         FAST_SPRING,
         () => {
           expanded_animated.set(false);
@@ -158,7 +163,7 @@ const CustomBack: React.FC<CustomBackProps> = ({
       pointerEvents: canGoBack.get() ? "auto" : "none",
       transform: [
         {
-          scale: withTiming(scale.get(), {
+          scale: withTiming(expanded.get() ? 1 : scale.get(), {
             duration: 250,
             easing: Easing.inOut(Easing.ease),
           }),
@@ -214,8 +219,6 @@ const CustomBack: React.FC<CustomBackProps> = ({
     },
   );
 
-  console.log(top);
-
   return (
     <>
       {children}
@@ -231,7 +234,8 @@ const CustomBack: React.FC<CustomBackProps> = ({
           {
             outlineColor: "#ffffff20",
             backgroundColor: isAndroid ? bg : "transparent",
-            top: top / 2 + 39,
+            top: top / 2 + 40,
+            borderRadius: size / 2 + SPACING,
           },
           animatedStyle,
         ]}
@@ -287,6 +291,8 @@ const CustomBack: React.FC<CustomBackProps> = ({
               titles?.[labelSegment] ||
               titles?.[pathSegment] ||
               (usePathTitles ? pathSegment : labelSegment);
+            if (index === history.length - 1) return null;
+
             return (
               <Pressable
                 key={index}
@@ -313,7 +319,6 @@ export default CustomBack;
 
 const styles = StyleSheet.create({
   backButton: {
-    borderRadius: WIDTH / 2 + SPACING,
     position: "absolute",
     // top: 70,
     left: 16,
@@ -343,12 +348,12 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   historyItem: {
-    height: HEIGHT,
     width: EXPANDED_WIDTH - SPACING * 2,
     marginHorizontal: SPACING,
-    borderRadius: HEIGHT / 2,
     justifyContent: "center",
     // backgroundColor: "#ffffff10",
     paddingHorizontal: SPACING * 6,
+    height: HEIGHT,
+    borderRadius: HEIGHT / 2,
   },
 });
