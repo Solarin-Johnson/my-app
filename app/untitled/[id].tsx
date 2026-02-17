@@ -13,6 +13,7 @@ import {
 } from "react-native-gesture-handler";
 import Transition from "react-native-screen-transitions";
 import Animated, {
+  SharedValue,
   useAnimatedProps,
   useAnimatedReaction,
   useAnimatedScrollHandler,
@@ -25,6 +26,7 @@ import Animated, {
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
+  StyleSheet,
   useWindowDimensions,
   View,
 } from "react-native";
@@ -54,6 +56,10 @@ export default function Index() {
   const nativeGesture = useNativeGesture({});
 
   const { height } = useWindowDimensions();
+
+  const failOffset = useDerivedValue(() => {
+    return record.value ? Number.MAX_VALUE : 0;
+  });
 
   const MAX_TRANSLATE = height - 200;
 
@@ -101,9 +107,11 @@ export default function Index() {
               : 0,
       );
     },
-    failOffsetX: [-10, 0],
+    failOffsetX: [-Number.MAX_VALUE, failOffset],
     simultaneousWith: innerPanGesture,
   });
+
+  const underPanGesture = usePanGesture({});
 
   const pageAnimatedStyle = useAnimatedStyle(() => {
     return {
@@ -118,27 +126,37 @@ export default function Index() {
     },
   );
 
+  const scrollEnabled = useDerivedValue<boolean | undefined>(() => {
+    return !record.value;
+  });
+
   return (
     <UntitledScreen barProps={{ type: "fill", hide: snapped }} hideHeader>
       <GestureDetector gesture={panGesture}>
-        <Animated.View style={[{ flex: 1 }, pageAnimatedStyle]}>
-          <UntitledHeader contentStyle={{ height: 50 }}>
-            <Header />
-          </UntitledHeader>
-          <GestureDetector gesture={nativeGesture}>
-            <ScrollView
-              ref={scrollRef}
-              style={{ flex: 1 }}
-              contentContainerStyle={{ flexGrow: 1 }}
-            >
-              <GestureDetector gesture={innerPanGesture}>
-                <View style={{ flexGrow: 1 }} collapsable={false}>
-                  <UntitledCardLarge />
-                </View>
-              </GestureDetector>
-            </ScrollView>
+        <View style={{ flex: 1 }}>
+          <GestureDetector gesture={underPanGesture}>
+            <View style={StyleSheet.absoluteFill} collapsable={false} />
           </GestureDetector>
-        </Animated.View>
+          <Animated.View style={[{ flex: 1 }, pageAnimatedStyle]}>
+            <UntitledHeader contentStyle={{ height: 50 }}>
+              <Header />
+            </UntitledHeader>
+            <GestureDetector gesture={nativeGesture}>
+              <ScrollView
+                ref={scrollRef}
+                style={{ flex: 1 }}
+                contentContainerStyle={{ flexGrow: 1 }}
+                scrollEnabled={scrollEnabled}
+              >
+                <GestureDetector gesture={innerPanGesture}>
+                  <View style={{ flexGrow: 1 }} collapsable={false}>
+                    <UntitledCardLarge />
+                  </View>
+                </GestureDetector>
+              </ScrollView>
+            </GestureDetector>
+          </Animated.View>
+        </View>
       </GestureDetector>
     </UntitledScreen>
   );
