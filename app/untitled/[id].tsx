@@ -48,13 +48,14 @@ export default function Index() {
   const translateY = useSharedValue(0);
   const startY = useSharedValue(0);
 
-  const dragged = useSharedValue(false);
+  const record = useSharedValue(false);
+  const snapped = useSharedValue(false);
 
   const nativeGesture = useNativeGesture({});
 
   const { height } = useWindowDimensions();
 
-  const MAX_TRANSLATE = height - 300;
+  const MAX_TRANSLATE = height - 200;
 
   const innerPanGesture = usePanGesture({
     activeOffsetY: [-Number.MAX_VALUE, 0],
@@ -80,6 +81,8 @@ export default function Index() {
       const isUpwardSwipe =
         dir < 0 && translateY.value < MAX_TRANSLATE - THRESHOLD;
       const isPastMidpoint = translateY.value >= MAX_TRANSLATE / 2;
+
+      snapped.value = !isUpwardSwipe && (isDownwardSwipe || isPastMidpoint);
 
       translateY.set(
         withDecay({
@@ -108,17 +111,17 @@ export default function Index() {
     };
   });
 
-  // useAnimatedReaction(
-  //   () => dragged.get(),
-  //   (current) => {
-  //     translateY.set(current ? -height : 0);
-  //   },
-  // );
+  useAnimatedReaction(
+    () => translateY.get(),
+    (current) => {
+      record.value = current > THRESHOLD;
+    },
+  );
 
   return (
-    <UntitledScreen barProps={{ type: "fill" }} hideHeader>
+    <UntitledScreen barProps={{ type: "fill", hide: snapped }} hideHeader>
       <GestureDetector gesture={panGesture}>
-        <AnimatedThemedView style={[{ flex: 1 }, pageAnimatedStyle]}>
+        <Animated.View style={[{ flex: 1 }, pageAnimatedStyle]}>
           <UntitledHeader contentStyle={{ height: 50 }}>
             <Header />
           </UntitledHeader>
@@ -135,7 +138,7 @@ export default function Index() {
               </GestureDetector>
             </ScrollView>
           </GestureDetector>
-        </AnimatedThemedView>
+        </Animated.View>
       </GestureDetector>
     </UntitledScreen>
   );

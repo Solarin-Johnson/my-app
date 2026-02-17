@@ -8,17 +8,19 @@ import { View } from "react-native";
 
 const ScrollView = Transition.ScrollView;
 
+export interface UntitledScreenProps {
+  children?: React.ReactNode;
+  headerProps?: UntitledHeaderProps;
+  barProps?: UntitledBottomBarProps;
+  hideHeader?: boolean;
+}
+
 export default function UntitledScreen({
   children,
   headerProps,
   barProps,
   hideHeader,
-}: {
-  children?: React.ReactNode;
-  headerProps?: UntitledHeaderProps;
-  barProps?: UntitledBottomBarProps;
-  hideHeader?: boolean;
-}) {
+}: UntitledScreenProps) {
   const props = useScreenAnimation();
 
   return (

@@ -4,7 +4,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useScreenAnimation } from "react-native-screen-transitions";
 import Animated, {
   interpolate,
+  SharedValue,
   useAnimatedStyle,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import Feather from "@expo/vector-icons/Feather";
 import { ThemedView, ThemedViewWrapper } from "../ThemedView";
@@ -25,10 +28,12 @@ const DATA = {
 
 export interface UntitledBottomBarProps {
   type?: "fill" | "collapse";
+  hide?: SharedValue<boolean>;
 }
 
 export default function UntitledBottomBar({
   type = "collapse",
+  hide,
 }: UntitledBottomBarProps) {
   const { bottom } = useSafeAreaInsets();
   const props = useScreenAnimation();
@@ -73,7 +78,7 @@ export default function UntitledBottomBar({
         [0, 1, 2],
         type === "fill"
           ? [COLLAPSED_WIDTH, FULL_WIDTH, FULL_WIDTH]
-          : [FULL_WIDTH, COLLAPSED_WIDTH, FULL_WIDTH]
+          : [FULL_WIDTH, COLLAPSED_WIDTH, FULL_WIDTH],
       ),
     };
   });
@@ -93,51 +98,61 @@ export default function UntitledBottomBar({
     };
   });
 
+  const wrapperAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: withSpring(hide?.get() ? 0 : 1),
+    };
+  });
+
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        {
-          bottom,
-        },
-        headerAnimatedStyle,
-      ]}
-    >
-      <PressableBounce duration={240}>
-        <Animated.View style={[controlAnimatedStyle]}>
-          <ThemedView
-            colorName="untitledBarBg"
-            style={[styles.controlBar, styles.shadow]}
-          >
-            <PressableBounce style={[styles.disk, { borderColor: bg + "AA" }]}>
-              <Ionicons name="play" size={20} color="white" />
-            </PressableBounce>
-            <View style={styles.content}>
-              <ThemedText type="regular" style={styles.title}>
-                {DATA.title}
-              </ThemedText>
-              <ThemedText type="regular" style={styles.subtitle}>
-                {DATA.name}
-              </ThemedText>
-            </View>
-            <PressableBounce style={styles.share}>
-              <Ionicons name="share-outline" size={20} color="white" />
-            </PressableBounce>
-          </ThemedView>
-        </Animated.View>
-      </PressableBounce>
-      {type === "collapse" && (
-        <Animated.View style={buttonAnimatedStyle}>
-          <ThemedViewWrapper
-            style={[styles.addButton, styles.shadow]}
-            colorName="untitledBarBg"
-          >
-            <PressableBounce>
-              <Feather name="plus" size={22} color="white" />
-            </PressableBounce>
-          </ThemedViewWrapper>
-        </Animated.View>
-      )}
+    <Animated.View style={wrapperAnimatedStyle}>
+      <Animated.View
+        style={[
+          styles.container,
+          {
+            bottom,
+          },
+          headerAnimatedStyle,
+        ]}
+      >
+        <PressableBounce duration={240}>
+          <Animated.View style={[controlAnimatedStyle]}>
+            <ThemedView
+              colorName="untitledBarBg"
+              style={[styles.controlBar, styles.shadow]}
+            >
+              <PressableBounce
+                style={[styles.disk, { borderColor: bg + "AA" }]}
+              >
+                <Ionicons name="play" size={20} color="white" />
+              </PressableBounce>
+              <View style={styles.content}>
+                <ThemedText type="regular" style={styles.title}>
+                  {DATA.title}
+                </ThemedText>
+                <ThemedText type="regular" style={styles.subtitle}>
+                  {DATA.name}
+                </ThemedText>
+              </View>
+              <PressableBounce style={styles.share}>
+                <Ionicons name="share-outline" size={20} color="white" />
+              </PressableBounce>
+            </ThemedView>
+          </Animated.View>
+        </PressableBounce>
+        {type === "collapse" && (
+          <Animated.View style={buttonAnimatedStyle}>
+            <ThemedViewWrapper
+              style={[styles.addButton, styles.shadow]}
+              colorName="untitledBarBg"
+            >
+              <PressableBounce>
+                <Feather name="plus" size={22} color="white" />
+              </PressableBounce>
+            </ThemedViewWrapper>
+          </Animated.View>
+        )}
+      </Animated.View>
     </Animated.View>
   );
 }
