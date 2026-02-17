@@ -42,7 +42,13 @@
       ],
       "expo-web-browser",
       "expo-font",
-      "expo-image"
+      "expo-image",
+      [
+        "react-native-audio-api",
+        {
+          "iosMicrophonePermission": "App needs microphone access to record."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
