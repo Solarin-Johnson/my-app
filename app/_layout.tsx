@@ -106,6 +106,14 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="untitled"
+        options={{
+          drawerLabel: "[untitled]",
+          swipeEdgeWidth: 10,
+        }}
+        initialParams={{ noPreview: true }}
+      />
+      <Drawer.Screen
         name="custom-back"
         options={{
           drawerLabel: "Custom Back",
@@ -213,14 +221,6 @@ export function NavigationDrawer() {
         options={{
           drawerLabel: "Slack Liquid Glass",
         }}
-      />
-      <Drawer.Screen
-        name="untitled"
-        options={{
-          drawerLabel: "Screen Transitions",
-          swipeEdgeWidth: 10,
-        }}
-        initialParams={{ noPreview: true }}
       />
       <Drawer.Screen
         name="wa-status"

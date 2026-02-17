@@ -8,15 +8,20 @@ import {
   UntitledCardMini,
   UntitledCardMiniWrapper,
 } from "@/components/untitled/card";
+import Transition from "react-native-screen-transitions";
+
+const ScrollView = Transition.ScrollView;
 
 export default function Index() {
   return (
     <UntitledScreen headerProps={{ title: "[untitled]", children: <Header /> }}>
-      <UntitledCardMiniWrapper>
-        <UntitledCardMini />
-        <UntitledCardMini />
-        <UntitledCardMini />
-      </UntitledCardMiniWrapper>
+      <ScrollView style={{ flex: 1 }}>
+        <UntitledCardMiniWrapper>
+          <UntitledCardMini />
+          <UntitledCardMini />
+          <UntitledCardMini />
+        </UntitledCardMiniWrapper>
+      </ScrollView>
     </UntitledScreen>
   );
 }
