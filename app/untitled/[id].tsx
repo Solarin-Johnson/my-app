@@ -28,9 +28,9 @@ import UntitledHeader from "@/components/untitled/header";
 import { scheduleOnRN } from "react-native-worklets";
 import { Feedback } from "@/functions";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Record from "@/components/untitled/record";
 import { Minus } from "lucide-react-native";
 import { ThemedTextWrapper } from "@/components/ThemedText";
+import RecordPage from "@/components/untitled/record";
 
 const AnimatedThemedView = Animated.createAnimatedComponent(ThemedView);
 
@@ -176,7 +176,7 @@ export default function Index() {
               collapsable={false}
               colorName="untitledFg"
             >
-              <Record dragProgress={dragProgress} />
+              <RecordPage dragProgress={dragProgress} />
             </AnimatedThemedView>
           </GestureDetector>
           <Animated.View
