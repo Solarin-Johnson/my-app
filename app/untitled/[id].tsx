@@ -11,29 +11,26 @@ import {
   useNativeGesture,
   usePanGesture,
 } from "react-native-gesture-handler";
-import Transition from "react-native-screen-transitions";
+import Transition, {
+  useScreenAnimation,
+} from "react-native-screen-transitions";
 import Animated, {
-  SharedValue,
-  useAnimatedProps,
   useAnimatedReaction,
-  useAnimatedScrollHandler,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
   withDecay,
   withSpring,
 } from "react-native-reanimated";
-import {
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-} from "react-native";
-import { ThemedView } from "@/components/ThemedView";
+import { StyleSheet, useWindowDimensions, View } from "react-native";
+import { ThemedView, ThemedViewWrapper } from "@/components/ThemedView";
 import UntitledHeader from "@/components/untitled/header";
 import { scheduleOnRN } from "react-native-worklets";
 import { Feedback } from "@/functions";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Record from "@/components/untitled/record";
+import { Minus } from "lucide-react-native";
+import { ThemedTextWrapper } from "@/components/ThemedText";
 
 const AnimatedThemedView = Animated.createAnimatedComponent(ThemedView);
 
@@ -44,6 +41,7 @@ const hapticsFeedback = () => {
 };
 
 const THRESHOLD = 180;
+const PAGE_PEEK_HEIGHT = 54;
 
 export default function Index() {
   const scrollRef = useRef(null);
@@ -56,12 +54,13 @@ export default function Index() {
   const nativeGesture = useNativeGesture({});
 
   const { height } = useWindowDimensions();
+  const { bottom } = useSafeAreaInsets();
 
   const failOffset = useDerivedValue(() => {
-    return record.value ? Number.MAX_VALUE : 0;
+    return record.get() ? Number.MAX_VALUE : 0;
   });
 
-  const MAX_TRANSLATE = height - 200;
+  const MAX_TRANSLATE = height - PAGE_PEEK_HEIGHT - bottom;
 
   const innerPanGesture = usePanGesture({
     activeOffsetY: [-Number.MAX_VALUE, 0],
@@ -74,21 +73,19 @@ export default function Index() {
       startY.set(translateY.get());
     },
     onUpdate: (e) => {
-      const next = startY.value + e.translationY;
+      const next = startY.get() + e.translationY;
       let clamped = Math.min(MAX_TRANSLATE, Math.max(0, next));
       clamped += e.velocityY * 0.01;
-      translateY.value = Math.min(MAX_TRANSLATE, Math.max(0, clamped));
-
-      console.log(translateY.value);
+      translateY.set(Math.min(MAX_TRANSLATE, Math.max(0, clamped)));
     },
     onDeactivate: (e) => {
-      const dir = translateY.value - startY.value;
-      const isDownwardSwipe = dir > 0 && translateY.value > THRESHOLD;
+      const dir = translateY.get() - startY.get();
+      const isDownwardSwipe = dir > 0 && translateY.get() > THRESHOLD;
       const isUpwardSwipe =
-        dir < 0 && translateY.value < MAX_TRANSLATE - THRESHOLD;
-      const isPastMidpoint = translateY.value >= MAX_TRANSLATE / 2;
+        dir < 0 && translateY.get() < MAX_TRANSLATE - THRESHOLD / 3;
+      const isPastMidpoint = translateY.get() >= MAX_TRANSLATE / 2;
 
-      snapped.value = !isUpwardSwipe && (isDownwardSwipe || isPastMidpoint);
+      snapped.set(!isUpwardSwipe && (isDownwardSwipe || isPastMidpoint));
 
       translateY.set(
         withDecay({
@@ -97,17 +94,20 @@ export default function Index() {
         }),
       );
 
-      translateY.value = withSpring(
-        isDownwardSwipe
-          ? MAX_TRANSLATE
-          : isUpwardSwipe
-            ? 0
-            : isPastMidpoint
-              ? MAX_TRANSLATE
-              : 0,
+      translateY.set(
+        withSpring(
+          isDownwardSwipe
+            ? MAX_TRANSLATE
+            : isUpwardSwipe
+              ? 0
+              : isPastMidpoint
+                ? MAX_TRANSLATE
+                : 0,
+        ),
       );
     },
     failOffsetX: [-Number.MAX_VALUE, failOffset],
+    activeOffsetY: [-5, 5],
     simultaneousWith: innerPanGesture,
   });
 
@@ -115,19 +115,55 @@ export default function Index() {
 
   const pageAnimatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateY: translateY.value }],
+      transform: [{ translateY: translateY.get() }],
+      borderRadius: translateY.get() > 0 ? 50 : 0,
+    };
+  });
+
+  const pageInnerAnimatedStyle = useAnimatedStyle(() => {
+    const interpolated = 1 - translateY.get() / MAX_TRANSLATE;
+    return {
+      opacity: snapped.get() ? interpolated : 1,
+    };
+  });
+
+  const underAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: translateY.get() > 0 ? 1 : 0,
+    };
+  });
+
+  const bgAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: translateY.get() > 0 ? 1 : 0,
+      borderRadius: snapped.get()
+        ? withSpring(32)
+        : translateY.get() > 0
+          ? 50
+          : 0,
+    };
+  });
+
+  const barAnimatedStyle = useAnimatedStyle(() => {
+    const interpolated = translateY.get() / MAX_TRANSLATE;
+    return {
+      opacity: snapped.get() ? interpolated : 0,
     };
   });
 
   useAnimatedReaction(
     () => translateY.get(),
     (current) => {
-      record.value = current > THRESHOLD;
+      record.set(current > THRESHOLD);
     },
   );
 
   const scrollEnabled = useDerivedValue<boolean | undefined>(() => {
-    return !record.value;
+    return !record.get();
+  });
+
+  const dragProgress = useDerivedValue(() => {
+    return Math.min(1, translateY.get() / THRESHOLD);
   });
 
   return (
@@ -135,26 +171,45 @@ export default function Index() {
       <GestureDetector gesture={panGesture}>
         <View style={{ flex: 1 }}>
           <GestureDetector gesture={underPanGesture}>
-            <View style={StyleSheet.absoluteFill} collapsable={false} />
+            <AnimatedThemedView
+              style={[styles.under, underAnimatedStyle]}
+              collapsable={false}
+              colorName="untitledFg"
+            >
+              <Record dragProgress={dragProgress} />
+            </AnimatedThemedView>
           </GestureDetector>
-          <Animated.View style={[{ flex: 1 }, pageAnimatedStyle]}>
-            <UntitledHeader contentStyle={{ height: 50 }}>
-              <Header />
-            </UntitledHeader>
-            <GestureDetector gesture={nativeGesture}>
-              <ScrollView
-                ref={scrollRef}
-                style={{ flex: 1 }}
-                contentContainerStyle={{ flexGrow: 1 }}
-                scrollEnabled={scrollEnabled}
-              >
-                <GestureDetector gesture={innerPanGesture}>
-                  <View style={{ flexGrow: 1 }} collapsable={false}>
-                    <UntitledCardLarge />
-                  </View>
-                </GestureDetector>
-              </ScrollView>
-            </GestureDetector>
+          <Animated.View
+            style={[styles.container, styles.page, pageAnimatedStyle]}
+            collapsable={false}
+          >
+            <AnimatedThemedView
+              style={[styles.bgStyle, bgAnimatedStyle]}
+              colorName={"untitledBg"}
+            />
+            <Animated.View style={[styles.bar, barAnimatedStyle]}>
+              <ThemedView style={styles.barIcon} colorName="text" />
+            </Animated.View>
+
+            <Animated.View style={[styles.container, pageInnerAnimatedStyle]}>
+              <UntitledHeader contentStyle={{ height: 50 }}>
+                <Header />
+              </UntitledHeader>
+              <GestureDetector gesture={nativeGesture}>
+                <ScrollView
+                  ref={scrollRef}
+                  style={{ flex: 1 }}
+                  contentContainerStyle={{ flexGrow: 1 }}
+                  scrollEnabled={scrollEnabled}
+                >
+                  <GestureDetector gesture={innerPanGesture}>
+                    <View style={{ flexGrow: 1 }} collapsable={false}>
+                      <UntitledCardLarge />
+                    </View>
+                  </GestureDetector>
+                </ScrollView>
+              </GestureDetector>
+            </Animated.View>
           </Animated.View>
         </View>
       </GestureDetector>
@@ -187,3 +242,35 @@ const Header = () => {
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  page: {
+    borderCurve: "continuous",
+  },
+  under: {
+    ...StyleSheet.absoluteFill,
+    experimental_backgroundImage:
+      "linear-gradient(to bottom, transparent 0%, #00000010 100%)",
+  },
+  bgStyle: {
+    ...StyleSheet.absoluteFill,
+    boxShadow: "0px -30px 50px #00000010",
+  },
+  bar: {
+    position: "absolute",
+    top: 16,
+    left: 16,
+    right: 16,
+    // backgroundColor: "red",
+    alignItems: "center",
+  },
+  barIcon: {
+    height: 5,
+    width: 40,
+    borderRadius: 2.5,
+    opacity: 0.1,
+  },
+});

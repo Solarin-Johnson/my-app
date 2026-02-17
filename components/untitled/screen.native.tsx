@@ -5,6 +5,7 @@ import Transition, {
 } from "react-native-screen-transitions";
 import UntitledBottomBar, { UntitledBottomBarProps } from "./bottom-bar";
 import { View } from "react-native";
+import { ThemedView } from "../ThemedView";
 
 const ScrollView = Transition.ScrollView;
 
