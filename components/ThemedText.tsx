@@ -42,13 +42,18 @@ export function ThemedTextWrapper({
   colorName = "text",
   style,
   ignoreStyle = true,
+  attribute = "color",
   ...rest
-}: ThemedTextProps & { children: ReactElement<any>; ignoreStyle?: boolean }) {
+}: ThemedTextProps & {
+  children: ReactElement<any>;
+  ignoreStyle?: boolean;
+  attribute?: string;
+}) {
   const color = useThemeColor(colorName, {
     light: lightColor,
     dark: darkColor,
   });
-  const textColor = { color };
+  const textColor = { color, [attribute]: color };
 
   const combinedStyle = [textColor, !ignoreStyle && styles[type], style];
 

@@ -1,4 +1,10 @@
-import React, { FC, useCallback, useEffect, useState } from "react";
+import React, {
+  FC,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import {
   AudioBuffer,
   AudioManager,
@@ -13,7 +19,20 @@ import ControlPanel from "./ControlPanel";
 import RecordingVisualization from "./RecordingVisualization";
 import { RecordingState } from "./types";
 
-const Record: FC = () => {
+interface RecordProps {
+  ref?: React.RefObject<any>;
+}
+
+export interface RecordHandle {
+  start: () => Promise<void>;
+  pause: () => void;
+  resume: () => void;
+  stop: () => Promise<void>;
+  getState: () => RecordingState;
+  getRecordedBuffer: () => AudioBuffer | null;
+}
+
+const Record = React.forwardRef<RecordHandle, RecordProps>((props, ref) => {
   const [state, setState] = useState<RecordingState>(RecordingState.Idle);
   const [hasPermissions, setHasPermissions] = useState<boolean>(false);
   const [recordedBuffer, setRecordedBuffer] = useState<AudioBuffer | null>(
@@ -123,43 +142,23 @@ const Record: FC = () => {
     setRecordedBuffer(audioBuffer);
   }, []);
 
-  const onToggleState = useCallback(
-    (action: RecordingState) => {
-      if (state === RecordingState.Paused) {
-        if (action === RecordingState.Recording) {
-          onResumeRecording();
-          return;
-        }
-      }
-
-      if (action === RecordingState.Recording) {
-        onStartRecording();
-        return;
-      }
-
-      if (action === RecordingState.Paused) {
-        onPauseRecording();
-        return;
-      }
-
-      if (action === RecordingState.Idle) {
-        if (state === RecordingState.Recording) {
-          onStopRecording();
-        }
-        return;
-      }
-
-      if (action === RecordingState.ReadyToPlay) {
-        onStopRecording();
-        return;
-      }
-    },
+  useImperativeHandle(
+    ref,
+    () => ({
+      start: onStartRecording,
+      pause: onPauseRecording,
+      resume: onResumeRecording,
+      stop: onStopRecording,
+      getState: () => state,
+      getRecordedBuffer: () => recordedBuffer,
+    }),
     [
-      state,
       onStartRecording,
       onPauseRecording,
-      onStopRecording,
       onResumeRecording,
+      onStopRecording,
+      state,
+      recordedBuffer,
     ],
   );
 
@@ -212,10 +211,12 @@ const Record: FC = () => {
     <>
       <RecordingVisualization state={state} />
       <View style={styles.spacerM} />
-      <ControlPanel state={state} onToggleState={onToggleState} />
+      {/* <ControlPanel state={state} onToggleState={onToggleState} /> */}
     </>
   );
-};
+});
+
+Record.displayName = "Record";
 
 export default Record;
 

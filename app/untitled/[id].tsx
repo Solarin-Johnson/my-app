@@ -57,7 +57,7 @@ export default function Index() {
   const { bottom } = useSafeAreaInsets();
 
   const failOffset = useDerivedValue(() => {
-    return record.get() ? Number.MAX_VALUE : 0;
+    return record.get() ? Number.MAX_VALUE : 10;
   });
 
   const MAX_TRANSLATE = height - PAGE_PEEK_HEIGHT - bottom;
