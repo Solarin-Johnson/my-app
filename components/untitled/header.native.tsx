@@ -33,7 +33,7 @@ export default function UntitledHeader({
     } = props.value;
 
     return {
-      opacity: interpolate(progress, [0, 1, 2], [0, 1, 0]),
+      opacity: interpolate(progress, [0, 0.3, 1, 1.7, 2], [0, 1, 1, 0, 0]),
       transform: [
         {
           translateX: interpolate(progress, [0, 1, 2], [-width, 0, width]),

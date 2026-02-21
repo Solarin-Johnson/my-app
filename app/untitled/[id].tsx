@@ -62,7 +62,7 @@ export default function Index() {
     return record.get() ? Number.MAX_VALUE : 10;
   });
   const activeOffset = useDerivedValue<number>(() => {
-    return record.get() ? 5 : -5;
+    return record.get() ? Number.MAX_VALUE : -5;
   });
 
   const isTransitioning = useDerivedValue(() => {
@@ -144,7 +144,7 @@ export default function Index() {
   const pageAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [{ translateY: translateY.get() }],
-      borderRadius: isTransitioning.get() || translateY.get() > 0 ? 50 : 0,
+      borderRadius: translateY.get() > 0 ? 50 : 0,
     };
   });
 
@@ -163,7 +163,7 @@ export default function Index() {
 
   const bgAnimatedStyle = useAnimatedStyle(() => {
     return {
-      opacity: translateY.get() > 0 ? 1 : 0,
+      opacity: !isTransitioning.get() && translateY.get() > 0 ? 1 : 0,
       borderRadius: snapped.get()
         ? withSpring(32)
         : translateY.get() > 0
