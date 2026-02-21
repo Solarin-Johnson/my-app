@@ -23,22 +23,14 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
-import { ThemedView, ThemedViewWrapper } from "@/components/ThemedView";
+import { ThemedView } from "@/components/ThemedView";
 import UntitledHeader from "@/components/untitled/header";
-import { scheduleOnRN } from "react-native-worklets";
-import { Feedback } from "@/functions";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Minus } from "lucide-react-native";
-import { ThemedTextWrapper } from "@/components/ThemedText";
 import RecordPage from "@/components/untitled/record";
 
 const AnimatedThemedView = Animated.createAnimatedComponent(ThemedView);
 
 const ScrollView = Transition.ScrollView;
-
-const hapticsFeedback = () => {
-  scheduleOnRN(Feedback.selection);
-};
 
 const THRESHOLD = 200;
 const PAGE_PEEK_HEIGHT = 54;

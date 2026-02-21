@@ -7,10 +7,8 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import Svg, { Path, PathProps, Text } from "react-native-svg";
-import { ThemedTextWrapper } from "../ThemedText";
 import { svgPathProperties } from "svg-path-properties";
 import { Colors } from "@/constants/Colors";
-import { useThemeColor } from "@/hooks/useThemeColor";
 
 interface FancyStrokeButtonProps {
   progress: SharedValue<number>;
@@ -85,7 +83,12 @@ export default function FancyStrokeButton({
   const animatedTextProps = useAnimatedProps(() => {
     const completed = progress.get() === 1;
     return {
-      opacity: interpolate(progress.value, [0, 1], [0, 1], Extrapolation.CLAMP),
+      opacity: interpolate(
+        progress.value,
+        [0, 0.5, 1],
+        [0, 0.8, 1],
+        Extrapolation.CLAMP,
+      ),
       fill: withTiming(completed ? "#fff" : strokeColor, {
         duration: completed ? 120 : 0,
         easing: Easing.inOut(Easing.ease),

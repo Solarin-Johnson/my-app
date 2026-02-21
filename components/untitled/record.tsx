@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import Animated, {
-  Easing,
   Extrapolation,
   interpolate,
   SharedValue,
@@ -8,13 +7,9 @@ import Animated, {
   useAnimatedStyle,
   useDerivedValue,
   withSpring,
-  withTiming,
 } from "react-native-reanimated";
 import Record, { RecordHandle } from "../recorder/Record";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import FancyStrokeButton from "../ui/fancy-stroke-button";
 import { StyleSheet, View } from "react-native";
 import { scheduleOnRN } from "react-native-worklets";
@@ -94,7 +89,7 @@ export default function RecordPage({
     );
     return {
       transform: [{ translateY }, { scale }],
-      opacity: withSpring(snapped.get() ? 0 : isDragging.get() ? 1 : 0),
+      opacity: withSpring(isDragging.get() && !snapped.get() ? 1 : 0),
     };
   });
 
@@ -112,8 +107,6 @@ export default function RecordPage({
     <View
       style={{
         flex: 1,
-        // justifyContent: "center",
-        // alignItems: "center",
       }}
     >
       <Record ref={recordRef} />
