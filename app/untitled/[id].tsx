@@ -40,13 +40,15 @@ const hapticsFeedback = () => {
   scheduleOnRN(Feedback.selection);
 };
 
-const THRESHOLD = 180;
+const THRESHOLD = 200;
 const PAGE_PEEK_HEIGHT = 54;
 
 export default function Index() {
   const scrollRef = useRef(null);
   const translateY = useSharedValue(0);
   const startY = useSharedValue(0);
+  const isDragging = useSharedValue(false);
+  const screenAnimation = useScreenAnimation();
 
   const record = useSharedValue(false);
   const snapped = useSharedValue(false);
@@ -54,10 +56,20 @@ export default function Index() {
   const nativeGesture = useNativeGesture({});
 
   const { height } = useWindowDimensions();
-  const { bottom } = useSafeAreaInsets();
+  const { bottom, top } = useSafeAreaInsets();
 
   const failOffset = useDerivedValue(() => {
     return record.get() ? Number.MAX_VALUE : 10;
+  });
+  const activeOffset = useDerivedValue<number>(() => {
+    return record.get() ? 5 : -5;
+  });
+
+  const isTransitioning = useDerivedValue(() => {
+    return (
+      screenAnimation.get().progress !== 1 &&
+      !screenAnimation.get().active.animating
+    );
   });
 
   const MAX_TRANSLATE = height - PAGE_PEEK_HEIGHT - bottom;
@@ -69,8 +81,21 @@ export default function Index() {
   });
 
   const panGesture = usePanGesture({
-    onBegin: (e) => {
+    onBegin: () => {
       startY.set(translateY.get());
+      isDragging.set(true);
+    },
+    onTouchesDown: () => {
+      isDragging.set(true);
+    },
+    onTouchesMove: () => {
+      isDragging.set(true);
+    },
+    onTouchesUp: () => {
+      isDragging.set(false);
+    },
+    onTouchesCancel: () => {
+      isDragging.set(false);
     },
     onUpdate: (e) => {
       const next = startY.get() + e.translationY;
@@ -105,8 +130,11 @@ export default function Index() {
                 : 0,
         ),
       );
+
+      isDragging.set(false);
     },
-    failOffsetX: [-Number.MAX_VALUE, failOffset],
+    // failOffsetX: [-Number.MAX_VALUE, failOffset],
+    activeOffsetX: activeOffset,
     activeOffsetY: [-5, 5],
     simultaneousWith: innerPanGesture,
   });
@@ -116,7 +144,7 @@ export default function Index() {
   const pageAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [{ translateY: translateY.get() }],
-      borderRadius: translateY.get() > 0 ? 50 : 0,
+      borderRadius: isTransitioning.get() || translateY.get() > 0 ? 50 : 0,
     };
   });
 
@@ -129,7 +157,7 @@ export default function Index() {
 
   const underAnimatedStyle = useAnimatedStyle(() => {
     return {
-      opacity: translateY.get() > 0 ? 1 : 0,
+      opacity: !isTransitioning.get() && translateY.get() > 0 ? 1 : 0,
     };
   });
 
@@ -162,10 +190,6 @@ export default function Index() {
     return !record.get();
   });
 
-  const dragProgress = useDerivedValue(() => {
-    return Math.min(1, translateY.get() / THRESHOLD);
-  });
-
   return (
     <UntitledScreen barProps={{ type: "fill", hide: snapped }} hideHeader>
       <GestureDetector gesture={panGesture}>
@@ -176,7 +200,13 @@ export default function Index() {
               collapsable={false}
               colorName="untitledFg"
             >
-              <RecordPage dragProgress={dragProgress} />
+              <RecordPage
+                translateY={translateY}
+                treshold={THRESHOLD}
+                maxTranslateY={MAX_TRANSLATE}
+                isDragging={isDragging}
+                snapped={snapped}
+              />
             </AnimatedThemedView>
           </GestureDetector>
           <Animated.View
@@ -187,9 +217,6 @@ export default function Index() {
               style={[styles.bgStyle, bgAnimatedStyle]}
               colorName={"untitledBg"}
             />
-            <Animated.View style={[styles.bar, barAnimatedStyle]}>
-              <ThemedView style={styles.barIcon} colorName="text" />
-            </Animated.View>
 
             <Animated.View style={[styles.container, pageInnerAnimatedStyle]}>
               <UntitledHeader contentStyle={{ height: 50 }}>
@@ -209,6 +236,9 @@ export default function Index() {
                   </GestureDetector>
                 </ScrollView>
               </GestureDetector>
+            </Animated.View>
+            <Animated.View style={[styles.bar, barAnimatedStyle]}>
+              <ThemedView style={styles.barIcon} colorName="text" />
             </Animated.View>
           </Animated.View>
         </View>
