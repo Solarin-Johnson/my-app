@@ -9,12 +9,16 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import Record, { RecordHandle } from "../recorder/Record";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import FancyStrokeButton from "../ui/fancy-stroke-button";
 import { StyleSheet, View } from "react-native";
 import { scheduleOnRN } from "react-native-worklets";
 import { Feedback } from "@/functions";
 import { SPRING_CONFIG } from "@/constants";
+import { ThemedText } from "../ThemedText";
 
 interface RecordProps {
   //   dragProgress: SharedValue<number>;
@@ -93,15 +97,39 @@ export default function RecordPage({
     };
   });
 
+  const startRecording = () => {
+    recordRef.current?.start();
+  };
+
+  const stopRecording = () => {
+    recordRef.current?.stop();
+  };
+
   useAnimatedReaction(
     () => strokeProgress.value,
     (value, prev) => {
       if (value === 1 && prev && value !== prev) {
         scheduleOnRN(hapticsFeedback);
-      } else {
       }
     },
   );
+
+  useAnimatedReaction(
+    () => snapped.get(),
+    (snappedValue, prev) => {
+      if (snappedValue && !prev) {
+        scheduleOnRN(startRecording);
+      } else if (prev) {
+        scheduleOnRN(stopRecording);
+      }
+    },
+  );
+
+  const contentAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: withSpring(snapped.get() ? 1 : 0),
+    };
+  });
 
   return (
     <View
@@ -109,7 +137,17 @@ export default function RecordPage({
         flex: 1,
       }}
     >
-      <Record ref={recordRef} />
+      <Animated.View style={[{ flex: 1 }, contentAnimatedStyle]}>
+        <SafeAreaView style={style.content}>
+          <View style={style.head}>
+            <ThemedText style={style.title}>New Recording</ThemedText>
+            <ThemedText style={style.subtitle} type="regular">
+              untitled project
+            </ThemedText>
+          </View>
+          <Record ref={recordRef} />
+        </SafeAreaView>
+      </Animated.View>
       <Animated.View
         style={[
           style.button,
@@ -119,16 +157,6 @@ export default function RecordPage({
       >
         <FancyStrokeButton progress={strokeProgress} />
       </Animated.View>
-      {/* <View
-        style={{
-          position: "absolute",
-          backgroundColor: "red",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: top - 12,
-        }}
-      /> */}
     </View>
   );
 }
@@ -137,5 +165,24 @@ const style = StyleSheet.create({
   button: {
     position: "absolute",
     alignSelf: "center",
+  },
+  content: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 32,
+  },
+  head: {
+    paddingTop: 42,
+    gap: 4,
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 20,
+  },
+  subtitle: {
+    fontSize: 15,
+    letterSpacing: -0.2,
+    opacity: 0.65,
   },
 });

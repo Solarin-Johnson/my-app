@@ -14,6 +14,7 @@ interface FancyStrokeButtonProps {
   progress: SharedValue<number>;
   strokeColor?: string;
   height?: number;
+  width?: number;
 }
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
@@ -22,9 +23,9 @@ const AnimatedText = Animated.createAnimatedComponent(Text);
 export default function FancyStrokeButton({
   progress,
   strokeColor = Colors.light.appleRed,
-  height = 38,
+  height = 36,
+  width = 45,
 }: FancyStrokeButtonProps) {
-  const width = 50;
   const r = height / 2;
   const stroke = 2;
   const inset = stroke / 2;
@@ -116,7 +117,7 @@ export default function FancyStrokeButton({
         y={height / 2 + stroke / 2}
         textAnchor="middle"
         alignmentBaseline="middle"
-        fontSize={16}
+        fontSize={15}
         fontWeight={"450"}
         animatedProps={animatedTextProps}
       >

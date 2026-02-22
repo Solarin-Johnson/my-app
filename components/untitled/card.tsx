@@ -5,6 +5,9 @@ import { Colors } from "@/constants/Colors";
 import { Link } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import PressableBounce from "../PresableBounce";
+import UntitledButton from "./button";
+import { Play } from "lucide-react-native";
+import { ThemedViewWrapper } from "../ThemedView";
 
 export const UntitledCardMini = ({
   name = "untitled project",
@@ -18,20 +21,25 @@ export const UntitledCardMini = ({
       <PressableBounce style={styles.container}>
         <View style={styles.content}>
           <View style={styles.box}></View>
-          <View style={styles.details}>
-            <ThemedText type="semiBold" style={styles.title}>
-              {name}
-            </ThemedText>
-            <View style={styles.cluster}>
-              <ThemedTextWrapper style={styles.fade}>
-                <Ionicons name="lock-closed-outline" size={14} />
-              </ThemedTextWrapper>
-              <ThemedText type="regular" style={[styles.subtitle, styles.fade]}>
-                {author}
+          <View style={styles.info}>
+            <View style={styles.details}>
+              <ThemedText type="semiBold" style={styles.title}>
+                {name}
               </ThemedText>
-              <ThemedTextWrapper>
-                <Ionicons name="ellipsis-horizontal-sharp" size={14} />
-              </ThemedTextWrapper>
+              <View style={styles.cluster}>
+                <ThemedTextWrapper style={styles.fade}>
+                  <Ionicons name="lock-closed-outline" size={14} />
+                </ThemedTextWrapper>
+                <ThemedText
+                  type="regular"
+                  style={[styles.subtitle, styles.fade]}
+                >
+                  {author}
+                </ThemedText>
+                <ThemedTextWrapper>
+                  <Ionicons name="ellipsis-horizontal-sharp" size={14} />
+                </ThemedTextWrapper>
+              </View>
             </View>
           </View>
         </View>
@@ -51,26 +59,48 @@ export const UntitledCardMiniWrapper = ({
 export const UntitledCardLarge = ({
   name = "untitled project",
   author = "Dotjs",
+  tracks = 12,
+  durationMs = 310000,
 }: {
   name?: string;
   author?: string;
+  tracks?: number;
+  durationMs?: number;
 }) => {
+  const formatDuration = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}m ${seconds}s`;
+  };
   return (
     <View>
       <View style={styles.content}>
         <View style={[styles.box, styles.boxLarge]}></View>
-        <View style={styles.details}>
-          <ThemedText type="semiBold" style={styles.titleLarge}>
-            {name}
-          </ThemedText>
-          <View style={styles.cluster}>
-            <ThemedTextWrapper style={styles.fade}>
-              <Ionicons name="lock-closed-outline" size={14} />
-            </ThemedTextWrapper>
-            <ThemedText type="regular" style={[styles.subtitle, styles.fade]}>
-              {author}
+        <View style={styles.info}>
+          <View style={[styles.details, styles.detailsLarge]}>
+            <ThemedText
+              type="semiBold"
+              style={[styles.titleLarge, styles.fade]}
+            >
+              {name}
             </ThemedText>
+            <View style={styles.cluster}>
+              <ThemedTextWrapper style={styles.fade}>
+                <Ionicons name="lock-closed-outline" size={14} />
+              </ThemedTextWrapper>
+              <ThemedText type="regular" style={[styles.subtitle, styles.fade]}>
+                {`${author} • ${tracks} tracks • ${formatDuration(durationMs)}`}
+              </ThemedText>
+            </View>
           </View>
+          <ThemedViewWrapper colorName="text">
+            <UntitledButton themed={false}>
+              <ThemedTextWrapper colorName="background">
+                <Ionicons name="play" size={18} color="white" />
+              </ThemedTextWrapper>
+            </UntitledButton>
+          </ThemedViewWrapper>
         </View>
       </View>
     </View>
@@ -85,20 +115,26 @@ const styles = StyleSheet.create({
     marginHorizontal: 22,
     alignItems: "center",
   },
+  info: {
+    flexDirection: "row",
+    width: "100%",
+    marginTop: 12,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   title: {
     fontSize: 17.2,
   },
   titleLarge: {
     fontSize: 28,
     letterSpacing: -0.5,
-    opacity: 0.7,
   },
   subtitle: {
     fontSize: 14,
     flex: 1,
   },
   fade: {
-    opacity: 0.6,
+    opacity: 0.65,
   },
   boxWrapper: {
     borderRadius: 16,
@@ -119,9 +155,11 @@ const styles = StyleSheet.create({
     margin: 12,
   },
   details: {
-    width: "100%",
-    marginTop: 12,
     gap: 4,
+    flex: 1,
+  },
+  detailsLarge: {
+    gap: 8,
   },
   cluster: {
     flexDirection: "row",

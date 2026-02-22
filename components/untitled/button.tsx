@@ -1,4 +1,10 @@
-import { View, Pressable, StyleSheet } from "react-native";
+import {
+  View,
+  Pressable,
+  StyleSheet,
+  StyleProp,
+  ViewStyle,
+} from "react-native";
 import React, { ReactElement } from "react";
 import { ThemedTextWrapper } from "../ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -7,17 +13,23 @@ import PressableBounce from "../PresableBounce";
 export default function UntitledButton({
   children,
   onPress,
+  style,
+  themed = true,
 }: {
   children?: ReactElement<any>;
   onPress?: () => void;
+  style?: StyleProp<ViewStyle>;
+  themed?: boolean;
 }) {
   const text = useThemeColor("text");
   return (
     <PressableBounce
-      style={[styles.button, { backgroundColor: text + "16" }]}
+      style={[styles.button, { backgroundColor: text + "16" }, style]}
       onPress={onPress}
     >
-      {children && <ThemedTextWrapper>{children}</ThemedTextWrapper>}
+      {themed
+        ? children && <ThemedTextWrapper>{children}</ThemedTextWrapper>
+        : children}
     </PressableBounce>
   );
 }

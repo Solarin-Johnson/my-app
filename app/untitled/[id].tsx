@@ -48,11 +48,8 @@ export default function Index() {
   const nativeGesture = useNativeGesture({});
 
   const { height } = useWindowDimensions();
-  const { bottom, top } = useSafeAreaInsets();
+  const { bottom } = useSafeAreaInsets();
 
-  const failOffset = useDerivedValue(() => {
-    return record.get() ? Number.MAX_VALUE : 10;
-  });
   const activeOffset = useDerivedValue<number>(() => {
     return record.get() ? Number.MAX_VALUE : -5;
   });
@@ -67,8 +64,8 @@ export default function Index() {
   const MAX_TRANSLATE = height - PAGE_PEEK_HEIGHT - bottom;
 
   const innerPanGesture = usePanGesture({
-    activeOffsetY: [-Number.MAX_VALUE, 0],
-    activeOffsetX: [0, Number.MAX_VALUE],
+    activeOffsetY: [-Number.MAX_VALUE, 5],
+    activeOffsetX: [-5, Number.MAX_VALUE],
     block: nativeGesture,
   });
 
