@@ -18,21 +18,30 @@ export type ItemProps = {
   wrapper?: React.ComponentType<{ children: React.ReactNode }>;
   wrapperProps?: any;
   asChild?: boolean;
+  disableExpand?: boolean;
+  handleConfirmation?: () => void;
 } & PressableProps;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function Item({
-  index = 0,
+  index = 1,
   children,
   wrapper,
   wrapperProps,
-  asChild = false,
-
+  asChild,
+  disableExpand,
+  handleConfirmation,
   ...pressableProps
 }: ItemProps) {
-  const { currentIndex, itemStyles, itemProps, itemCount, containerWidth } =
-    useStackedButton();
+  const {
+    currentIndex,
+    itemStyles,
+    itemProps,
+    itemCount,
+    containerWidth,
+    gap,
+  } = useStackedButton();
   const Wrapper = wrapper || React.Fragment;
 
   const expanded = useDerivedValue(() => {
@@ -44,23 +53,47 @@ export default function Item({
   });
 
   const handlePress = (e: GestureResponderEvent) => {
-    currentIndex.value = index;
-    pressableProps.onPress?.(e);
+    if (disableExpand) {
+      pressableProps.onPress?.(e);
+    } else {
+      const alreadyExpanded = currentIndex.value === index;
+
+      if (!alreadyExpanded) {
+        currentIndex.value = index;
+        handleConfirmation?.();
+      } else {
+        pressableProps.onPress?.(e);
+      }
+    }
   };
 
   const animatedStyle = useAnimatedStyle(() => {
-    const exp = !expanded.get();
-    const active = isActive.value || exp;
+    const exp = expanded.value;
+    const active = isActive.value || !exp;
+
+    const gapTotal = gap * (itemCount.value - 1);
+    const itemGap = gap * (index - 1);
+
+    const width =
+      (containerWidth.value - gapTotal) / Math.max(itemCount.value, 1);
+    const fullWidth = containerWidth.value;
+
+    if (fullWidth === 0 || itemCount.value === 0) {
+      return {};
+    }
+
+    const translateX = isActive.get()
+      ? -(index - 1) * width - itemGap
+      : active
+        ? 0
+        : (index - itemCount.value) * width;
+
     return {
       opacity: withSpring(active ? 1 : 0),
+      width: withSpring(isActive.value ? fullWidth : width),
       transform: [
         {
-          translateX: withSpring(
-            active
-              ? 0
-              : (index - itemCount.value) *
-                  (containerWidth.value / itemCount.value),
-          ),
+          translateX: withSpring(translateX),
         },
       ],
     };
@@ -84,14 +117,16 @@ export default function Item({
 
   return (
     <Wrapper {...wrapperProps}>
-      <AnimatedPressable
-        style={[styles.item, itemStyles, animatedStyle]}
-        {...itemProps}
-        {...pressableProps}
-        onPress={handlePress}
-      >
-        {children}
-      </AnimatedPressable>
+      <Animated.View style={[animatedStyle, {}]}>
+        <AnimatedPressable
+          style={[styles.item, itemStyles]}
+          {...itemProps}
+          {...pressableProps}
+          onPress={handlePress}
+        >
+          {children}
+        </AnimatedPressable>
+      </Animated.View>
     </Wrapper>
   );
 }

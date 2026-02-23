@@ -3,11 +3,12 @@ import React, {
   Children,
   cloneElement,
   isValidElement,
-  useEffect,
+  useLayoutEffect,
 } from "react";
 import Item from "./item";
-import Animated from "react-native-reanimated";
+import Animated, { measure, useAnimatedRef } from "react-native-reanimated";
 import { useStackedButton } from "./provider";
+import { scheduleOnUI } from "react-native-worklets";
 
 type ContainerProps = {
   children?:
@@ -17,31 +18,49 @@ type ContainerProps = {
 };
 
 export default function Container({ children, style }: ContainerProps) {
-  const { containerWidth, itemCount } = useStackedButton();
+  const animatedRef = useAnimatedRef();
 
-  useEffect(() => {
-    itemCount.set(React.Children.count(children));
+  const { containerWidth, itemCount, gap } = useStackedButton();
+
+  const measureView = () => {
+    scheduleOnUI(() => {
+      const measurement = measure(animatedRef);
+      if (measurement === null) {
+        return;
+      }
+      containerWidth.set(measurement.width);
+    });
+  };
+
+  useLayoutEffect(() => {
+    itemCount.set(Children.count(children));
+    measureView();
   }, []);
 
+  const renderedChildren = Children.map(children, (child, index) => {
+    if (isValidElement(child)) {
+      return cloneElement(child, { index: index + 1 } as any);
+    }
+    return child;
+  });
+
   return (
-    <Animated.View
-      style={[styles.container, style]}
-      //   onLayout={(e) => {
-      //     containerWidth.set(e.nativeEvent.layout.width);
-      //   }}
-    >
-      {Children.map(children, (child, index) => {
-        if (isValidElement(child)) {
-          return cloneElement(child, { index: index + 1 } as any);
-        }
-        return child;
-      })}
+    <Animated.View style={[style]}>
+      <Animated.View
+        ref={animatedRef}
+        style={[styles.container, { gap }]}
+        onLayout={measureView}
+      >
+        {renderedChildren}
+      </Animated.View>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     flexDirection: "row",
+    // backgroundColor: "red",
   },
 });
