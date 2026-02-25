@@ -207,6 +207,8 @@ const Record = React.forwardRef<RecordHandle, RecordProps>((props, ref) => {
     };
   }, []);
 
+  console.log(state);
+
   return (
     <>
       <RecordingVisualization state={state} />

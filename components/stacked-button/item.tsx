@@ -7,19 +7,20 @@ import {
 import React from "react";
 import { useStackedButton } from "./provider";
 import Animated, {
+  SharedValue,
   useAnimatedStyle,
   useDerivedValue,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 
-export type ItemProps = {
+type ItemProps = {
   index?: number;
   children: React.ReactNode;
-  wrapper?: React.ComponentType<{ children: React.ReactNode }>;
-  wrapperProps?: any;
   asChild?: boolean;
   disableExpand?: boolean;
   handleConfirmation?: () => void;
+  expandedElement?: React.JSX.Element;
 } & PressableProps;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -27,11 +28,12 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 export default function Item({
   index = 1,
   children,
-  wrapper,
-  wrapperProps,
   asChild,
   disableExpand,
   handleConfirmation,
+  onPress,
+  style,
+  expandedElement,
   ...pressableProps
 }: ItemProps) {
   const {
@@ -41,11 +43,11 @@ export default function Item({
     itemCount,
     containerWidth,
     gap,
+    initialIndex = 0,
   } = useStackedButton();
-  const Wrapper = wrapper || React.Fragment;
 
   const expanded = useDerivedValue(() => {
-    return currentIndex.value > 0;
+    return currentIndex.value !== 0;
   });
 
   const isActive = useDerivedValue(() => {
@@ -53,16 +55,27 @@ export default function Item({
   });
 
   const handlePress = (e: GestureResponderEvent) => {
-    if (disableExpand) {
-      pressableProps.onPress?.(e);
-    } else {
-      const alreadyExpanded = currentIndex.value === index;
+    const isInit = index === initialIndex;
+    const isNone = currentIndex.get() === 0;
 
-      if (!alreadyExpanded) {
-        currentIndex.value = index;
-        handleConfirmation?.();
+    if (disableExpand) {
+      currentIndex.set(initialIndex);
+      console.log(
+        "Disabled expand, currentIndex set to initialIndex:",
+        initialIndex,
+      );
+      onPress?.(e);
+    } else {
+      const alreadyExpanded = currentIndex.get() === index;
+
+      console.log(alreadyExpanded);
+
+      if (alreadyExpanded) {
+        currentIndex.set(isInit ? 0 : initialIndex);
+        onPress?.(e);
       } else {
-        pressableProps.onPress?.(e);
+        currentIndex.set(isInit && isNone ? initialIndex : isInit ? 0 : index);
+        handleConfirmation?.();
       }
     }
   };
@@ -70,6 +83,7 @@ export default function Item({
   const animatedStyle = useAnimatedStyle(() => {
     const exp = expanded.value;
     const active = isActive.value || !exp;
+    const current = currentIndex.get();
 
     const gapTotal = gap * (itemCount.value - 1);
     const itemGap = gap * (index - 1);
@@ -84,9 +98,9 @@ export default function Item({
 
     const translateX = isActive.get()
       ? -(index - 1) * width - itemGap
-      : active
+      : !exp
         ? 0
-        : (index - itemCount.value) * width;
+        : (index + (current > index ? -1 : 1) - itemCount.value) * width;
 
     return {
       opacity: withSpring(active ? 1 : 0),
@@ -99,35 +113,69 @@ export default function Item({
     };
   });
 
+  const notActive = useDerivedValue(() => {
+    return !isActive.get();
+  });
+
+  const createAnimatedStyle = (isVisible: SharedValue<boolean>) => {
+    if (!expandedElement) return {};
+    return useAnimatedStyle(() => {
+      return {
+        opacity: withSpring(isVisible.value ? 1 : 0),
+      };
+    });
+  };
+
+  const expandedAnimatedStyle = createAnimatedStyle(notActive);
+  const mainAnimatedStyle = createAnimatedStyle(isActive);
+
+  const ExpandedChild = () => {
+    if (!expandedElement) return null;
+    return (
+      <Animated.View
+        style={[StyleSheet.absoluteFill, combinedStyles, expandedAnimatedStyle]}
+      >
+        {expandedElement}
+      </Animated.View>
+    );
+  };
+
+  const combinedStyles = [styles.item, itemProps.style, itemStyles, style];
+
   if (asChild) {
     const childElement = children as React.ReactElement<any>;
     return (
-      <Wrapper {...wrapperProps}>
-        <Animated.View style={animatedStyle}>
-          {React.cloneElement(childElement, {
-            onPress: handlePress,
-            style: [styles.item, itemStyles, childElement.props.style],
-            ...itemProps,
-            ...pressableProps,
-          })}
-        </Animated.View>
-      </Wrapper>
+      <Animated.View style={[animatedStyle]}>
+        {React.cloneElement(childElement, {
+          onPress: handlePress,
+          ...itemProps,
+          ...pressableProps,
+          style: [childElement.props.style],
+          children: (
+            <>
+              <Animated.View style={[combinedStyles, mainAnimatedStyle]}>
+                {childElement.props.children}
+              </Animated.View>
+              <ExpandedChild />
+            </>
+          ),
+        })}
+      </Animated.View>
     );
   }
 
   return (
-    <Wrapper {...wrapperProps}>
-      <Animated.View style={[animatedStyle, {}]}>
-        <AnimatedPressable
-          style={[styles.item, itemStyles]}
-          {...itemProps}
-          {...pressableProps}
-          onPress={handlePress}
-        >
-          {children}
-        </AnimatedPressable>
+    <AnimatedPressable
+      style={[animatedStyle]}
+      onPress={handlePress}
+      {...pressableProps}
+      {...itemProps}
+    >
+      <Animated.View style={[combinedStyles, mainAnimatedStyle]}>
+        {children}
       </Animated.View>
-    </Wrapper>
+      <ExpandedChild />
+    </AnimatedPressable>
   );
 }
 

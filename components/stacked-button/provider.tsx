@@ -1,4 +1,4 @@
-import { createContext, use } from "react";
+import { createContext, use, useEffect, useLayoutEffect } from "react";
 import { StyleProp, ViewStyle, PressableProps } from "react-native";
 import {
   SharedValue,
@@ -15,7 +15,7 @@ type SharedVal = {
   containerWidth: SharedValue<number>;
   itemCount: SharedValue<number>;
   gap: number;
-  delayMs?: number;
+  initialIndex?: number;
 };
 
 const StackedButtonContext = createContext<SharedVal | undefined>(undefined);
@@ -27,10 +27,12 @@ export function Provider({
   itemProps,
   gap = 0,
   delayMs = 3000,
+  initialIndex = 0,
 }: {
   children: React.ReactNode;
+  delayMs?: number;
 } & Partial<Omit<SharedVal, "containerWidth" | "itemCount">>) {
-  const __currentIndex = useSharedValue(0);
+  const __currentIndex = useSharedValue(initialIndex);
   const currentIndex = _currentIndex || __currentIndex;
 
   const containerWidth = useSharedValue(0);
@@ -39,11 +41,20 @@ export function Provider({
   useAnimatedReaction(
     () => currentIndex.value,
     (current, prev) => {
-      if (current > 0 && !prev) {
-        currentIndex.set(withDelay(delayMs, withTiming(0, { duration: 0 })));
+      if (!delayMs) return;
+      //   console.log(current);
+
+      if (current !== initialIndex && prev !== current) {
+        currentIndex.set(
+          withDelay(delayMs, withTiming(initialIndex, { duration: 0 })),
+        );
       }
     },
   );
+
+  useLayoutEffect(() => {
+    currentIndex.set(initialIndex);
+  }, []);
 
   return (
     <StackedButtonContext
@@ -54,6 +65,7 @@ export function Provider({
         containerWidth,
         itemCount,
         gap,
+        initialIndex,
       }}
     >
       {children}

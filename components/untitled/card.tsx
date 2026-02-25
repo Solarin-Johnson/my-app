@@ -8,6 +8,12 @@ import PressableBounce from "../PresableBounce";
 import UntitledButton from "./button";
 import { Play } from "lucide-react-native";
 import { ThemedViewWrapper } from "../ThemedView";
+import {
+  SharedValue,
+  useAnimatedReaction,
+  useSharedValue,
+} from "react-native-reanimated";
+import { StackedButton, StackedButtonItemProps } from "../stacked-button";
 
 export const UntitledCardMini = ({
   name = "untitled project",
@@ -61,18 +67,33 @@ export const UntitledCardLarge = ({
   author = "Dotjs",
   tracks = 12,
   durationMs = 310000,
+  scrolling,
 }: {
   name?: string;
   author?: string;
   tracks?: number;
   durationMs?: number;
+  scrolling?: SharedValue<boolean>;
 }) => {
+  const initialIndex = 1;
+  const currentIndex = useSharedValue(0);
+
+  useAnimatedReaction(
+    () => scrolling?.value,
+    (value) => {
+      if (value) {
+        currentIndex.value = initialIndex;
+      }
+    },
+  );
+
   const formatDuration = (ms: number) => {
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     return `${minutes}m ${seconds}s`;
   };
+
   return (
     <View>
       <View style={styles.content}>
@@ -102,8 +123,48 @@ export const UntitledCardLarge = ({
             </UntitledButton>
           </ThemedViewWrapper>
         </View>
+        <StackedButton.Provider
+          currentIndex={currentIndex}
+          itemStyles={{
+            backgroundColor: "#88888818",
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            borderRadius: 12,
+            borderCurve: "continuous",
+            alignItems: "center",
+          }}
+          initialIndex={initialIndex}
+          gap={8}
+        >
+          <StackedButton.Container
+            style={{ width: "100%", paddingVertical: 16 }}
+          >
+            <ButtonItem expandedElement={<ThemedText>Convert</ThemedText>}>
+              <ThemedText>Convert</ThemedText>
+            </ButtonItem>
+            <ButtonItem
+              onPress={() => {
+                console.log("Pressed");
+              }}
+              disableExpand
+            >
+              <ThemedText>Import</ThemedText>
+            </ButtonItem>
+            <ButtonItem disableExpand>
+              <ThemedText>Record</ThemedText>
+            </ButtonItem>
+          </StackedButton.Container>
+        </StackedButton.Provider>
       </View>
     </View>
+  );
+};
+
+const ButtonItem = ({ children, ...rest }: StackedButtonItemProps) => {
+  return (
+    <StackedButton.Item {...rest} asChild>
+      <PressableBounce bounceScale={0.98}>{children}</PressableBounce>
+    </StackedButton.Item>
   );
 };
 

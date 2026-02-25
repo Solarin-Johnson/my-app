@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { router } from "expo-router";
 import UntitledScreen from "@/components/untitled/screen";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -23,7 +23,12 @@ import Animated, {
   withDecay,
   withSpring,
 } from "react-native-reanimated";
-import { StyleSheet, useWindowDimensions, View } from "react-native";
+import {
+  StyleSheet,
+  useColorScheme,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import UntitledHeader from "@/components/untitled/header";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -46,30 +51,29 @@ export default function Index() {
   const startY = useSharedValue(0);
   const isDragging = useSharedValue(false);
   const screenAnimation = useScreenAnimation();
+  const scheme = useColorScheme();
 
   const record = useSharedValue(false);
   const snapped = useSharedValue(false);
   const scrollY = useSharedValue(0);
-  const currentIndex = useSharedValue(0);
+
+  const scrolling = useSharedValue(false);
 
   const { height } = useWindowDimensions();
   const { bottom } = useSafeAreaInsets();
 
-  const activeOffsetX = useDerivedValue<number>(() => {
-    return record.get() ? Number.MAX_VALUE : -5;
+  const activeOffsetX = useSharedValue(0);
+  const activeOffsetY = useSharedValue(0);
+
+  useDerivedValue(() => {
+    activeOffsetX.set(record.get() ? Number.MAX_VALUE : -5);
   });
 
-  const activeOffsetY = useDerivedValue<number>(() => {
-    if (scrollY.value > 0) {
-      return Number.MAX_VALUE;
-    }
-
-    return 0;
+  useDerivedValue(() => {
+    activeOffsetY.set(scrollY.get() > 0 ? Number.MAX_VALUE : -5);
   });
 
   const innerActiveOffset = useDerivedValue<number>(() => {
-    console.log(scrollY.get());
-
     return scrollY.get() > 0 ? -5 : 0;
   });
 
@@ -83,7 +87,7 @@ export default function Index() {
   const MAX_TRANSLATE = height - PAGE_PEEK_HEIGHT - bottom;
 
   const scrolledToTop = useDerivedValue(() => {
-    return scrollY.value <= 0;
+    return scrollY.get() <= 0;
   });
 
   const nativeGesture = useNativeGesture({});
@@ -99,7 +103,7 @@ export default function Index() {
   const panGesture = usePanGesture({
     onBegin: () => {
       startY.set(translateY.get());
-      isDragging.set(true);
+      isDragging.set(false);
     },
     onTouchesDown: () => {
       isDragging.set(true);
@@ -150,8 +154,8 @@ export default function Index() {
       isDragging.set(false);
     },
     // failOffsetX: [-Number.MAX_VALUE, failOffset],
-    activeOffsetX: activeOffsetX,
     activeOffsetY: activeOffsetY,
+    activeOffsetX: activeOffsetX,
     simultaneousWith: innerPanGesture,
     enabled: scrolledToTop,
   });
@@ -209,38 +213,44 @@ export default function Index() {
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
-      scrollY.value = event.contentOffset.y;
+      scrollY.set(event.contentOffset.y);
+    },
+    onBeginDrag: () => {
+      scrolling.set(true);
+    },
+    onEndDrag: () => {
+      scrolling.set(false);
     },
   });
 
   return (
     <UntitledScreen barProps={{ type: "fill", hide: snapped }} hideHeader>
-      <GestureDetector gesture={panGesture}>
-        <View style={{ flex: 1 }} collapsable={false}>
-          <GestureDetector gesture={underPanGesture}>
-            <AnimatedThemedView
-              style={[styles.under, underAnimatedStyle]}
-              collapsable={false}
-              colorName="untitledFg"
-            >
-              <RecordPage
-                translateY={translateY}
-                treshold={THRESHOLD}
-                maxTranslateY={MAX_TRANSLATE}
-                isDragging={isDragging}
-                snapped={snapped}
-              />
-            </AnimatedThemedView>
-          </GestureDetector>
-          <Animated.View
-            style={[styles.container, styles.page, pageAnimatedStyle]}
-            collapsable={false}
-          >
-            <AnimatedThemedView
-              style={[styles.bgStyle, bgAnimatedStyle]}
-              colorName={"untitledBg"}
-            />
+      <GestureDetector gesture={underPanGesture}>
+        <AnimatedThemedView
+          style={[styles.under, underAnimatedStyle]}
+          collapsable={false}
+          colorName="untitledFg"
+        >
+          <RecordPage
+            translateY={translateY}
+            treshold={THRESHOLD}
+            maxTranslateY={MAX_TRANSLATE}
+            isDragging={isDragging}
+            snapped={snapped}
+          />
+        </AnimatedThemedView>
+      </GestureDetector>
+      <Animated.View
+        style={[styles.container, styles.page, pageAnimatedStyle]}
+        collapsable={false}
+      >
+        <AnimatedThemedView
+          style={[styles.bgStyle, bgAnimatedStyle]}
+          colorName={"untitledBg"}
+        />
 
+        <GestureDetector gesture={panGesture}>
+          <View style={{ flex: 1 }} collapsable={false}>
             <Animated.View style={[styles.container, pageInnerAnimatedStyle]}>
               <UntitledHeader contentStyle={{ height: 50 }}>
                 <Header />
@@ -251,52 +261,14 @@ export default function Index() {
                   style={{ flex: 1 }}
                   contentContainerStyle={{ flexGrow: 1 }}
                   scrollEnabled={scrollEnabled}
-                  onScrollBeginDrag={() => {
-                    currentIndex.set(0);
-                  }}
                   onScroll={scrollHandler}
                   scrollEventThrottle={16}
                   showsVerticalScrollIndicator={false}
-                  contentInset={{ top: 0, bottom: 125 }}
+                  contentInset={{ bottom: 125 }}
                 >
                   <GestureDetector gesture={innerPanGesture}>
                     <View style={{ flexGrow: 1 }} collapsable={false}>
-                      <UntitledCardLarge />
-                      <StackedButton.Provider
-                        currentIndex={currentIndex}
-                        itemStyles={{
-                          backgroundColor: "rgba(255, 255, 255, 0.3)",
-                          paddingHorizontal: 16,
-                          paddingVertical: 12,
-                          borderRadius: 999,
-                          alignItems: "center",
-                        }}
-                        gap={8}
-                      >
-                        <StackedButton.Container
-                          style={{ width: "100%", padding: 16 }}
-                        >
-                          <StackedButton.Item>
-                            <ThemedText type="regular">
-                              New Recording
-                            </ThemedText>
-                          </StackedButton.Item>
-                          <StackedButton.Item
-                            onPress={() => {
-                              console.log("Pressed");
-                            }}
-                          >
-                            <ThemedText type="regular">
-                              New Recording
-                            </ThemedText>
-                          </StackedButton.Item>
-                          {/* <StackedButton.Item>
-                            <ThemedText type="regular">
-                              New Recording
-                            </ThemedText>
-                          </StackedButton.Item> */}
-                        </StackedButton.Container>
-                      </StackedButton.Provider>
+                      <UntitledCardLarge scrolling={scrolling} />
                     </View>
                   </GestureDetector>
                 </ScrollView>
@@ -305,9 +277,9 @@ export default function Index() {
             <Animated.View style={[styles.bar, barAnimatedStyle]}>
               <ThemedView style={styles.barIcon} colorName="text" />
             </Animated.View>
-          </Animated.View>
-        </View>
-      </GestureDetector>
+          </View>
+        </GestureDetector>
+      </Animated.View>
     </UntitledScreen>
   );
 }

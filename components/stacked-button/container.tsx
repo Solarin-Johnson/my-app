@@ -35,7 +35,7 @@ export default function Container({ children, style }: ContainerProps) {
   useLayoutEffect(() => {
     itemCount.set(Children.count(children));
     measureView();
-  }, []);
+  }, [children]);
 
   const renderedChildren = Children.map(children, (child, index) => {
     if (isValidElement(child)) {

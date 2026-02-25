@@ -7,3 +7,5 @@ export const StackedButton = {
   Container,
   Item,
 };
+
+export type StackedButtonItemProps = React.ComponentProps<typeof Item>;
