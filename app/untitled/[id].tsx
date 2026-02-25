@@ -66,7 +66,7 @@ export default function Index() {
   const activeOffsetY = useSharedValue(0);
 
   useDerivedValue(() => {
-    activeOffsetX.set(record.get() ? Number.MAX_VALUE : -5);
+    activeOffsetX.set(!record.get() ? Number.MAX_VALUE : -5);
   });
 
   useDerivedValue(() => {

@@ -198,6 +198,7 @@ const Record = React.forwardRef<RecordHandle, RecordProps>((props, ref) => {
 
   useEffect(() => {
     Recorder.enableFileOutput();
+    console.log("shake");
 
     return () => {
       Recorder.disableFileOutput();

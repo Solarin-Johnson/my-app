@@ -119,7 +119,7 @@ export default function RecordPage({
     (snappedValue, prev) => {
       if (snappedValue && !prev) {
         scheduleOnRN(startRecording);
-      } else if (prev) {
+      } else if (!snappedValue && prev) {
         scheduleOnRN(stopRecording);
       }
     },
