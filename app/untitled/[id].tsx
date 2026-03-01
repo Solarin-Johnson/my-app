@@ -35,6 +35,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import RecordPage from "@/components/untitled/record";
 import { StackedButton } from "@/components/stacked-button";
 import { ThemedText } from "@/components/ThemedText";
+import { RecordHandle } from "@/components/recorder/Record";
 
 const AnimatedThemedView = Animated.createAnimatedComponent(ThemedView);
 
@@ -52,6 +53,7 @@ export default function Index() {
   const isDragging = useSharedValue(false);
   const screenAnimation = useScreenAnimation();
   const scheme = useColorScheme();
+  const recordRef = useRef<RecordHandle>(null!);
 
   const record = useSharedValue(false);
   const snapped = useSharedValue(false);
@@ -223,6 +225,12 @@ export default function Index() {
     },
   });
 
+  const startRecording = () => {
+    recordRef.current?.start();
+    translateY.set(withSpring(MAX_TRANSLATE));
+    snapped.set(true);
+  };
+
   return (
     <UntitledScreen barProps={{ type: "fill", hide: snapped }} hideHeader>
       <GestureDetector gesture={underPanGesture}>
@@ -232,6 +240,7 @@ export default function Index() {
           colorName="untitledFg"
         >
           <RecordPage
+            ref={recordRef}
             translateY={translateY}
             treshold={THRESHOLD}
             maxTranslateY={MAX_TRANSLATE}
@@ -268,7 +277,10 @@ export default function Index() {
                 >
                   <GestureDetector gesture={innerPanGesture}>
                     <View style={{ flexGrow: 1 }} collapsable={false}>
-                      <UntitledCardLarge scrolling={scrolling} />
+                      <UntitledCardLarge
+                        scrolling={scrolling}
+                        onRecord={startRecording}
+                      />
                     </View>
                   </GestureDetector>
                 </ScrollView>

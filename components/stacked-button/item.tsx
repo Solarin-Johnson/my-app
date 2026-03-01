@@ -3,16 +3,22 @@ import {
   PressableProps,
   GestureResponderEvent,
   StyleSheet,
+  View,
+  StyleProp,
+  ViewStyle,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import { useStackedButton } from "./provider";
 import Animated, {
+  measure,
   SharedValue,
+  useAnimatedRef,
   useAnimatedStyle,
   useDerivedValue,
+  useSharedValue,
   withSpring,
-  withTiming,
 } from "react-native-reanimated";
+import { scheduleOnUI } from "react-native-worklets";
 
 type ItemProps = {
   index?: number;
@@ -21,9 +27,22 @@ type ItemProps = {
   disableExpand?: boolean;
   handleConfirmation?: () => void;
   expandedElement?: React.JSX.Element;
+  childStyle?: StyleProp<ViewStyle>;
 } & PressableProps;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+export const SPRING_CONFIG = {
+  damping: 20,
+  mass: 0.55,
+  stiffness: 250,
+  // overshootClamping: false,
+};
+
+const applySpring = (value: number) => {
+  "worklet";
+  return withSpring(value, SPRING_CONFIG);
+};
 
 export default function Item({
   index = 1,
@@ -33,6 +52,7 @@ export default function Item({
   handleConfirmation,
   onPress,
   style,
+  childStyle = {},
   expandedElement,
   ...pressableProps
 }: ItemProps) {
@@ -46,12 +66,22 @@ export default function Item({
     initialIndex = 0,
   } = useStackedButton();
 
+  const animatedRef = useAnimatedRef();
+
+  const childWidth = useSharedValue(0);
+  const expandedWidth = useSharedValue(0);
+
   const expanded = useDerivedValue(() => {
     return currentIndex.value !== 0;
   });
 
   const isActive = useDerivedValue(() => {
     return currentIndex.value === index;
+  });
+
+  const itemWidth = useDerivedValue(() => {
+    const gapTotal = gap * (itemCount.value - 1);
+    return (containerWidth.value - gapTotal) / Math.max(itemCount.value, 1);
   });
 
   const handlePress = (e: GestureResponderEvent) => {
@@ -85,12 +115,10 @@ export default function Item({
     const active = isActive.value || !exp;
     const current = currentIndex.get();
 
-    const gapTotal = gap * (itemCount.value - 1);
     const itemGap = gap * (index - 1);
 
-    const width =
-      (containerWidth.value - gapTotal) / Math.max(itemCount.value, 1);
-    const fullWidth = containerWidth.value;
+    const width = itemWidth.get();
+    const fullWidth = containerWidth.get();
 
     if (fullWidth === 0 || itemCount.value === 0) {
       return {};
@@ -103,11 +131,11 @@ export default function Item({
         : (index + (current > index ? -1 : 1) - itemCount.value) * width;
 
     return {
-      opacity: withSpring(active ? 1 : 0),
-      width: withSpring(isActive.value ? fullWidth : width),
+      opacity: applySpring(active ? 1 : 0),
+      width: applySpring(isActive.value ? fullWidth : width),
       transform: [
         {
-          translateX: withSpring(translateX),
+          translateX: applySpring(translateX),
         },
       ],
     };
@@ -119,9 +147,10 @@ export default function Item({
 
   const createAnimatedStyle = (isVisible: SharedValue<boolean>) => {
     if (!expandedElement) return {};
+
     return useAnimatedStyle(() => {
       return {
-        opacity: withSpring(isVisible.value ? 1 : 0),
+        opacity: applySpring(isVisible.value ? 1 : 0),
       };
     });
   };
@@ -129,13 +158,81 @@ export default function Item({
   const expandedAnimatedStyle = createAnimatedStyle(notActive);
   const mainAnimatedStyle = createAnimatedStyle(isActive);
 
+  const innerAnimatedStyle = useAnimatedStyle(() => {
+    const active = isActive.get();
+    const w = containerWidth.get(); // ← always container
+
+    const expLeft = w / 2 - expandedWidth.get() / 2;
+    const childLeft = w / 2 - childWidth.get() / 2;
+
+    const translateX = expandedElement
+      ? applySpring(active ? 0 : expLeft - childLeft)
+      : 0;
+
+    return {
+      transform: [{ translateX }],
+    };
+  });
+
+  const expandedInnerAnimatedStyle = useAnimatedStyle(() => {
+    const active = isActive.get();
+    const w = containerWidth.get();
+
+    const expLeft = w / 2 - expandedWidth.get() / 2;
+    const childLeft = w / 2 - childWidth.get() / 2;
+
+    const translateX = expandedElement
+      ? applySpring(active ? childLeft - expLeft : 0)
+      : 0;
+
+    return {
+      transform: [{ translateX }],
+    };
+  });
+  // useDerivedValue(() => {
+  //   console.log(
+  //     "Child width:",
+  //     childWidth.value,
+  //     "Expanded width:",
+  //     expandedWidth.value,
+  //   );
+  // });
+
+  useLayoutEffect(() => {
+    scheduleOnUI(() => {
+      if (animatedRef.current === null) return;
+      const measurement = measure(animatedRef);
+      if (measurement === null) {
+        return;
+      }
+      childWidth.set(measurement.width);
+    });
+  }, []);
+
   const ExpandedChild = () => {
     if (!expandedElement) return null;
+    const expandedAnimatedRef = useAnimatedRef();
+    useLayoutEffect(() => {
+      if (expandedAnimatedRef.current === null) return;
+      scheduleOnUI(() => {
+        const measurement = measure(expandedAnimatedRef);
+        if (measurement === null) {
+          return;
+        }
+        expandedWidth.set(measurement.width);
+      });
+    }, []);
+
     return (
       <Animated.View
         style={[StyleSheet.absoluteFill, combinedStyles, expandedAnimatedStyle]}
       >
-        {expandedElement}
+        <Animated.View
+          ref={expandedAnimatedRef}
+          style={[{}, expandedInnerAnimatedStyle]}
+        >
+          {expandedElement}
+        </Animated.View>
       </Animated.View>
     );
   };
@@ -150,11 +247,16 @@ export default function Item({
           onPress: handlePress,
           ...itemProps,
           ...pressableProps,
-          style: [childElement.props.style],
+          style: childElement.props.style,
           children: (
             <>
               <Animated.View style={[combinedStyles, mainAnimatedStyle]}>
-                {childElement.props.children}
+                <Animated.View
+                  ref={animatedRef}
+                  style={[childStyle, innerAnimatedStyle]}
+                >
+                  {childElement.props.children}
+                </Animated.View>
               </Animated.View>
               <ExpandedChild />
             </>
@@ -172,7 +274,9 @@ export default function Item({
       {...itemProps}
     >
       <Animated.View style={[combinedStyles, mainAnimatedStyle]}>
-        {children}
+        <Animated.View ref={animatedRef} style={childStyle}>
+          {children}
+        </Animated.View>
       </Animated.View>
       <ExpandedChild />
     </AnimatedPressable>
@@ -180,5 +284,7 @@ export default function Item({
 }
 
 const styles = StyleSheet.create({
-  item: {},
+  item: {
+    overflow: "hidden",
+  },
 });

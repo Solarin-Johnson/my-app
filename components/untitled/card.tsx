@@ -1,12 +1,19 @@
 import { View, StyleSheet } from "react-native";
 import React from "react";
-import { ThemedText, ThemedTextWrapper } from "../ThemedText";
+import { ThemedText, ThemedTextProps, ThemedTextWrapper } from "../ThemedText";
 import { Colors } from "@/constants/Colors";
 import { Link } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import PressableBounce from "../PresableBounce";
 import UntitledButton from "./button";
-import { Play } from "lucide-react-native";
+import {
+  AudioLines,
+  Circle,
+  LucideProps,
+  Play,
+  Plus,
+  Video,
+} from "lucide-react-native";
 import { ThemedViewWrapper } from "../ThemedView";
 import {
   SharedValue,
@@ -68,12 +75,14 @@ export const UntitledCardLarge = ({
   tracks = 12,
   durationMs = 310000,
   scrolling,
+  onRecord,
 }: {
   name?: string;
   author?: string;
   tracks?: number;
   durationMs?: number;
   scrolling?: SharedValue<boolean>;
+  onRecord?: () => void;
 }) => {
   const initialIndex = 1;
   const currentIndex = useSharedValue(0);
@@ -127,7 +136,6 @@ export const UntitledCardLarge = ({
           currentIndex={currentIndex}
           itemStyles={{
             backgroundColor: "#88888818",
-            paddingHorizontal: 16,
             paddingVertical: 12,
             borderRadius: 12,
             borderCurve: "continuous",
@@ -139,8 +147,18 @@ export const UntitledCardLarge = ({
           <StackedButton.Container
             style={{ width: "100%", paddingVertical: 16 }}
           >
-            <ButtonItem expandedElement={<ThemedText>Convert</ThemedText>}>
-              <ThemedText>Convert</ThemedText>
+            <ButtonItem
+              expandedElement={
+                <ButtonCluster
+                  text="Convert"
+                  icon={<ButtonIcon icon={Video} />}
+                />
+              }
+            >
+              <ButtonCluster
+                text="Add tracks"
+                icon={<ButtonIcon icon={Plus} strokeWidth={2.4} />}
+              />
             </ButtonItem>
             <ButtonItem
               onPress={() => {
@@ -148,10 +166,23 @@ export const UntitledCardLarge = ({
               }}
               disableExpand
             >
-              <ThemedText>Import</ThemedText>
+              <ButtonCluster
+                text="Import"
+                icon={<ButtonIcon icon={AudioLines} />}
+              />
             </ButtonItem>
-            <ButtonItem disableExpand>
-              <ThemedText>Record</ThemedText>
+            <ButtonItem disableExpand onPress={onRecord}>
+              <ButtonCluster
+                text="Record"
+                icon={
+                  <ButtonIcon
+                    icon={Circle}
+                    strokeWidth={0}
+                    colorName="appleRed"
+                    attribute="fill"
+                  />
+                }
+              />
             </ButtonItem>
           </StackedButton.Container>
         </StackedButton.Provider>
@@ -165,6 +196,38 @@ const ButtonItem = ({ children, ...rest }: StackedButtonItemProps) => {
     <StackedButton.Item {...rest} asChild>
       <PressableBounce bounceScale={0.98}>{children}</PressableBounce>
     </StackedButton.Item>
+  );
+};
+
+const ButtonCluster = ({
+  text,
+  icon,
+}: {
+  text: string;
+  icon: React.ReactElement;
+}) => {
+  return (
+    <View style={styles.btnCluster}>
+      {icon}
+      <ThemedText style={styles.btnText}>{text}</ThemedText>
+    </View>
+  );
+};
+
+const ButtonIcon = ({
+  icon: Icon,
+  colorName,
+  attribute,
+  ...props
+}: {
+  icon: React.ComponentType<any>;
+  colorName?: ThemedTextProps["colorName"];
+  attribute?: string;
+} & LucideProps) => {
+  return (
+    <ThemedTextWrapper colorName={colorName} attribute={attribute}>
+      <Icon size={18.5} {...props} />
+    </ThemedTextWrapper>
   );
 };
 
@@ -233,5 +296,13 @@ const styles = StyleSheet.create({
     // backgroundColor: "red",
     flexWrap: "wrap",
     flexDirection: "row",
+  },
+  btnCluster: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  btnText: {
+    fontSize: 15,
   },
 });

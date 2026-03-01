@@ -59,7 +59,7 @@ export function ThemedTextWrapper({
 
   return cloneElement(children, {
     style: [(children.props as any).style ?? {}, ...combinedStyle],
-    color,
+    ...textColor,
     ...rest,
   });
 }

@@ -27,6 +27,7 @@ interface RecordProps {
   treshold: number;
   isDragging: SharedValue<boolean>;
   snapped: SharedValue<boolean>;
+  ref: React.RefObject<RecordHandle>;
 }
 
 const hapticsFeedback = () => {
@@ -49,8 +50,8 @@ export default function RecordPage({
   treshold,
   isDragging,
   snapped,
+  ref: recordRef,
 }: RecordProps) {
-  const recordRef = useRef<RecordHandle>(null);
   const { top } = useSafeAreaInsets();
   const islandHeight = top - 12;
 
