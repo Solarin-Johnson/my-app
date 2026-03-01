@@ -6,6 +6,7 @@ import Animated, {
   useAnimatedReaction,
   useAnimatedStyle,
   useDerivedValue,
+  useSharedValue,
   withSpring,
 } from "react-native-reanimated";
 import Record, { RecordHandle } from "../recorder/Record";
@@ -19,6 +20,10 @@ import { scheduleOnRN } from "react-native-worklets";
 import { Feedback } from "@/functions";
 import { SPRING_CONFIG } from "@/constants";
 import { ThemedText } from "../ThemedText";
+import { StackedButton } from "../stacked-button";
+import { ButtonCluster, ButtonIcon, ButtonItem } from ".";
+import { RefreshCcw, Trash } from "lucide-react-native";
+import { ThemedViewWrapper } from "../ThemedView";
 
 interface RecordProps {
   //   dragProgress: SharedValue<number>;
@@ -56,6 +61,7 @@ export default function RecordPage({
   const islandHeight = top - 12;
 
   const topSpace = islandHeight + BTN_HEIGHT;
+  const max = maxTranslateY - topSpace * 2;
 
   const progress = useDerivedValue(() => {
     return interpolate(
@@ -80,21 +86,36 @@ export default function RecordPage({
   });
 
   const btnAnimatedStyle = useAnimatedStyle(() => {
-    const hit = hitThreshold.get();
-    const max = maxTranslateY - topSpace * 2;
-
+    const isSnapped = snapped.get();
+    const d = maxTranslateY - topSpace;
     const translateY =
-      snapped.get() && !isDragging.get()
-        ? withSpring(maxTranslateY - topSpace)
-        : interpolate(progress.value, [0, 1], [0, max], Extrapolation.CLAMP);
+      isSnapped && !isDragging.get()
+        ? withSpring(d)
+        : isSnapped
+          ? d
+          : interpolate(progress.value, [0, 1], [0, max], Extrapolation.CLAMP);
+
+    return {
+      transform: [{ translateY }],
+    };
+  });
+
+  const recordAnimatedStyle = useAnimatedStyle(() => {
+    const hit = hitThreshold.get();
 
     const scale = withSpring(
       hit ? 1.2 : 1,
       hit ? PULSE_SPRING_CONFIG : SPRING_CONFIG,
     );
     return {
-      transform: [{ translateY }, { scale }],
       opacity: withSpring(isDragging.get() && !snapped.get() ? 1 : 0),
+      transform: [{ scale }],
+    };
+  });
+
+  const actionAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: snapped.get() ? withSpring(1) : 0,
     };
   });
 
@@ -139,10 +160,17 @@ export default function RecordPage({
       }}
     >
       <Animated.View style={[{ flex: 1 }, contentAnimatedStyle]}>
-        <SafeAreaView style={style.content}>
-          <View style={style.head}>
-            <ThemedText style={style.title}>New Recording</ThemedText>
-            <ThemedText style={style.subtitle} type="regular">
+        <SafeAreaView
+          style={[
+            styles.content,
+            {
+              maxHeight: maxTranslateY,
+            },
+          ]}
+        >
+          <View style={styles.head}>
+            <ThemedText style={styles.title}>New Recording</ThemedText>
+            <ThemedText style={styles.subtitle} type="regular">
               untitled project
             </ThemedText>
           </View>
@@ -151,21 +179,87 @@ export default function RecordPage({
       </Animated.View>
       <Animated.View
         style={[
-          style.button,
+          styles.buttonWrapper,
           { top: islandHeight - BTN_HEIGHT },
           btnAnimatedStyle,
         ]}
       >
-        <FancyStrokeButton progress={strokeProgress} />
+        <Animated.View style={[styles.button, recordAnimatedStyle]}>
+          <FancyStrokeButton progress={strokeProgress} />
+        </Animated.View>
+        <Animated.View style={[styles.action, actionAnimatedStyle]}>
+          <BottomAction />
+        </Animated.View>
       </Animated.View>
     </View>
   );
 }
 
-const style = StyleSheet.create({
-  button: {
+const BottomAction = () => {
+  const initialIndex = 0;
+  const currentIndex = useSharedValue(0);
+  return (
+    <View style={styles.footer}>
+      <StackedButton.Provider
+        currentIndex={currentIndex}
+        itemStyles={{
+          borderRadius: 25,
+          borderCurve: "continuous",
+          alignItems: "center",
+          justifyContent: "center",
+          height: 50,
+        }}
+        initialIndex={initialIndex}
+        gap={12}
+      >
+        <StackedButton.Container style={{ width: "100%", paddingVertical: 16 }}>
+          <ButtonItem
+            expandedElement={
+              <ButtonCluster
+                text="Cancel Recording"
+                icon={<ButtonIcon icon={Trash} />}
+              />
+            }
+          >
+            <ButtonCluster text="Cancel" icon={<ButtonIcon icon={Trash} />} />
+          </ButtonItem>
+          <ThemedViewWrapper colorName="untitledBg">
+            <ButtonItem disableExpand>
+              <ButtonCluster text="Save" />
+            </ButtonItem>
+          </ThemedViewWrapper>
+          <ButtonItem
+            expandedElement={
+              <ButtonCluster
+                text="Retry Recording"
+                icon={<ButtonIcon icon={RefreshCcw} />}
+              />
+            }
+          >
+            <ButtonCluster
+              text="Retry"
+              icon={<ButtonIcon icon={RefreshCcw} />}
+            />
+          </ButtonItem>
+        </StackedButton.Container>
+      </StackedButton.Provider>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  buttonWrapper: {
     position: "absolute",
+    justifyContent: "center",
+    width: "100%",
+  },
+  button: {
     alignSelf: "center",
+  },
+  action: {
+    position: "absolute",
+    // backgroundColor: "red",
+    width: "100%",
   },
   content: {
     flex: 1,
@@ -185,5 +279,9 @@ const style = StyleSheet.create({
     fontSize: 15,
     letterSpacing: -0.2,
     opacity: 0.65,
+  },
+  footer: {
+    width: "100%",
+    paddingHorizontal: 24,
   },
 });

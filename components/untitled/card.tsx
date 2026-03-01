@@ -21,6 +21,7 @@ import {
   useSharedValue,
 } from "react-native-reanimated";
 import { StackedButton, StackedButtonItemProps } from "../stacked-button";
+import { ButtonCluster, ButtonIcon, ButtonItem } from ".";
 
 export const UntitledCardMini = ({
   name = "untitled project",
@@ -150,14 +151,14 @@ export const UntitledCardLarge = ({
             <ButtonItem
               expandedElement={
                 <ButtonCluster
-                  text="Convert"
-                  icon={<ButtonIcon icon={Video} />}
+                  text="Add tracks"
+                  icon={<ButtonIcon icon={Plus} strokeWidth={2.4} />}
                 />
               }
             >
               <ButtonCluster
-                text="Add tracks"
-                icon={<ButtonIcon icon={Plus} strokeWidth={2.4} />}
+                text="Convert"
+                icon={<ButtonIcon icon={Video} />}
               />
             </ButtonItem>
             <ButtonItem
@@ -188,46 +189,6 @@ export const UntitledCardLarge = ({
         </StackedButton.Provider>
       </View>
     </View>
-  );
-};
-
-const ButtonItem = ({ children, ...rest }: StackedButtonItemProps) => {
-  return (
-    <StackedButton.Item {...rest} asChild>
-      <PressableBounce bounceScale={0.98}>{children}</PressableBounce>
-    </StackedButton.Item>
-  );
-};
-
-const ButtonCluster = ({
-  text,
-  icon,
-}: {
-  text: string;
-  icon: React.ReactElement;
-}) => {
-  return (
-    <View style={styles.btnCluster}>
-      {icon}
-      <ThemedText style={styles.btnText}>{text}</ThemedText>
-    </View>
-  );
-};
-
-const ButtonIcon = ({
-  icon: Icon,
-  colorName,
-  attribute,
-  ...props
-}: {
-  icon: React.ComponentType<any>;
-  colorName?: ThemedTextProps["colorName"];
-  attribute?: string;
-} & LucideProps) => {
-  return (
-    <ThemedTextWrapper colorName={colorName} attribute={attribute}>
-      <Icon size={18.5} {...props} />
-    </ThemedTextWrapper>
   );
 };
 
@@ -296,13 +257,5 @@ const styles = StyleSheet.create({
     // backgroundColor: "red",
     flexWrap: "wrap",
     flexDirection: "row",
-  },
-  btnCluster: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  btnText: {
-    fontSize: 15,
   },
 });

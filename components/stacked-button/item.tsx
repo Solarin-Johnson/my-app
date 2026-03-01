@@ -155,18 +155,18 @@ export default function Item({
     });
   };
 
-  const expandedAnimatedStyle = createAnimatedStyle(notActive);
-  const mainAnimatedStyle = createAnimatedStyle(isActive);
+  const expandedAnimatedStyle = createAnimatedStyle(isActive);
+  const mainAnimatedStyle = createAnimatedStyle(notActive);
 
   const innerAnimatedStyle = useAnimatedStyle(() => {
     const active = isActive.get();
-    const w = containerWidth.get(); // ← always container
+    const w = containerWidth.get();
 
     const expLeft = w / 2 - expandedWidth.get() / 2;
     const childLeft = w / 2 - childWidth.get() / 2;
 
     const translateX = expandedElement
-      ? applySpring(active ? 0 : expLeft - childLeft)
+      ? applySpring(active ? expLeft - childLeft : 0)
       : 0;
 
     return {
@@ -176,19 +176,20 @@ export default function Item({
 
   const expandedInnerAnimatedStyle = useAnimatedStyle(() => {
     const active = isActive.get();
-    const w = containerWidth.get();
+    const w = itemWidth.get();
 
     const expLeft = w / 2 - expandedWidth.get() / 2;
     const childLeft = w / 2 - childWidth.get() / 2;
 
     const translateX = expandedElement
-      ? applySpring(active ? childLeft - expLeft : 0)
+      ? applySpring(active ? 0 : childLeft - expLeft)
       : 0;
 
     return {
       transform: [{ translateX }],
     };
   });
+
   // useDerivedValue(() => {
   //   console.log(
   //     "Child width:",
