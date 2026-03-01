@@ -22,7 +22,7 @@ import { SPRING_CONFIG } from "@/constants";
 import { ThemedText } from "../ThemedText";
 import { StackedButton } from "../stacked-button";
 import { ButtonCluster, ButtonIcon, ButtonItem } from ".";
-import { RefreshCcw, Trash } from "lucide-react-native";
+import { RefreshCcw, Trash, Trash2 } from "lucide-react-native";
 import { ThemedViewWrapper } from "../ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
@@ -223,17 +223,22 @@ const BottomAction = () => {
           <ButtonItem
             expandedElement={
               <ButtonCluster
+                type="semiBold"
                 text="Cancel Recording"
-                icon={<ButtonIcon icon={Trash} />}
+                icon={<ButtonIcon icon={Trash2} size={19} />}
               />
             }
             expandedStyle={redStyle}
           >
-            <ButtonCluster text="Cancel" icon={<ButtonIcon icon={Trash} />} />
+            <ButtonCluster
+              text="Cancel"
+              icon={<ButtonIcon icon={Trash2} size={19} />}
+              type="semiBold"
+            />
           </ButtonItem>
           <ThemedViewWrapper colorName="untitledBg">
             <ButtonItem disableExpand>
-              <ButtonCluster text="Save" />
+              <ButtonCluster text="Save" type="semiBold" />
             </ButtonItem>
           </ThemedViewWrapper>
 
@@ -241,14 +246,16 @@ const BottomAction = () => {
             expandedElement={
               <ButtonCluster
                 text="Retry Recording"
-                icon={<ButtonIcon icon={RefreshCcw} />}
+                icon={<ButtonIcon icon={RefreshCcw} size={19} />}
+                type="semiBold"
               />
             }
             expandedStyle={redStyle}
           >
             <ButtonCluster
               text="Retry"
-              icon={<ButtonIcon icon={RefreshCcw} />}
+              icon={<ButtonIcon icon={RefreshCcw} size={19} />}
+              type="semiBold"
             />
           </ButtonItem>
         </StackedButton.Container>

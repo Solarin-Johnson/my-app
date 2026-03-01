@@ -26,7 +26,7 @@ export function Provider({
   itemStyles,
   itemProps,
   gap = 0,
-  delayMs = 3000,
+  delayMs,
   initialIndex = 0,
 }: {
   children: React.ReactNode;

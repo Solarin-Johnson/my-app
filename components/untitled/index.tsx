@@ -15,14 +15,18 @@ export const ButtonItem = ({ children, ...rest }: StackedButtonItemProps) => {
 export const ButtonCluster = ({
   text,
   icon,
+  style,
+  ...textProps
 }: {
   text: string;
   icon?: React.ReactElement;
-}) => {
+} & ThemedTextProps) => {
   return (
     <View style={styles.btnCluster}>
       {icon}
-      <ThemedText style={styles.btnText}>{text}</ThemedText>
+      <ThemedText style={[styles.btnText, style]} {...textProps}>
+        {text}
+      </ThemedText>
     </View>
   );
 };

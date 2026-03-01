@@ -144,6 +144,7 @@ export const UntitledCardLarge = ({
           }}
           initialIndex={initialIndex}
           gap={8}
+          delayMs={3000}
         >
           <StackedButton.Container
             style={{ width: "100%", paddingVertical: 16 }}
