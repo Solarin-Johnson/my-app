@@ -28,6 +28,7 @@ type ItemProps = {
   handleConfirmation?: () => void;
   expandedElement?: React.JSX.Element;
   childStyle?: StyleProp<ViewStyle>;
+  expandedStyle?: StyleProp<ViewStyle>;
 } & PressableProps;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -53,6 +54,7 @@ export default function Item({
   onPress,
   style,
   childStyle = {},
+  expandedStyle = {},
   expandedElement,
   ...pressableProps
 }: ItemProps) {
@@ -159,15 +161,17 @@ export default function Item({
   const mainAnimatedStyle = createAnimatedStyle(notActive);
 
   const innerAnimatedStyle = useAnimatedStyle(() => {
+    if (!expandedElement) return {};
+
     const active = isActive.get();
     const w = containerWidth.get();
 
     const expLeft = w / 2 - expandedWidth.get() / 2;
     const childLeft = w / 2 - childWidth.get() / 2;
 
-    const translateX = expandedElement
-      ? applySpring(active ? expLeft - childLeft : 0)
-      : 0;
+    const translateX = applySpring(active ? expLeft - childLeft : 0);
+
+    console.log("Exp", expLeft, "Child", childLeft);
 
     return {
       transform: [{ translateX }],
@@ -175,15 +179,15 @@ export default function Item({
   });
 
   const expandedInnerAnimatedStyle = useAnimatedStyle(() => {
+    if (!expandedElement) return {};
+
     const active = isActive.get();
     const w = itemWidth.get();
 
     const expLeft = w / 2 - expandedWidth.get() / 2;
     const childLeft = w / 2 - childWidth.get() / 2;
 
-    const translateX = expandedElement
-      ? applySpring(active ? 0 : childLeft - expLeft)
-      : 0;
+    const translateX = applySpring(active ? 0 : childLeft - expLeft);
 
     return {
       transform: [{ translateX }],
@@ -199,7 +203,7 @@ export default function Item({
   //   );
   // });
 
-  useLayoutEffect(() => {
+  const measureMain = () => {
     scheduleOnUI(() => {
       if (animatedRef.current === null) return;
       const measurement = measure(animatedRef);
@@ -208,29 +212,45 @@ export default function Item({
       }
       childWidth.set(measurement.width);
     });
+  };
+
+  useLayoutEffect(() => {
+    measureMain();
   }, []);
 
   const ExpandedChild = () => {
-    if (!expandedElement) return null;
     const expandedAnimatedRef = useAnimatedRef();
-    useLayoutEffect(() => {
-      if (expandedAnimatedRef.current === null) return;
+
+    if (!expandedElement) return null;
+
+    const measureExpanded = () => {
       scheduleOnUI(() => {
+        if (expandedAnimatedRef.current === null) return;
         const measurement = measure(expandedAnimatedRef);
         if (measurement === null) {
           return;
         }
         expandedWidth.set(measurement.width);
       });
+    };
+
+    useLayoutEffect(() => {
+      measureExpanded();
     }, []);
 
     return (
       <Animated.View
-        style={[StyleSheet.absoluteFill, combinedStyles, expandedAnimatedStyle]}
+        style={[
+          expandedStyle,
+          StyleSheet.absoluteFill,
+          combinedStyles,
+          expandedAnimatedStyle,
+        ]}
       >
         <Animated.View
           ref={expandedAnimatedRef}
-          style={[{}, expandedInnerAnimatedStyle]}
+          style={expandedInnerAnimatedStyle}
+          onLayout={measureExpanded}
         >
           {expandedElement}
         </Animated.View>
@@ -255,6 +275,7 @@ export default function Item({
                 <Animated.View
                   ref={animatedRef}
                   style={[childStyle, innerAnimatedStyle]}
+                  onLayout={measureMain}
                 >
                   {childElement.props.children}
                 </Animated.View>
@@ -275,7 +296,11 @@ export default function Item({
       {...itemProps}
     >
       <Animated.View style={[combinedStyles, mainAnimatedStyle]}>
-        <Animated.View ref={animatedRef} style={childStyle}>
+        <Animated.View
+          ref={animatedRef}
+          style={childStyle}
+          onLayout={measureMain}
+        >
           {children}
         </Animated.View>
       </Animated.View>

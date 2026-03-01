@@ -24,6 +24,7 @@ import { StackedButton } from "../stacked-button";
 import { ButtonCluster, ButtonIcon, ButtonItem } from ".";
 import { RefreshCcw, Trash } from "lucide-react-native";
 import { ThemedViewWrapper } from "../ThemedView";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 interface RecordProps {
   //   dragProgress: SharedValue<number>;
@@ -198,6 +199,12 @@ export default function RecordPage({
 const BottomAction = () => {
   const initialIndex = 0;
   const currentIndex = useSharedValue(0);
+  const appleRed = useThemeColor("appleRed");
+
+  const redStyle = {
+    backgroundColor: appleRed,
+  };
+
   return (
     <View style={styles.footer}>
       <StackedButton.Provider
@@ -220,6 +227,7 @@ const BottomAction = () => {
                 icon={<ButtonIcon icon={Trash} />}
               />
             }
+            expandedStyle={redStyle}
           >
             <ButtonCluster text="Cancel" icon={<ButtonIcon icon={Trash} />} />
           </ButtonItem>
@@ -228,6 +236,7 @@ const BottomAction = () => {
               <ButtonCluster text="Save" />
             </ButtonItem>
           </ThemedViewWrapper>
+
           <ButtonItem
             expandedElement={
               <ButtonCluster
@@ -235,6 +244,7 @@ const BottomAction = () => {
                 icon={<ButtonIcon icon={RefreshCcw} />}
               />
             }
+            expandedStyle={redStyle}
           >
             <ButtonCluster
               text="Retry"
