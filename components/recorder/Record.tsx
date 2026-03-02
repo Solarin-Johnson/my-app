@@ -22,6 +22,7 @@ import { RecordingState } from "./types";
 interface RecordProps {
   ref?: React.RefObject<any>;
   sharedState?: SharedValue<RecordingState>;
+  durationMS?: SharedValue<number>;
 }
 
 export interface RecordHandle {
@@ -34,7 +35,7 @@ export interface RecordHandle {
 }
 
 const Record = React.forwardRef<RecordHandle, RecordProps>(
-  ({ sharedState }, ref) => {
+  ({ sharedState, durationMS: externalDurationMS }, ref) => {
     const [state, setState] = useState<RecordingState>(RecordingState.Idle);
     const [hasPermissions, setHasPermissions] = useState<boolean>(false);
     const [recordedBuffer, setRecordedBuffer] = useState<AudioBuffer | null>(
@@ -215,12 +216,12 @@ const Record = React.forwardRef<RecordHandle, RecordProps>(
       };
     }, []);
 
-    console.log(state);
+    const _durationMS = useSharedValue(0);
+    const durationMS = externalDurationMS || _durationMS;
 
     return (
       <>
-        <RecordingVisualization state={state} />
-        <View style={styles.spacerM} />
+        <RecordingVisualization state={state} durationMS={durationMS} />
         {/* <ControlPanel state={state} onToggleState={onToggleState} /> */}
       </>
     );

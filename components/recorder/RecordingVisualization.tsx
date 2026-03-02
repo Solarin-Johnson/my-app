@@ -42,6 +42,7 @@ function getInitialHistory() {
 
 interface RecordingVisualizationProps {
   state: RecordingState;
+  durationMS: SharedValue<number>;
 }
 
 interface DrawDefaultWaveformParams {
@@ -133,6 +134,7 @@ function drawHistoryWaveform(params: DrawHistoryWaveformParams) {
 
 const RecordingVisualization: React.FC<RecordingVisualizationProps> = ({
   state,
+  durationMS,
 }) => {
   const canvasRef = useCanvasRef();
   const lifetimeCanvasRef = useCanvasRef();
@@ -150,7 +152,6 @@ const RecordingVisualization: React.FC<RecordingVisualizationProps> = ({
 
   const translateX = useSharedValue(0);
   const lastIndex = useSharedValue(-1);
-  const durationMS = useSharedValue(0);
 
   const numBars = useMemo(() => {
     if (size.width === 0) {

@@ -19,14 +19,15 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { scheduleOnRN } from "react-native-worklets";
 import { Feedback } from "@/functions";
 import { SPRING_CONFIG } from "@/constants";
-import { ThemedText } from "../ThemedText";
+import { ThemedText, ThemedTextWrapper } from "../ThemedText";
 import { StackedButton } from "../stacked-button";
 import { ButtonCluster, ButtonIcon, ButtonItem } from ".";
 import { RefreshCcw, Trash, Trash2 } from "lucide-react-native";
-import { ThemedViewWrapper } from "../ThemedView";
+import { ThemedView, ThemedViewWrapper } from "../ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { RecordingState } from "../recorder/types";
 import { opacity } from "react-native-redash";
+import { AnimatedText } from "../ui/animated-text";
 
 type RecordingCallbacks = {
   startRecording?: () => Promise<void>;
@@ -75,6 +76,9 @@ export default function RecordPage({
 }: RecordProps & RecordingCallbacks) {
   const { sharedState, resumeRecording } = props;
   const { top } = useSafeAreaInsets();
+
+  const durationMS = useSharedValue(0);
+
   const islandHeight = top - 12;
 
   const topSpace = islandHeight + BTN_HEIGHT;
@@ -159,6 +163,19 @@ export default function RecordPage({
     };
   });
 
+  const time = useDerivedValue(() => {
+    const totalMS = durationMS.value;
+    const minutes = Math.floor(totalMS / 60000);
+    const seconds = Math.floor((totalMS % 60000) / 1000);
+    const milliseconds = Math.floor((totalMS % 1000) / 10);
+
+    const mm = minutes.toString().padStart(2, "0");
+    const ss = seconds.toString().padStart(2, "0");
+    const ms = milliseconds.toString().padStart(2, "0");
+
+    return `${mm}:${ss}:${ms}`;
+  });
+
   return (
     <View
       style={{
@@ -180,7 +197,27 @@ export default function RecordPage({
               untitled project
             </ThemedText>
           </View>
-          <Record ref={recordRef} sharedState={sharedState} />
+          <View
+            style={[
+              styles.waveWrapper,
+              {
+                paddingBottom: topSpace,
+              },
+            ]}
+          >
+            <Record
+              ref={recordRef}
+              sharedState={sharedState}
+              durationMS={durationMS}
+            />
+            <ThemedView style={styles.line}>
+              <ThemedView style={styles.reader}>
+                <ThemedTextWrapper>
+                  <AnimatedText text={time} style={styles.text} />
+                </ThemedTextWrapper>
+              </ThemedView>
+            </ThemedView>
+          </View>
           <ThemedViewWrapper colorName="untitledFg">
             <AnimatedPressable
               style={[StyleSheet.absoluteFill, overlayAnimatedStyle]}
@@ -316,8 +353,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "space-between",
     paddingVertical: 32,
   },
   head: {
@@ -336,5 +371,34 @@ const styles = StyleSheet.create({
   footer: {
     width: "100%",
     paddingHorizontal: 24,
+  },
+  waveWrapper: {
+    width: "50%",
+    flex: 1,
+    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  line: {
+    height: 120,
+    width: 1.5,
+    marginLeft: -2,
+  },
+  reader: {
+    position: "absolute",
+    width: 86,
+    height: 32,
+    top: -32,
+    left: -42.5,
+    borderRadius: 16,
+    borderCurve: "continuous",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  text: {
+    fontVariant: ["tabular-nums"],
+    fontSize: 13,
+    fontWeight: "200",
+    fontFamily: "ui-monospace",
   },
 });
