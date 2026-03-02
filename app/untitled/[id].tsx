@@ -50,7 +50,6 @@ export default function Index() {
   const recordRef = useRef<RecordHandle>(null!);
   const recordState = useSharedValue(RecordingState.Idle);
 
-  const record = useSharedValue(false);
   const snapped = useSharedValue(false);
   const scrollY = useSharedValue(0);
 
@@ -61,14 +60,12 @@ export default function Index() {
 
   // const activeOffsetX = useSharedValue(0);
   const activeOffsetY = useSharedValue(0);
-  const failOffsetX = useSharedValue(0);
 
   const activeOffsetX = useDerivedValue(() => {
-    return !record.get() ? Number.MAX_VALUE : -5;
+    return translateY.get() <= THRESHOLD ? Number.MAX_VALUE : -5;
   });
 
   useDerivedValue(() => {
-    failOffsetX.set(record.get() ? 5 : -10);
     activeOffsetY.set(scrollY.get() > 0 ? Number.MAX_VALUE : -5);
   });
 
@@ -199,7 +196,7 @@ export default function Index() {
     activeOffsetY: activeOffsetY,
     activeOffsetX: activeOffsetX,
     simultaneousWith: innerPanGesture,
-    enabled: scrolledToTop,
+    // enabled: scrolledToTop,
   });
 
   const underPanGesture = usePanGesture({});
@@ -242,15 +239,8 @@ export default function Index() {
     };
   });
 
-  useAnimatedReaction(
-    () => translateY.get(),
-    (current) => {
-      record.set(current > THRESHOLD);
-    },
-  );
-
   const scrollEnabled = useDerivedValue<boolean | undefined>(() => {
-    return !record.get();
+    return translateY.get() <= THRESHOLD;
   });
 
   const scrollHandler = useAnimatedScrollHandler({
