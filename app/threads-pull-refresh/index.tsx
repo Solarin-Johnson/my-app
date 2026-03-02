@@ -1,8 +1,7 @@
 import { StyleSheet } from "react-native";
 import React from "react";
 import RefreshLogo from "@/components/RefreshLogo";
-import Animated from "react-native-reanimated";
-import {
+import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
 } from "react-native-reanimated";
