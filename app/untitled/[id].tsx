@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { router } from "expo-router";
 import UntitledScreen from "@/components/untitled/screen";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -23,12 +23,7 @@ import Animated, {
   withDecay,
   withSpring,
 } from "react-native-reanimated";
-import {
-  StyleSheet,
-  useColorScheme,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { StyleSheet, useWindowDimensions, View } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import UntitledHeader from "@/components/untitled/header";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -52,7 +47,6 @@ export default function Index() {
   const startY = useSharedValue(0);
   const isDragging = useSharedValue(false);
   const screenAnimation = useScreenAnimation();
-  const scheme = useColorScheme();
   const recordRef = useRef<RecordHandle>(null!);
   const recordState = useSharedValue(RecordingState.Idle);
 
@@ -65,19 +59,17 @@ export default function Index() {
   const { height } = useWindowDimensions();
   const { bottom } = useSafeAreaInsets();
 
-  const activeOffsetX = useSharedValue(0);
+  // const activeOffsetX = useSharedValue(0);
   const activeOffsetY = useSharedValue(0);
+  const failOffsetX = useSharedValue(0);
 
-  useDerivedValue(() => {
-    activeOffsetX.set(!record.get() ? Number.MAX_VALUE : -5);
+  const activeOffsetX = useDerivedValue(() => {
+    return !record.get() ? Number.MAX_VALUE : -5;
   });
 
   useDerivedValue(() => {
+    failOffsetX.set(record.get() ? 5 : -10);
     activeOffsetY.set(scrollY.get() > 0 ? Number.MAX_VALUE : -5);
-  });
-
-  const innerActiveOffset = useDerivedValue<number>(() => {
-    return scrollY.get() > 0 ? -5 : 0;
   });
 
   const isTransitioning = useDerivedValue(() => {
@@ -203,7 +195,7 @@ export default function Index() {
 
       isDragging.set(false);
     },
-    // failOffsetX: [-Number.MAX_VALUE, failOffset],
+    // failOffsetX: failOffsetX,
     activeOffsetY: activeOffsetY,
     activeOffsetX: activeOffsetX,
     simultaneousWith: innerPanGesture,
@@ -272,18 +264,6 @@ export default function Index() {
       scrolling.set(false);
     },
   });
-
-  // useAnimatedReaction(
-  //   () => snapped.get(),
-  //   (snappedValue, prev) => {
-  //     if (isDragging.get()) return;
-  //     if (snappedValue && !prev) {
-  //       scheduleOnRN(startRecording);
-  //     } else if (!snappedValue && prev) {
-  //       scheduleOnRN(stopRecording);
-  //     }
-  //   },
-  // );
 
   return (
     <UntitledScreen barProps={{ type: "fill", hide: snapped }} hideHeader>

@@ -38,11 +38,10 @@ export default function Layout() {
   return (
     <ThemedView style={{ flex: 1 }} colorName={"untitledBg"}>
       <Stack
-        screenOptions={
-          {
-            // headerShown: false,
-          }
-        }
+        screenOptions={{
+          // headerShown: false,
+          experimental_enableHighRefreshRate: false,
+        }}
       >
         <Stack.Screen
           name="index"

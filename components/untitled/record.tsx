@@ -22,11 +22,10 @@ import { SPRING_CONFIG } from "@/constants";
 import { ThemedText, ThemedTextWrapper } from "../ThemedText";
 import { StackedButton } from "../stacked-button";
 import { ButtonCluster, ButtonIcon, ButtonItem } from ".";
-import { RefreshCcw, Trash, Trash2 } from "lucide-react-native";
+import { RefreshCcw, Trash2 } from "lucide-react-native";
 import { ThemedView, ThemedViewWrapper } from "../ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { RecordingState } from "../recorder/types";
-import { opacity } from "react-native-redash";
 import { AnimatedText } from "../ui/animated-text";
 
 type RecordingCallbacks = {

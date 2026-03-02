@@ -1,26 +1,19 @@
 import { View, StyleSheet } from "react-native";
 import React from "react";
-import { ThemedText, ThemedTextProps, ThemedTextWrapper } from "../ThemedText";
+import { ThemedText, ThemedTextWrapper } from "../ThemedText";
 import { Colors } from "@/constants/Colors";
 import { Link } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import PressableBounce from "../PresableBounce";
 import UntitledButton from "./button";
-import {
-  AudioLines,
-  Circle,
-  LucideProps,
-  Play,
-  Plus,
-  Video,
-} from "lucide-react-native";
+import { AudioLines, Circle, Plus, Video } from "lucide-react-native";
 import { ThemedViewWrapper } from "../ThemedView";
 import {
   SharedValue,
   useAnimatedReaction,
   useSharedValue,
 } from "react-native-reanimated";
-import { StackedButton, StackedButtonItemProps } from "../stacked-button";
+import { StackedButton } from "../stacked-button";
 import { ButtonCluster, ButtonIcon, ButtonItem } from ".";
 
 export const UntitledCardMini = ({
