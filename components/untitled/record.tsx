@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import Animated, {
   Extrapolation,
   interpolate,
@@ -158,6 +158,7 @@ export default function RecordPage({
     return {
       opacity: withSpring(
         sharedState?.value === RecordingState.Recording ? 0 : 0.6,
+        StackedButton.springConfig,
       ),
     };
   });
@@ -209,7 +210,7 @@ export default function RecordPage({
               sharedState={sharedState}
               durationMS={durationMS}
             />
-            <ThemedView style={styles.line}>
+            <ThemedView style={styles.line} colorName="theme">
               <ThemedView style={styles.reader}>
                 <ThemedTextWrapper>
                   <AnimatedText text={time} style={styles.text} />

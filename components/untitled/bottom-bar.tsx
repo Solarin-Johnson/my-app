@@ -39,10 +39,6 @@ export default function UntitledBottomBar({
   const props = useScreenAnimation();
   const bg = useThemeColor("background");
 
-  if (Platform.OS === "web") {
-    return;
-  }
-
   const headerAnimatedStyle = useAnimatedStyle(() => {
     const {
       progress,
@@ -103,6 +99,10 @@ export default function UntitledBottomBar({
       opacity: withSpring(hide?.get() ? 0 : 1),
     };
   });
+
+  if (Platform.OS === "web") {
+    return;
+  }
 
   return (
     <Animated.View style={wrapperAnimatedStyle}>

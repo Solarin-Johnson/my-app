@@ -1,7 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { GlassContainer, GlassView } from "expo-glass-effect";
 import { Image } from "expo-image";
-import { ThemedText } from "../ThemedText";
 
 export default function GlassViewComponent() {
   return (

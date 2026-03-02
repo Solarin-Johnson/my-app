@@ -1,13 +1,6 @@
 import React from "react";
 import UntitledHeader, { UntitledHeaderProps } from "./header";
-import Transition, {
-  useScreenAnimation,
-} from "react-native-screen-transitions";
 import UntitledBottomBar, { UntitledBottomBarProps } from "./bottom-bar";
-import { View } from "react-native";
-import { ThemedView } from "../ThemedView";
-
-const ScrollView = Transition.ScrollView;
 
 export interface UntitledScreenProps {
   children?: React.ReactNode;
@@ -22,8 +15,6 @@ export default function UntitledScreen({
   barProps,
   hideHeader,
 }: UntitledScreenProps) {
-  const props = useScreenAnimation();
-
   return (
     <>
       {!hideHeader && (

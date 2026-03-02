@@ -1,6 +1,5 @@
-import { ScrollView, View } from "react-native";
+import { ScrollView, View , StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { StyleSheet } from "react-native";
 
 const Container = ({
   children,

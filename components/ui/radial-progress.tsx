@@ -10,8 +10,6 @@ import { svgPathProperties } from "svg-path-properties";
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
-const PATH_LENGTH_ADJUSTMENT = 0;
-
 export interface RadialProgressProps extends IconProps {
   progress: SharedValue<number>;
   radius?: number;
