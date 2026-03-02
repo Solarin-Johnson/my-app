@@ -100,8 +100,6 @@ export default function Item({
     } else {
       const alreadyExpanded = currentIndex.get() === index;
 
-      console.log(alreadyExpanded);
-
       if (alreadyExpanded) {
         currentIndex.set(isInit ? 0 : initialIndex);
         onPress?.(e);
@@ -170,8 +168,6 @@ export default function Item({
     const childLeft = w / 2 - childWidth.get() / 2;
 
     const translateX = applySpring(active ? expLeft - childLeft : 0);
-
-    console.log("Exp", expLeft, "Child", childLeft);
 
     return {
       transform: [{ translateX }],
@@ -246,11 +242,11 @@ export default function Item({
           combinedStyles,
           expandedAnimatedStyle,
         ]}
+        onLayout={measureExpanded}
       >
         <Animated.View
           ref={expandedAnimatedRef}
-          style={expandedInnerAnimatedStyle}
-          onLayout={measureExpanded}
+          style={[{}, expandedInnerAnimatedStyle]}
         >
           {expandedElement}
         </Animated.View>
@@ -271,11 +267,13 @@ export default function Item({
           style: childElement.props.style,
           children: (
             <>
-              <Animated.View style={[combinedStyles, mainAnimatedStyle]}>
+              <Animated.View
+                style={[combinedStyles, mainAnimatedStyle]}
+                onLayout={measureMain}
+              >
                 <Animated.View
                   ref={animatedRef}
                   style={[childStyle, innerAnimatedStyle]}
-                  onLayout={measureMain}
                 >
                   {childElement.props.children}
                 </Animated.View>
@@ -295,12 +293,11 @@ export default function Item({
       {...pressableProps}
       {...itemProps}
     >
-      <Animated.View style={[combinedStyles, mainAnimatedStyle]}>
-        <Animated.View
-          ref={animatedRef}
-          style={childStyle}
-          onLayout={measureMain}
-        >
+      <Animated.View
+        style={[combinedStyles, mainAnimatedStyle]}
+        onLayout={measureMain}
+      >
+        <Animated.View ref={animatedRef} style={childStyle}>
           {children}
         </Animated.View>
       </Animated.View>

@@ -33,9 +33,9 @@ import { ThemedView } from "@/components/ThemedView";
 import UntitledHeader from "@/components/untitled/header";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import RecordPage from "@/components/untitled/record";
-import { StackedButton } from "@/components/stacked-button";
-import { ThemedText } from "@/components/ThemedText";
 import { RecordHandle } from "@/components/recorder/Record";
+import { RecordingState } from "@/components/recorder/types";
+import { scheduleOnRN } from "react-native-worklets";
 
 const AnimatedThemedView = Animated.createAnimatedComponent(ThemedView);
 
@@ -54,6 +54,7 @@ export default function Index() {
   const screenAnimation = useScreenAnimation();
   const scheme = useColorScheme();
   const recordRef = useRef<RecordHandle>(null!);
+  const recordState = useSharedValue(RecordingState.Idle);
 
   const record = useSharedValue(false);
   const snapped = useSharedValue(false);
@@ -91,6 +92,53 @@ export default function Index() {
   const scrolledToTop = useDerivedValue(() => {
     return scrollY.get() <= 0;
   });
+
+  const startRecording = async () => {
+    await recordRef.current?.start();
+    translateY.set(withSpring(MAX_TRANSLATE));
+    snapped.set(true);
+  };
+
+  const stopRecording = async () => {
+    if (recordRef.current?.getState() === RecordingState.Idle) return;
+    await recordRef.current.stop();
+    translateY.set(withSpring(0));
+    snapped.set(false);
+  };
+
+  const pauseRecording = () => {
+    recordRef.current?.pause();
+  };
+
+  const resumeRecording = () => {
+    recordRef.current?.resume();
+  };
+
+  const toggleRecording = () => {
+    const state = recordRef.current?.getState();
+    state === RecordingState.Paused ? resumeRecording() : pauseRecording();
+  };
+
+  const restartRecording = async () => {
+    await recordRef.current?.stop();
+    setTimeout(() => {
+      recordRef.current?.start();
+    }, 100);
+  };
+
+  const updateSnapState = () => {
+    "worklet";
+    const dir = translateY.get() - startY.get();
+    const isDownwardSwipe = dir > 0 && translateY.get() > THRESHOLD;
+    const isUpwardSwipe =
+      dir < 0 && translateY.get() < MAX_TRANSLATE - THRESHOLD / 3;
+    const isPastMidpoint = translateY.get() >= MAX_TRANSLATE / 2;
+
+    const value = !isUpwardSwipe && (isDownwardSwipe || isPastMidpoint);
+    scheduleOnRN(value ? startRecording : stopRecording);
+
+    snapped.set(value);
+  };
 
   const nativeGesture = useNativeGesture({});
 
@@ -132,7 +180,7 @@ export default function Index() {
         dir < 0 && translateY.get() < MAX_TRANSLATE - THRESHOLD / 3;
       const isPastMidpoint = translateY.get() >= MAX_TRANSLATE / 2;
 
-      snapped.set(!isUpwardSwipe && (isDownwardSwipe || isPastMidpoint));
+      updateSnapState();
 
       translateY.set(
         withDecay({
@@ -225,11 +273,17 @@ export default function Index() {
     },
   });
 
-  const startRecording = () => {
-    recordRef.current?.start();
-    translateY.set(withSpring(MAX_TRANSLATE));
-    snapped.set(true);
-  };
+  // useAnimatedReaction(
+  //   () => snapped.get(),
+  //   (snappedValue, prev) => {
+  //     if (isDragging.get()) return;
+  //     if (snappedValue && !prev) {
+  //       scheduleOnRN(startRecording);
+  //     } else if (!snappedValue && prev) {
+  //       scheduleOnRN(stopRecording);
+  //     }
+  //   },
+  // );
 
   return (
     <UntitledScreen barProps={{ type: "fill", hide: snapped }} hideHeader>
@@ -246,6 +300,13 @@ export default function Index() {
             maxTranslateY={MAX_TRANSLATE}
             isDragging={isDragging}
             snapped={snapped}
+            startRecording={startRecording}
+            stopRecording={stopRecording}
+            toggleRecording={toggleRecording}
+            restartRecording={restartRecording}
+            pauseRecording={pauseRecording}
+            resumeRecording={resumeRecording}
+            sharedState={recordState}
           />
         </AnimatedThemedView>
       </GestureDetector>

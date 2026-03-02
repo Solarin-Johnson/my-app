@@ -137,10 +137,11 @@ export const UntitledCardLarge = ({
           currentIndex={currentIndex}
           itemStyles={{
             backgroundColor: "#88888818",
-            paddingVertical: 12,
+            height: 44,
             borderRadius: 12,
             borderCurve: "continuous",
             alignItems: "center",
+            justifyContent: "center",
           }}
           initialIndex={initialIndex}
           gap={8}

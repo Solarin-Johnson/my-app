@@ -15,7 +15,7 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import FancyStrokeButton from "../ui/fancy-stroke-button";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { scheduleOnRN } from "react-native-worklets";
 import { Feedback } from "@/functions";
 import { SPRING_CONFIG } from "@/constants";
@@ -25,6 +25,18 @@ import { ButtonCluster, ButtonIcon, ButtonItem } from ".";
 import { RefreshCcw, Trash, Trash2 } from "lucide-react-native";
 import { ThemedViewWrapper } from "../ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { RecordingState } from "../recorder/types";
+import { opacity } from "react-native-redash";
+
+type RecordingCallbacks = {
+  startRecording?: () => Promise<void>;
+  stopRecording?: () => Promise<void>;
+  toggleRecording?: () => void;
+  restartRecording: () => Promise<void>;
+  pauseRecording?: () => void;
+  resumeRecording?: () => void;
+  sharedState?: SharedValue<RecordingState>;
+};
 
 interface RecordProps {
   //   dragProgress: SharedValue<number>;
@@ -39,6 +51,8 @@ interface RecordProps {
 const hapticsFeedback = () => {
   Feedback.selection();
 };
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const BTN_HEIGHT = 38;
 const PULSE_SPRING_CONFIG = {
@@ -57,7 +71,9 @@ export default function RecordPage({
   isDragging,
   snapped,
   ref: recordRef,
-}: RecordProps) {
+  ...props
+}: RecordProps & RecordingCallbacks) {
+  const { sharedState, resumeRecording } = props;
   const { top } = useSafeAreaInsets();
   const islandHeight = top - 12;
 
@@ -120,14 +136,6 @@ export default function RecordPage({
     };
   });
 
-  const startRecording = () => {
-    recordRef.current?.start();
-  };
-
-  const stopRecording = () => {
-    recordRef.current?.stop();
-  };
-
   useAnimatedReaction(
     () => strokeProgress.value,
     (value, prev) => {
@@ -137,20 +145,17 @@ export default function RecordPage({
     },
   );
 
-  useAnimatedReaction(
-    () => snapped.get(),
-    (snappedValue, prev) => {
-      if (snappedValue && !prev) {
-        scheduleOnRN(startRecording);
-      } else if (!snappedValue && prev) {
-        scheduleOnRN(stopRecording);
-      }
-    },
-  );
-
   const contentAnimatedStyle = useAnimatedStyle(() => {
     return {
       opacity: withSpring(snapped.get() ? 1 : 0),
+    };
+  });
+
+  const overlayAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: withSpring(
+        sharedState?.value === RecordingState.Recording ? 0 : 0.6,
+      ),
     };
   });
 
@@ -165,7 +170,7 @@ export default function RecordPage({
           style={[
             styles.content,
             {
-              maxHeight: maxTranslateY,
+              maxHeight: maxTranslateY + topSpace,
             },
           ]}
         >
@@ -175,7 +180,13 @@ export default function RecordPage({
               untitled project
             </ThemedText>
           </View>
-          <Record ref={recordRef} />
+          <Record ref={recordRef} sharedState={sharedState} />
+          <ThemedViewWrapper colorName="untitledFg">
+            <AnimatedPressable
+              style={[StyleSheet.absoluteFill, overlayAnimatedStyle]}
+              onPress={resumeRecording}
+            />
+          </ThemedViewWrapper>
         </SafeAreaView>
       </Animated.View>
       <Animated.View
@@ -189,21 +200,40 @@ export default function RecordPage({
           <FancyStrokeButton progress={strokeProgress} />
         </Animated.View>
         <Animated.View style={[styles.action, actionAnimatedStyle]}>
-          <BottomAction />
+          <BottomAction {...props} />
         </Animated.View>
       </Animated.View>
     </View>
   );
 }
 
-const BottomAction = () => {
+const BottomAction = ({
+  stopRecording,
+  restartRecording,
+  pauseRecording,
+  sharedState,
+}: RecordingCallbacks) => {
   const initialIndex = 0;
   const currentIndex = useSharedValue(0);
   const appleRed = useThemeColor("appleRed");
+  const bg = useThemeColor("untitledBg");
 
   const redStyle = {
     backgroundColor: appleRed,
   };
+
+  const bgStyle = {
+    backgroundColor: bg,
+  };
+
+  useAnimatedReaction(
+    () => sharedState?.value,
+    (value) => {
+      if (value === RecordingState.Recording) {
+        currentIndex.set(initialIndex);
+      }
+    },
+  );
 
   return (
     <View style={styles.footer}>
@@ -229,15 +259,18 @@ const BottomAction = () => {
               />
             }
             expandedStyle={redStyle}
+            onPress={stopRecording}
+            handleConfirmation={pauseRecording}
           >
             <ButtonCluster
               text="Cancel"
-              icon={<ButtonIcon icon={Trash2} size={19} />}
+              colorName="appleRed"
+              icon={<ButtonIcon icon={Trash2} size={19} colorName="appleRed" />}
               type="semiBold"
             />
           </ButtonItem>
           <ThemedViewWrapper colorName="untitledBg">
-            <ButtonItem disableExpand>
+            <ButtonItem disableExpand onPress={stopRecording}>
               <ButtonCluster text="Save" type="semiBold" />
             </ButtonItem>
           </ThemedViewWrapper>
@@ -250,12 +283,15 @@ const BottomAction = () => {
                 type="semiBold"
               />
             }
-            expandedStyle={redStyle}
+            expandedStyle={bgStyle}
+            handleConfirmation={pauseRecording}
+            onPress={restartRecording}
           >
             <ButtonCluster
               text="Retry"
               icon={<ButtonIcon icon={RefreshCcw} size={19} />}
               type="semiBold"
+              ellipsizeMode="clip"
             />
           </ButtonItem>
         </StackedButton.Container>

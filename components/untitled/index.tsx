@@ -24,7 +24,12 @@ export const ButtonCluster = ({
   return (
     <View style={styles.btnCluster}>
       {icon}
-      <ThemedText style={[styles.btnText, style]} {...textProps}>
+      <ThemedText
+        style={[styles.btnText, style]}
+        numberOfLines={1}
+        ellipsizeMode="clip"
+        {...textProps}
+      >
         {text}
       </ThemedText>
     </View>

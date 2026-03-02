@@ -320,6 +320,8 @@ const RecordingVisualization: React.FC<RecordingVisualizationProps> = ({
     },
   ]);
 
+  console.log(state);
+
   return (
     <>
       <View style={styles.container}>
