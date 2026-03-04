@@ -3,11 +3,10 @@ import {
   PressableProps,
   GestureResponderEvent,
   StyleSheet,
-  View,
   StyleProp,
   ViewStyle,
 } from "react-native";
-import React, { useEffect, useLayoutEffect } from "react";
+import React, { useCallback, useLayoutEffect } from "react";
 import { useStackedButton } from "./provider";
 import Animated, {
   measure,
@@ -29,6 +28,7 @@ type ItemProps = {
   expandedElement?: React.JSX.Element;
   childStyle?: StyleProp<ViewStyle>;
   expandedStyle?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle>;
 } & PressableProps;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -69,6 +69,7 @@ export default function Item({
   } = useStackedButton();
 
   const animatedRef = useAnimatedRef();
+  const expandedAnimatedRef = useAnimatedRef();
 
   const childWidth = useSharedValue(0);
   const expandedWidth = useSharedValue(0);
@@ -85,6 +86,8 @@ export default function Item({
     const gapTotal = gap * (itemCount.value - 1);
     return (containerWidth.value - gapTotal) / Math.max(itemCount.value, 1);
   });
+
+  const combinedStyles = [styles.item, itemProps.style, itemStyles];
 
   const handlePress = (e: GestureResponderEvent) => {
     const isInit = index === initialIndex;
@@ -128,7 +131,8 @@ export default function Item({
       ? -(index - 1) * width - itemGap
       : !exp
         ? 0
-        : (index + (current > index ? -1 : 1) - itemCount.value) * width;
+        : (itemCount.get() - 1 + (current > index ? -1 : 1) - itemCount.value) *
+          width;
 
     return {
       opacity: applySpring(active ? 1 : 0),
@@ -145,18 +149,18 @@ export default function Item({
     return !isActive.get();
   });
 
-  const createAnimatedStyle = (isVisible: SharedValue<boolean>) => {
-    if (!expandedElement) return {};
-
+  const useCreateAnimatedStyle = (isVisible: SharedValue<boolean>) => {
     return useAnimatedStyle(() => {
+      if (!expandedElement) return {};
+
       return {
         opacity: applySpring(isVisible.value ? 1 : 0),
       };
     });
   };
 
-  const expandedAnimatedStyle = createAnimatedStyle(isActive);
-  const mainAnimatedStyle = createAnimatedStyle(notActive);
+  const expandedAnimatedStyle = useCreateAnimatedStyle(isActive);
+  const mainAnimatedStyle = useCreateAnimatedStyle(notActive);
 
   const innerAnimatedStyle = useAnimatedStyle(() => {
     if (!expandedElement) return {};
@@ -199,7 +203,7 @@ export default function Item({
   //   );
   // });
 
-  const measureMain = () => {
+  const measureMain = useCallback(() => {
     scheduleOnUI(() => {
       if (animatedRef.current === null) return;
       const measurement = measure(animatedRef);
@@ -208,31 +212,27 @@ export default function Item({
       }
       childWidth.set(measurement.width);
     });
-  };
+  }, [animatedRef, childWidth]);
+
+  const measureExpanded = useCallback(() => {
+    if (!expandedAnimatedRef.current) return;
+    scheduleOnUI(() => {
+      if (expandedAnimatedRef.current === null) return;
+      const measurement = measure(expandedAnimatedRef);
+      if (measurement === null) {
+        return;
+      }
+      expandedWidth.set(measurement.width);
+    });
+  }, [expandedAnimatedRef, expandedWidth]);
 
   useLayoutEffect(() => {
     measureMain();
-  }, []);
+    measureExpanded();
+  }, [measureMain, measureExpanded]);
 
   const ExpandedChild = () => {
-    const expandedAnimatedRef = useAnimatedRef();
-
     if (!expandedElement) return null;
-
-    const measureExpanded = () => {
-      scheduleOnUI(() => {
-        if (expandedAnimatedRef.current === null) return;
-        const measurement = measure(expandedAnimatedRef);
-        if (measurement === null) {
-          return;
-        }
-        expandedWidth.set(measurement.width);
-      });
-    };
-
-    useLayoutEffect(() => {
-      measureExpanded();
-    }, []);
 
     return (
       <Animated.View
@@ -253,8 +253,6 @@ export default function Item({
       </Animated.View>
     );
   };
-
-  const combinedStyles = [styles.item, itemProps.style, itemStyles, style];
 
   if (asChild) {
     const childElement = children as React.ReactElement<any>;

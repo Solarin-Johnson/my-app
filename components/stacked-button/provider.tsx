@@ -11,7 +11,9 @@ import {
 type SharedVal = {
   currentIndex: SharedValue<number>;
   itemStyles: StyleProp<ViewStyle>;
-  itemProps: PressableProps;
+  itemProps: Omit<PressableProps, "style"> & {
+    style?: StyleProp<ViewStyle>;
+  };
   containerWidth: SharedValue<number>;
   itemCount: SharedValue<number>;
   gap: number;
