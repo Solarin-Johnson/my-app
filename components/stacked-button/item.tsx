@@ -87,7 +87,7 @@ export default function Item({
     return (containerWidth.value - gapTotal) / Math.max(itemCount.value, 1);
   });
 
-  const combinedStyles = [styles.item, itemProps.style, itemStyles];
+  const combinedStyles = [style, styles.item, itemProps.style, itemStyles];
 
   const handlePress = (e: GestureResponderEvent) => {
     const isInit = index === initialIndex;

@@ -23,7 +23,12 @@ import Animated, {
   withDecay,
   withSpring,
 } from "react-native-reanimated";
-import { StyleSheet, useWindowDimensions, View } from "react-native";
+import {
+  StyleSheet,
+  useColorScheme,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import UntitledHeader from "@/components/untitled/header";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -36,6 +41,7 @@ const AnimatedThemedView = Animated.createAnimatedComponent(ThemedView);
 
 const ScrollView = Transition.createTransitionAwareComponent(
   Animated.ScrollView,
+  { isScrollable: true },
 );
 
 const THRESHOLD = 200;
@@ -49,6 +55,7 @@ export default function Index() {
   const screenAnimation = useScreenAnimation();
   const recordRef = useRef<RecordHandle>(null!);
   const recordState = useSharedValue(RecordingState.Idle);
+  const scheme = useColorScheme();
 
   const snapped = useSharedValue(false);
   const scrollY = useSharedValue(0);
@@ -61,12 +68,18 @@ export default function Index() {
   // const activeOffsetX = useSharedValue(0);
   const activeOffsetY = useSharedValue(0);
 
-  const activeOffsetX = useDerivedValue(() => {
-    return translateY.get() <= THRESHOLD ? Number.MAX_VALUE : -5;
+  const activeOffsetX = useDerivedValue<number>(() => {
+    return translateY.get() <= THRESHOLD ? Number.MAX_VALUE : -Number.MAX_VALUE;
   });
 
   useDerivedValue(() => {
-    activeOffsetY.set(scrollY.get() > 0 ? Number.MAX_VALUE : -5);
+    console.log(
+      "activeOffsetY",
+      activeOffsetY.get(),
+      "activeOffsetX",
+      activeOffsetX.get(),
+    );
+    activeOffsetY.set(scrollY.get() > 0 ? Number.MAX_VALUE : Number.MAX_VALUE);
   });
 
   const isTransitioning = useDerivedValue(() => {
@@ -136,7 +149,6 @@ export default function Index() {
     activeOffsetX: [-5, Number.MAX_VALUE],
     block: nativeGesture,
     // requireToFail: nativeGesture,
-    enabled: scrolledToTop,
   });
 
   const panGesture = usePanGesture({
@@ -196,7 +208,7 @@ export default function Index() {
     activeOffsetY: activeOffsetY,
     activeOffsetX: activeOffsetX,
     simultaneousWith: innerPanGesture,
-    // enabled: scrolledToTop,
+    enabled: scrolledToTop,
   });
 
   const underPanGesture = usePanGesture({});
@@ -367,7 +379,7 @@ const styles = StyleSheet.create({
   },
   bgStyle: {
     ...StyleSheet.absoluteFill,
-    boxShadow: "0px -30px 50px #00000010",
+    boxShadow: "0px -20px 50px #00000010",
   },
   bar: {
     position: "absolute",

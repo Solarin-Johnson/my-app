@@ -292,7 +292,8 @@ const BottomAction = ({
               <ButtonCluster
                 type="semiBold"
                 text="Cancel Recording"
-                icon={<ButtonIcon icon={Trash2} size={19} />}
+                icon={<ButtonIcon icon={Trash2} size={19} colorName="white" />}
+                colorName="white"
               />
             }
             expandedStyle={redStyle}
@@ -307,7 +308,11 @@ const BottomAction = ({
             />
           </ButtonItem>
           <ThemedViewWrapper colorName="untitledBg">
-            <ButtonItem disableExpand onPress={stopRecording}>
+            <ButtonItem
+              disableExpand
+              onPress={stopRecording}
+              style={{ backgroundColor: "red" }}
+            >
               <ButtonCluster text="Save" type="semiBold" />
             </ButtonItem>
           </ThemedViewWrapper>
