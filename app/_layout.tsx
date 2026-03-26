@@ -106,6 +106,12 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="wheel-input"
+        options={{
+          drawerLabel: "Wheel Input",
+        }}
+      />
+      <Drawer.Screen
         name="untitled"
         options={{
           drawerLabel: "[untitled]",
