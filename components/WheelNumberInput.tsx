@@ -1,4 +1,10 @@
-import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import {
+  StyleProp,
+  StyleSheet,
+  TextStyle,
+  View,
+  ViewStyle,
+} from "react-native";
 import React, { useState } from "react";
 import Animated, {
   SharedValue,
@@ -10,12 +16,13 @@ import Animated, {
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { ThemedTextWrapper } from "./ThemedText";
 
 type TextProp = {
   digitHeight?: number;
-  textStyle?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
   editing: SharedValue<boolean>;
-  itemWidth: number;
+  size: number;
 };
 
 type WheelInputProps = {
@@ -68,7 +75,8 @@ export default function WheelNumberInput({
   showCurrencySymbol,
   editing,
   initEditing = false,
-  itemWidth = 24,
+  size = 20,
+  digitHeight = DIGIT_HEIGHT,
   ...props
 }: WheelInputProps) {
   const [splittedValue, setSplittedValue] = useState<string[]>([]);
@@ -121,11 +129,13 @@ export default function WheelNumberInput({
 
   const colProps = {
     editing: isEditing,
-    itemWidth,
+    size,
+    digitHeight,
+    ...props,
   };
 
   return (
-    <Animated.View style={[{ width: "100%" }, style, styles.container]}>
+    <Animated.View style={[style, { height: digitHeight }, styles.container]}>
       {STRUCTURE.map((type, idx) => {
         const integerIndex =
           INTEGER_COLUMNS.indexOf(idx) !== -1
@@ -148,11 +158,18 @@ export default function WheelNumberInput({
             <ItemColumn type="dot" key={idx} value={value} {...colProps} />
           );
 
-        // return (
-
-        // );
+        return (
+          <ItemColumn
+            type="digit"
+            key={idx}
+            value={value}
+            {...colProps}
+            isDecimal={isDecimal}
+            index={isDecimal ? decimalIndex! : integerIndex!}
+          />
+        );
       })}
-      <GradientY />
+      {/* <GradientY /> */}
     </Animated.View>
   );
 }
@@ -174,11 +191,32 @@ const GradientY = () => {
 type ColumnProps = {
   type: "digit" | "comma" | "dot" | "minus";
   value: SharedValue<number>;
+  isDecimal?: boolean;
+  index?: number;
 } & TextProp;
 
-const ItemColumn = ({ type, value, ...props }: ColumnProps) => {
+const ItemColumn = ({
+  type,
+  value,
+  isDecimal,
+  index,
+  ...props
+}: ColumnProps) => {
   if (type === "comma") {
     return <Comma value={value} {...props} />;
+  }
+  if (type === "dot") {
+    return <Dot value={value} {...props} />;
+  }
+  if (type === "digit") {
+    return (
+      <DigitColumn
+        value={value}
+        {...props}
+        isDecimal={isDecimal}
+        index={index || 0}
+      />
+    );
   }
 
   return null;
@@ -187,7 +225,8 @@ const ItemColumn = ({ type, value, ...props }: ColumnProps) => {
 const Comma = ({
   value,
   editing,
-  itemWidth,
+  size,
+  textStyle,
 }: { value: SharedValue<number> } & TextProp) => {
   const isVisible = useDerivedValue(() => {
     const abs = Math.abs(value.value);
@@ -200,14 +239,25 @@ const Comma = ({
     const opacity = isVisible.value ? 1 : editing.value ? 0.5 : 0;
     return {
       opacity: applySpring(opacity),
-      width: applySpring(hidden ? 0 : itemWidth),
+      width: applySpring(hidden ? 0 : size / 3),
     };
   });
 
-  return <Animated.Text style={[styles.text, animatedStyle]}>,</Animated.Text>;
+  return (
+    <Animated.Text
+      style={[styles.text, textStyle, { fontSize: size }, animatedStyle]}
+    >
+      ,
+    </Animated.Text>
+  );
 };
 
-const Dot = ({ value, editing }: { value: SharedValue<number> } & TextProp) => {
+const Dot = ({
+  value,
+  editing,
+  size,
+  textStyle,
+}: { value: SharedValue<number> } & TextProp) => {
   const isVisible = useDerivedValue(() => {
     const abs = Math.abs(value.value);
     const decimalPart = abs - Math.floor(abs);
@@ -215,13 +265,89 @@ const Dot = ({ value, editing }: { value: SharedValue<number> } & TextProp) => {
   });
 
   const animatedStyle = useAnimatedStyle(() => {
-    const opacity = isVisible.value ? 1 : editing?.value ? 0.5 : 0;
+    const hidden = !isVisible.value && !editing.value;
+    const opacity = isVisible.value ? 1 : editing.value ? 0.5 : 0;
     return {
       opacity: applySpring(opacity),
+      width: applySpring(hidden ? 0 : size / 4),
     };
   });
 
-  return <Animated.Text style={[styles.text, animatedStyle]}>,</Animated.Text>;
+  return (
+    <ThemedTextWrapper>
+      <Animated.Text
+        style={[styles.text, textStyle, { fontSize: size }, animatedStyle]}
+      >
+        .
+      </Animated.Text>
+    </ThemedTextWrapper>
+  );
+};
+
+const DigitColumn = ({
+  value,
+  editing,
+  size,
+  isDecimal,
+  index,
+  textStyle,
+  digitHeight = DIGIT_HEIGHT,
+}: {
+  value: SharedValue<number>;
+  isDecimal?: boolean;
+  index: number;
+} & TextProp) => {
+  const isVisible = useDerivedValue(() => {
+    if (isDecimal) return true;
+
+    const abs = Math.abs(value.value);
+    const digitValue = Math.floor(abs / Math.pow(10, index));
+
+    return digitValue > 0 || index === 0;
+  });
+  const animatedStyle = useAnimatedStyle(() => {
+    const hidden = !isVisible.value && !editing.value;
+    const opacity = isVisible.value ? 1 : editing.value ? 0.5 : 0;
+    return {
+      opacity: applySpring(opacity),
+      width: applySpring(hidden ? 0 : size * 0.7),
+      transform: [{ scale: applySpring(hidden ? 0 : 1) }],
+    };
+  });
+  return (
+    <Animated.View style={[animatedStyle]}>
+      <Animated.ScrollView
+        style={[styles.column, { height: digitHeight }]}
+        showsVerticalScrollIndicator={false}
+        snapToOffsets={NUMBERS.map((_, i) => i * digitHeight)}
+      >
+        {NUMBERS.slice()
+          .reverse()
+          .map((num) => (
+            <View
+              key={num}
+              style={{
+                height: digitHeight,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <ThemedTextWrapper key={num}>
+                <Animated.Text
+                  style={[
+                    styles.text,
+                    textStyle,
+                    { textAlign: "center", fontSize: size },
+                  ]}
+                >
+                  {num}
+                </Animated.Text>
+              </ThemedTextWrapper>
+            </View>
+          ))}
+      </Animated.ScrollView>
+    </Animated.View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -235,5 +361,6 @@ const styles = StyleSheet.create({
   },
   text: {
     fontVariant: ["tabular-nums"],
+    fontSize: 32,
   },
 });
