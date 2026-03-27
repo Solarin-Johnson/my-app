@@ -5,7 +5,7 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Animated, {
   scrollTo,
   SharedValue,
@@ -83,7 +83,6 @@ export default function WheelNumberInput({
   initEditing = false,
   size = 20,
   digitHeight = DIGIT_HEIGHT,
-  reverse = true,
   ...props
 }: WheelInputProps) {
   const [splittedValue, setSplittedValue] = useState<string[]>([]);
@@ -103,17 +102,23 @@ export default function WheelNumberInput({
     return fixedValue;
   };
 
-  useDerivedValue(() => {
-    if (value.value !== v.value) {
-      value.value = Math.abs(v.value);
-    }
-  });
+  useAnimatedReaction(
+    () => v.value,
+    (val, prev) => {
+      if (value.value !== val && !prev) {
+        value.value = Math.abs(val);
+      }
+    },
+  );
 
   useAnimatedReaction(
     () => value.value,
-    (v, prev) => {
-      if (v === prev) return;
-      const char = formatValue(v).split("");
+    (val, prev) => {
+      v.value = isNegative.value ? -val : val;
+      console.log("Value changed:", val);
+
+      if (val === prev) return;
+      const char = formatValue(val).split("");
 
       if (char !== splittedValue) {
         scheduleOnRN(setSplittedValue, char);
@@ -138,7 +143,6 @@ export default function WheelNumberInput({
     editing: isEditing,
     size,
     digitHeight,
-    reverse,
     ...props,
   };
 
@@ -203,28 +207,15 @@ type ColumnProps = {
   index?: number;
 } & TextProp;
 
-const ItemColumn = ({
-  type,
-  value,
-  isDecimal,
-  index,
-  ...props
-}: ColumnProps) => {
+const ItemColumn = ({ type, isDecimal, index, ...props }: ColumnProps) => {
   if (type === "comma") {
-    return <Comma value={value} {...props} />;
+    return <Comma {...props} />;
   }
   if (type === "dot") {
-    return <Dot value={value} {...props} />;
+    return <Dot {...props} />;
   }
   if (type === "digit") {
-    return (
-      <DigitColumn
-        value={value}
-        {...props}
-        isDecimal={isDecimal}
-        index={index || 0}
-      />
-    );
+    return <DigitColumn {...props} isDecimal={isDecimal} index={index || 0} />;
   }
 
   return null;
@@ -309,15 +300,29 @@ const DigitColumn = ({
   index: number;
 } & TextProp) => {
   const scrollRef = useAnimatedRef();
+  const newValue = useSharedValue(0);
+  const isScrolling = useSharedValue(false);
+  const initDigit = useSharedValue(0);
 
   const currentDigit = useDerivedValue(() => {
+    const v =
+      newValue.value !== 0 && !isScrolling.value ? newValue.value : value.value;
     const EPS = 1e-8;
     const digit = isDecimal
-      ? Math.floor((value.value + EPS) * Math.pow(10, index + 1)) % 10
-      : Math.floor((value.value + EPS) / Math.pow(10, index)) % 10;
+      ? Math.floor((v + EPS) * Math.pow(10, index + 1)) % 10
+      : Math.floor((v + EPS) / Math.pow(10, index)) % 10;
 
     return digit;
   });
+
+  useAnimatedReaction(
+    () => currentDigit.value,
+    (digit, prev) => {
+      if (!prev) {
+        initDigit.value = digit;
+      }
+    },
+  );
 
   const isVisible = useDerivedValue(() => {
     if (isDecimal) return true;
@@ -331,7 +336,6 @@ const DigitColumn = ({
   const animatedStyle = useAnimatedStyle(() => {
     const hidden = !isVisible.value && !editing.value;
     const opacity = isVisible.value ? 1 : editing.value ? 0.5 : 0;
-    console.log(currentDigit.value);
 
     return {
       opacity: applySpring(opacity),
@@ -342,21 +346,37 @@ const DigitColumn = ({
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
-      // const offsetY = event.contentOffset.y;
-      // const rawIndex = Math.floor(offsetY / size + 0.5) % 10;
-      // const digit = reverse ? 9 - rawIndex : rawIndex;
-      // const abs = Math.abs(value.value);
-      // const base =
-      //   abs -
-      //   (Math.floor(abs / Math.pow(10, index)) % 10) * Math.pow(10, index);
-      // const newAbs = base + digit * Math.pow(10, index);
-      // value.value = value.value < 0 ? -newAbs : newAbs;
-      // console.log(value.value);
+      isScrolling.value = true;
+      const offsetY = event.contentOffset.y;
+      const newDigit = Math.round(offsetY / size);
+      const clampedDigit = Math.max(0, Math.min(9, newDigit));
+
+      if (clampedDigit !== currentDigit.value) {
+        const currentValue = value.value;
+        const digitContribution = isDecimal
+          ? clampedDigit / Math.pow(10, index + 1)
+          : clampedDigit * Math.pow(10, index);
+
+        const oldDigitContribution = isDecimal
+          ? currentDigit.value / Math.pow(10, index + 1)
+          : currentDigit.value * Math.pow(10, index);
+
+        newValue.value =
+          currentValue - oldDigitContribution + digitContribution;
+      }
+    },
+    onMomentumEnd: () => {
+      value.value = newValue.value;
+      isScrolling.value = false;
+    },
+    onEndDrag: () => {
+      value.value = newValue.value;
+      isScrolling.value = false;
     },
   });
 
   const scrollAnimatedProps = useAnimatedProps(() => {
-    const scrollY = currentDigit.value * size;
+    const scrollY = initDigit.value * size;
     return {
       contentOffset: { x: 0, y: scrollY },
     };
@@ -385,7 +405,7 @@ const DigitColumn = ({
               alignItems: "center",
             }}
           >
-            <ThemedTextWrapper key={num}>
+            <ThemedTextWrapper>
               <Animated.Text
                 style={[
                   styles.text,
