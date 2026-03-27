@@ -10,14 +10,20 @@ export default function WheelInput() {
   const editing = useSharedValue(false);
   return (
     <SafeAreaView
-      style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 32,
+      }}
     >
       <WheelNumberInput
         value={value}
         editing={editing}
-        digitHeight={60}
-        size={54}
+        digitHeight={32}
+        size={72}
         maxIntegerDigits={4}
+        // reverse={false}
       />
       <Pressable onPress={() => (editing.value = !editing.value)}>
         <ThemedText>EDIT</ThemedText>

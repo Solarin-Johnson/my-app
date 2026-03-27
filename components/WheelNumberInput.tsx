@@ -5,16 +5,20 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Animated, {
+  scrollTo,
   SharedValue,
+  useAnimatedProps,
   useAnimatedReaction,
+  useAnimatedRef,
+  useAnimatedScrollHandler,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { scheduleOnRN } from "react-native-worklets";
+import { runOnUI, scheduleOnRN, scheduleOnUI } from "react-native-worklets";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedTextWrapper } from "./ThemedText";
 
@@ -23,6 +27,7 @@ type TextProp = {
   textStyle?: StyleProp<TextStyle>;
   editing: SharedValue<boolean>;
   size: number;
+  reverse?: boolean;
 };
 
 type WheelInputProps = {
@@ -36,6 +41,7 @@ type WheelInputProps = {
 
 const NUMBERS = Array.from({ length: 10 }, (_, i) => i);
 const DIGIT_HEIGHT = 42;
+const DIGIT_WIDTH_FACTOR = 0.65;
 
 const SPRING_CONFIG = {
   damping: 24,
@@ -77,6 +83,7 @@ export default function WheelNumberInput({
   initEditing = false,
   size = 20,
   digitHeight = DIGIT_HEIGHT,
+  reverse = true,
   ...props
 }: WheelInputProps) {
   const [splittedValue, setSplittedValue] = useState<string[]>([]);
@@ -131,11 +138,12 @@ export default function WheelNumberInput({
     editing: isEditing,
     size,
     digitHeight,
+    reverse,
     ...props,
   };
 
   return (
-    <Animated.View style={[style, { height: digitHeight }, styles.container]}>
+    <Animated.View style={[style, { height: size }, styles.container]}>
       {STRUCTURE.map((type, idx) => {
         const integerIndex =
           INTEGER_COLUMNS.indexOf(idx) !== -1
@@ -239,16 +247,18 @@ const Comma = ({
     const opacity = isVisible.value ? 1 : editing.value ? 0.5 : 0;
     return {
       opacity: applySpring(opacity),
-      width: applySpring(hidden ? 0 : size / 3),
+      width: applySpring(hidden ? 0 : size / 5),
     };
   });
 
   return (
-    <Animated.Text
-      style={[styles.text, textStyle, { fontSize: size }, animatedStyle]}
-    >
-      ,
-    </Animated.Text>
+    <ThemedTextWrapper>
+      <Animated.Text
+        style={[styles.text, textStyle, { fontSize: size }, animatedStyle]}
+      >
+        ,
+      </Animated.Text>
+    </ThemedTextWrapper>
   );
 };
 
@@ -291,12 +301,24 @@ const DigitColumn = ({
   isDecimal,
   index,
   textStyle,
+  reverse,
   digitHeight = DIGIT_HEIGHT,
 }: {
   value: SharedValue<number>;
   isDecimal?: boolean;
   index: number;
 } & TextProp) => {
+  const scrollRef = useAnimatedRef();
+
+  const currentDigit = useDerivedValue(() => {
+    const EPS = 1e-8;
+    const digit = isDecimal
+      ? Math.floor((value.value + EPS) * Math.pow(10, index + 1)) % 10
+      : Math.floor((value.value + EPS) / Math.pow(10, index)) % 10;
+
+    return digit;
+  });
+
   const isVisible = useDerivedValue(() => {
     if (isDecimal) return true;
 
@@ -305,46 +327,77 @@ const DigitColumn = ({
 
     return digitValue > 0 || index === 0;
   });
+
   const animatedStyle = useAnimatedStyle(() => {
     const hidden = !isVisible.value && !editing.value;
     const opacity = isVisible.value ? 1 : editing.value ? 0.5 : 0;
+    console.log(currentDigit.value);
+
     return {
       opacity: applySpring(opacity),
-      width: applySpring(hidden ? 0 : size * 0.7),
+      width: applySpring(hidden ? 0 : size * DIGIT_WIDTH_FACTOR),
       transform: [{ scale: applySpring(hidden ? 0 : 1) }],
     };
   });
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      // const offsetY = event.contentOffset.y;
+      // const rawIndex = Math.floor(offsetY / size + 0.5) % 10;
+      // const digit = reverse ? 9 - rawIndex : rawIndex;
+      // const abs = Math.abs(value.value);
+      // const base =
+      //   abs -
+      //   (Math.floor(abs / Math.pow(10, index)) % 10) * Math.pow(10, index);
+      // const newAbs = base + digit * Math.pow(10, index);
+      // value.value = value.value < 0 ? -newAbs : newAbs;
+      // console.log(value.value);
+    },
+  });
+
+  const scrollAnimatedProps = useAnimatedProps(() => {
+    const scrollY = currentDigit.value * size;
+    return {
+      contentOffset: { x: 0, y: scrollY },
+    };
+  });
+
   return (
     <Animated.View style={[animatedStyle]}>
       <Animated.ScrollView
-        style={[styles.column, { height: digitHeight }]}
+        style={[
+          styles.column,
+          { maxWidth: size * DIGIT_WIDTH_FACTOR, height: size },
+        ]}
         showsVerticalScrollIndicator={false}
-        snapToOffsets={NUMBERS.map((_, i) => i * digitHeight)}
+        snapToOffsets={NUMBERS.map((_, i) => i * size)}
+        decelerationRate={"fast"}
+        onScroll={scrollHandler}
+        ref={scrollRef}
+        animatedProps={scrollAnimatedProps}
       >
-        {NUMBERS.slice()
-          .reverse()
-          .map((num) => (
-            <View
-              key={num}
-              style={{
-                height: digitHeight,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <ThemedTextWrapper key={num}>
-                <Animated.Text
-                  style={[
-                    styles.text,
-                    textStyle,
-                    { textAlign: "center", fontSize: size },
-                  ]}
-                >
-                  {num}
-                </Animated.Text>
-              </ThemedTextWrapper>
-            </View>
-          ))}
+        {NUMBERS.map((num) => (
+          <View
+            key={num}
+            style={{
+              height: size,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <ThemedTextWrapper key={num}>
+              <Animated.Text
+                style={[
+                  styles.text,
+                  textStyle,
+                  { textAlign: "center", fontSize: size },
+                ]}
+              >
+                {num}
+              </Animated.Text>
+            </ThemedTextWrapper>
+          </View>
+        ))}
       </Animated.ScrollView>
     </Animated.View>
   );
