@@ -42,6 +42,7 @@ type WheelInputProps = {
 const NUMBERS = Array.from({ length: 10 }, (_, i) => i);
 const DIGIT_HEIGHT = 42;
 const DIGIT_WIDTH_FACTOR = 0.65;
+const DIGIT_HEIGHT_FACTOR = 1.25;
 
 const SPRING_CONFIG = {
   damping: 24,
@@ -147,7 +148,9 @@ export default function WheelNumberInput({
   };
 
   return (
-    <Animated.View style={[style, { height: size }, styles.container]}>
+    <Animated.View
+      style={[style, { height: size * DIGIT_HEIGHT_FACTOR }, styles.container]}
+    >
       {STRUCTURE.map((type, idx) => {
         const integerIndex =
           INTEGER_COLUMNS.indexOf(idx) !== -1
@@ -181,7 +184,7 @@ export default function WheelNumberInput({
           />
         );
       })}
-      {/* <GradientY /> */}
+      <GradientY />
     </Animated.View>
   );
 }
@@ -190,10 +193,11 @@ const GradientY = () => {
   const bg = useThemeColor("background");
   return (
     <View
+      pointerEvents="none"
       style={[
         styles.gradient,
         {
-          experimental_backgroundImage: `linear-gradient(180deg, ${bg} 0%, ${bg} 25%, ${bg} 75%, ${bg} 100%)`,
+          experimental_backgroundImage: `linear-gradient(to bottom, ${bg} 0%, ${bg}00 20%, ${bg}00 80%, ${bg} 100%)`,
         },
       ]}
     />
@@ -243,13 +247,21 @@ const Comma = ({
   });
 
   return (
-    <ThemedTextWrapper>
-      <Animated.Text
-        style={[styles.text, textStyle, { fontSize: size }, animatedStyle]}
-      >
-        ,
-      </Animated.Text>
-    </ThemedTextWrapper>
+    <Animated.View
+      style={[{ height: size * DIGIT_HEIGHT_FACTOR }, animatedStyle]}
+    >
+      <ThemedTextWrapper>
+        <Animated.Text
+          style={[
+            styles.text,
+            textStyle,
+            { fontSize: size, lineHeight: size * DIGIT_HEIGHT_FACTOR },
+          ]}
+        >
+          ,
+        </Animated.Text>
+      </ThemedTextWrapper>
+    </Animated.View>
   );
 };
 
@@ -260,13 +272,11 @@ const Dot = ({
   textStyle,
 }: { value: SharedValue<number> } & TextProp) => {
   const isVisible = useDerivedValue(() => {
-    const abs = Math.abs(value.value);
-    const decimalPart = abs - Math.floor(abs);
-    return decimalPart > 0;
+    return true;
   });
 
   const animatedStyle = useAnimatedStyle(() => {
-    const hidden = !isVisible.value && !editing.value;
+    const hidden = !isVisible.value;
     const opacity = isVisible.value ? 1 : editing.value ? 0.5 : 0;
     return {
       opacity: applySpring(opacity),
@@ -275,13 +285,21 @@ const Dot = ({
   });
 
   return (
-    <ThemedTextWrapper>
-      <Animated.Text
-        style={[styles.text, textStyle, { fontSize: size }, animatedStyle]}
-      >
-        .
-      </Animated.Text>
-    </ThemedTextWrapper>
+    <Animated.View
+      style={[{ height: size * DIGIT_HEIGHT_FACTOR }, animatedStyle]}
+    >
+      <ThemedTextWrapper>
+        <Animated.Text
+          style={[
+            styles.text,
+            textStyle,
+            { fontSize: size, lineHeight: size * DIGIT_HEIGHT_FACTOR },
+          ]}
+        >
+          .
+        </Animated.Text>
+      </ThemedTextWrapper>
+    </Animated.View>
   );
 };
 
@@ -304,13 +322,13 @@ const DigitColumn = ({
   const isScrolling = useSharedValue(false);
   const initDigit = useSharedValue(0);
 
+  const height = size * DIGIT_HEIGHT_FACTOR;
+
   const currentDigit = useDerivedValue(() => {
-    const v =
-      newValue.value !== 0 && !isScrolling.value ? newValue.value : value.value;
     const EPS = 1e-8;
     const digit = isDecimal
-      ? Math.floor((v + EPS) * Math.pow(10, index + 1)) % 10
-      : Math.floor((v + EPS) / Math.pow(10, index)) % 10;
+      ? Math.floor((value.value + EPS) * Math.pow(10, index + 1)) % 10
+      : Math.floor((value.value + EPS) / Math.pow(10, index)) % 10;
 
     return digit;
   });
@@ -320,6 +338,7 @@ const DigitColumn = ({
     (digit, prev) => {
       if (!prev) {
         initDigit.value = digit;
+        newValue.value = value.value;
       }
     },
   );
@@ -348,7 +367,7 @@ const DigitColumn = ({
     onScroll: (event) => {
       isScrolling.value = true;
       const offsetY = event.contentOffset.y;
-      const newDigit = Math.round(offsetY / size);
+      const newDigit = Math.round(offsetY / height);
       const clampedDigit = Math.max(0, Math.min(9, newDigit));
 
       if (clampedDigit !== currentDigit.value) {
@@ -366,43 +385,50 @@ const DigitColumn = ({
       }
     },
     onMomentumEnd: () => {
-      value.value = newValue.value;
+      // value.value = newValue.value;
       isScrolling.value = false;
     },
-    onEndDrag: () => {
-      value.value = newValue.value;
-      isScrolling.value = false;
-    },
+    // onEndDrag: () => {
+    //   value.value = newValue.value;
+    //   isScrolling.value = false;
+    // },
   });
 
   const scrollAnimatedProps = useAnimatedProps(() => {
-    const scrollY = initDigit.value * size;
+    const scrollY = initDigit.value * height;
     return {
       contentOffset: { x: 0, y: scrollY },
     };
   });
 
   return (
-    <Animated.View style={[animatedStyle]}>
+    <Animated.View style={[{ overflow: "visible" }, animatedStyle]}>
       <Animated.ScrollView
         style={[
           styles.column,
-          { maxWidth: size * DIGIT_WIDTH_FACTOR, height: size },
+          {
+            width: size * DIGIT_WIDTH_FACTOR,
+            height,
+          },
         ]}
         showsVerticalScrollIndicator={false}
-        snapToOffsets={NUMBERS.map((_, i) => i * size)}
+        snapToOffsets={NUMBERS.map((_, i) => i * height)}
         decelerationRate={"fast"}
         onScroll={scrollHandler}
         ref={scrollRef}
         animatedProps={scrollAnimatedProps}
+        onMomentumScrollEnd={() => {
+          value.value = newValue.value;
+        }}
       >
         {NUMBERS.map((num) => (
           <View
             key={num}
             style={{
-              height: size,
+              height,
               justifyContent: "center",
               alignItems: "center",
+              // backgroundColor: "red",
             }}
           >
             <ThemedTextWrapper>
@@ -410,7 +436,12 @@ const DigitColumn = ({
                 style={[
                   styles.text,
                   textStyle,
-                  { textAlign: "center", fontSize: size },
+                  {
+                    textAlign: "center",
+                    fontSize: size,
+                    height: size * DIGIT_HEIGHT_FACTOR,
+                    lineHeight: size * DIGIT_HEIGHT_FACTOR,
+                  },
                 ]}
               >
                 {num}
@@ -431,6 +462,8 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
   },
   text: {
     fontVariant: ["tabular-nums"],
