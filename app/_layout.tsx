@@ -106,6 +106,12 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="gesture-speed"
+        options={{
+          drawerLabel: "Gesture Speed",
+        }}
+      />
+      <Drawer.Screen
         name="wheel-input"
         options={{
           drawerLabel: "Wheel Input",
