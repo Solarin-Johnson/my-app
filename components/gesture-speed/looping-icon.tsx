@@ -66,8 +66,8 @@ export default function LoopingIcon({
     });
   };
 
-  const icon1animatedStyle = useCreateAnimatedStyle(true);
-  const icon2animatedStyle = useCreateAnimatedStyle();
+  const icon1animatedStyle = useCreateAnimatedStyle();
+  const icon2animatedStyle = useCreateAnimatedStyle(true);
 
   return (
     <View style={styles.container}>
