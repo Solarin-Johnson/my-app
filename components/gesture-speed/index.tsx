@@ -5,39 +5,75 @@ import LoopingIcon from "./looping-icon";
 import Animated, {
   Extrapolation,
   interpolate,
-  useAnimatedProps,
+  useAnimatedReaction,
+  useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { ThemedTextWrapper } from "../ThemedText";
-import Svg, { Line, Path } from "react-native-svg";
-import { describeArc } from "@/functions";
-import { Host, Text } from "@expo/ui/swift-ui";
+import { Feedback } from "@/functions";
 import { UIAnimatedText } from "../ui/ui-animated-text";
 import FancyStrokeButton from "../ui/fancy-stroke-button";
-
-const AnimatedText = Animated.createAnimatedComponent(Text);
+import { runOnJS } from "react-native-worklets";
 
 const THRESHOLD = 60;
 const LOCK_THRESHOLD = 100;
-const WIDTH = 100;
+const ACTIVATE_LOCK_THRESHOLD = 5;
+const WIDTH = 90;
+const TRANSLATE_Y_ENTRY = 15;
+
+const feedback = () => {
+  Feedback.light();
+};
+
+const feedbackSoft = () => {
+  Feedback.selection();
+};
 
 export default function GestureSpeed() {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
+  const isVisible = useSharedValue(false);
+  const locked = useSharedValue(false);
+  const dragging = useSharedValue(false);
+
+  const lockProgress = useDerivedValue(() => {
+    return interpolate(
+      translateY.value,
+      [0, LOCK_THRESHOLD],
+      [0, 1],
+      Extrapolation.CLAMP,
+    );
+  });
 
   const panGesture = usePanGesture({
+    onActivate: () => {
+      runOnJS(feedback)();
+      isVisible.value = true;
+      translateY.value = 0;
+      translateX.value = 0;
+      dragging.value = true;
+      locked.value = false;
+    },
     onUpdate: (e) => {
-      translateX.value = e.translationX;
-      translateY.value = e.translationY;
+      if (translateY.value < ACTIVATE_LOCK_THRESHOLD) {
+        translateX.value = e.translationX;
+      }
+      translateY.value = Math.max(0, e.translationY - TRANSLATE_Y_ENTRY);
       console.log(e.translationX);
     },
     onDeactivate: () => {
-      translateX.value = 0;
+      dragging.value = false;
       translateY.value = withSpring(0);
+      if (lockProgress.value !== 1) {
+        isVisible.value = false;
+        translateX.value = 0;
+      }
+      if (lockProgress.value === 1) {
+        locked.value = true;
+      }
     },
-    activateAfterLongPress: 200,
+    activateAfterLongPress: 300,
   });
 
   const speed = useDerivedValue(() => {
@@ -49,22 +85,42 @@ export default function GestureSpeed() {
     ).toFixed(1);
   });
 
-  const lockProgress = useDerivedValue(() => {
-    return interpolate(
-      translateY.value,
-      [0, LOCK_THRESHOLD],
-      [0, 1],
-      Extrapolation.CLAMP,
-    );
+  useAnimatedReaction(
+    () => lockProgress.value,
+    (progress) => {
+      if (progress === 1) {
+        runOnJS(feedback)();
+      } else if (progress === 0 && dragging.value) {
+        runOnJS(feedbackSoft)();
+      }
+    },
+  );
+
+  const buttonProgress = useDerivedValue(() => {
+    if (locked.value) {
+      return 1;
+    }
+    return lockProgress.value;
+  });
+
+  const indicatorAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: translateY.value,
+        },
+      ],
+      opacity: withSpring(isVisible.value ? 1 : 0),
+    };
   });
 
   return (
     <GestureDetector gesture={panGesture}>
       <View style={styles.container}>
-        <View style={styles.speedIndicator}>
+        <Animated.View style={[styles.speedIndicator, indicatorAnimatedStyle]}>
           <View style={StyleSheet.absoluteFill}>
             <FancyStrokeButton
-              progress={lockProgress}
+              progress={buttonProgress}
               strokeColor="red"
               text=""
               width={WIDTH / 2}
@@ -72,7 +128,7 @@ export default function GestureSpeed() {
           </View>
           <UIAnimatedText text={speed} />
           <LoopingIcon />
-        </View>
+        </Animated.View>
       </View>
     </GestureDetector>
   );
