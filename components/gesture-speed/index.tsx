@@ -1,4 +1,4 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, useWindowDimensions } from "react-native";
 import React from "react";
 import { GestureDetector, usePanGesture } from "react-native-gesture-handler";
 import LoopingIcon from "./looping-icon";
@@ -15,12 +15,14 @@ import { Feedback } from "@/functions";
 import { UIAnimatedText } from "../ui/ui-animated-text";
 import FancyStrokeButton from "../ui/fancy-stroke-button";
 import { runOnJS } from "react-native-worklets";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const THRESHOLD = 60;
-const LOCK_THRESHOLD = 100;
+const THRESHOLD = 64;
+const LOCK_THRESHOLD = 80;
 const ACTIVATE_LOCK_THRESHOLD = 5;
 const WIDTH = 90;
 const TRANSLATE_Y_ENTRY = 15;
+const MAX_TRANSLATE_Y = 300;
 
 const feedback = () => {
   Feedback.light();
@@ -30,12 +32,34 @@ const feedbackSoft = () => {
   Feedback.selection();
 };
 
+export const SPRING_CONFIG = {
+  damping: 30,
+  mass: 0.45,
+  stiffness: 150,
+};
+
+export const SPRING_CONFIG_SNAP = {
+  damping: 35,
+  mass: 0.25,
+  stiffness: 300,
+};
+
+const applySpring = (value: number, snap?: boolean) => {
+  "worklet";
+  return withSpring(value, snap ? SPRING_CONFIG_SNAP : SPRING_CONFIG);
+};
+
 export default function GestureSpeed() {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const isVisible = useSharedValue(false);
   const locked = useSharedValue(false);
   const dragging = useSharedValue(false);
+
+  const { height } = useWindowDimensions();
+  const { top, bottom } = useSafeAreaInsets();
+  const MARGIN = top + bottom;
+  const MAX_HEIGHT = height - MARGIN - 100;
 
   const lockProgress = useDerivedValue(() => {
     return interpolate(
@@ -47,6 +71,7 @@ export default function GestureSpeed() {
   });
 
   const panGesture = usePanGesture({
+    maxPointers: 1,
     onActivate: () => {
       runOnJS(feedback)();
       isVisible.value = true;
@@ -64,7 +89,7 @@ export default function GestureSpeed() {
     },
     onDeactivate: () => {
       dragging.value = false;
-      translateY.value = withSpring(0);
+      translateY.value = applySpring(0);
       if (lockProgress.value !== 1) {
         isVisible.value = false;
         translateX.value = 0;
@@ -103,14 +128,24 @@ export default function GestureSpeed() {
     return lockProgress.value;
   });
 
+  const indictorTranslateY = useDerivedValue(() => {
+    return interpolate(
+      translateY.value,
+      [0, MAX_TRANSLATE_Y, MAX_HEIGHT],
+      [0, MAX_TRANSLATE_Y * 0.5, MAX_TRANSLATE_Y],
+      Extrapolation.CLAMP,
+    );
+  });
+
   const indicatorAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
         {
-          translateY: translateY.value,
+          translateY: indictorTranslateY.value,
         },
+        { scale: applySpring(isVisible.value ? 1 : 0.75, true) },
       ],
-      opacity: withSpring(isVisible.value ? 1 : 0),
+      opacity: applySpring(isVisible.value ? 1 : 0, true),
     };
   });
 
