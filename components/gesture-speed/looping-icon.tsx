@@ -15,6 +15,7 @@ import { ThemedTextWrapper } from "../ThemedText";
 type LoopingIconProps = {
   speed?: SharedValue<number>;
   iconSize?: number;
+  initSpeed?: number;
 };
 
 const SCALE_MIN = 0.8;
@@ -33,9 +34,10 @@ const voidTiming = (v: number) => {
 export default function LoopingIcon({
   speed: _speed,
   iconSize = 16,
+  initSpeed = 2,
 }: LoopingIconProps) {
   const speed = useDerivedValue(() => {
-    return 500 / Math.sqrt(_speed?.value || 1);
+    return 500 / Math.sqrt(_speed?.value || initSpeed);
   });
 
   const progress = useDerivedValue(() => {

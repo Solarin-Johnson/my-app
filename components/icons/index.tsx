@@ -1,4 +1,5 @@
-import Svg, { Path } from "react-native-svg";
+import { describeArc } from "@/functions";
+import Svg, { Line, Path } from "react-native-svg";
 
 export interface IconProps {
   size?: number;
@@ -74,6 +75,32 @@ export const TrashCover = (props: IconProps) => {
         fill={color}
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+    </Svg>
+  );
+};
+
+export const SpeedIcon = (props: IconProps) => {
+  const { size = 24, color = "black", weight = 2 } = props;
+  return (
+    <Svg width="120" height="120" viewBox="0 0 200 200">
+      <Path
+        d={describeArc(100, 100, 20, 0, 250)}
+        transform={"rotate(-125 100 100)"}
+        fill="none"
+        stroke="black"
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
+      <Line
+        x1="100"
+        y1="110"
+        x2="100"
+        y2="98"
+        stroke="black"
+        strokeWidth="3"
+        strokeLinecap="round"
+        transform={"rotate(-10 100 110)"}
       />
     </Svg>
   );

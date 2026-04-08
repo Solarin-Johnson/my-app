@@ -1,15 +1,20 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import React from "react";
 import { GestureDetector, usePanGesture } from "react-native-gesture-handler";
 import LoopingIcon from "./looping-icon";
-import {
+import Animated, {
   Extrapolation,
   interpolate,
+  useAnimatedProps,
   useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated";
-import { AnimatedText } from "../ui/animated-text";
 import { ThemedTextWrapper } from "../ThemedText";
+import Svg, { Line, Path } from "react-native-svg";
+import { describeArc } from "@/functions";
+import { Host, Text } from "@expo/ui/swift-ui";
+
+const AnimatedText = Animated.createAnimatedComponent(Text);
 
 export default function GestureSpeed() {
   const translateX = useSharedValue(0);
@@ -25,21 +30,32 @@ export default function GestureSpeed() {
   });
 
   const speed = useDerivedValue(() => {
-    return interpolate(
-      translateX.value,
-      [-50, 0, 50],
-      [1, 2, 3],
-      Extrapolation.CLAMP,
+    return (
+      Math.round(
+        interpolate(
+          translateX.value,
+          [-50, 0, 50],
+          [1, 2, 3],
+          Extrapolation.CLAMP,
+        ) * 10,
+      ) / 10
     );
+  });
+
+  const animatedProps = useAnimatedProps(() => {
+    return {
+      text: String(speed.value),
+    } as any;
   });
 
   return (
     <GestureDetector gesture={panGesture}>
       <View style={styles.container}>
-        <ThemedTextWrapper>
-          <AnimatedText text={speed} style={{ fontSize: 18 }} />
-        </ThemedTextWrapper>
-        <LoopingIcon speed={speed} />
+        <Host style={{ flex: 1 }}>
+          <AnimatedText />
+        </Host>
+
+        <LoopingIcon />
       </View>
     </GestureDetector>
   );
@@ -48,6 +64,5 @@ export default function GestureSpeed() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "red",
   },
 });
