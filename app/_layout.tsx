@@ -109,6 +109,7 @@ export function NavigationDrawer() {
         name="gesture-speed"
         options={{
           drawerLabel: "Gesture Speed",
+          ...edgeSwipe,
         }}
       />
       <Drawer.Screen

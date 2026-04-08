@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~55.0.2",
-    "@expo/ui": "~55.0.6",
+    "@expo/ui": "~55.0.10",
     "@expo/vector-icons": "^15.0.2",
     "@react-native-masked-view/masked-view": "^0.3.2",
     "@react-navigation/bottom-tabs": "^7.2.0",
@@ -33,6 +33,7 @@
     "expo-image": "~55.0.2",
     "expo-linear-gradient": "~55.0.2",
     "expo-linking": "~55.0.3",
+    "expo-modules-core": "~55.0.21",
     "expo-router": "~55.0.0-beta.3",
     "expo-splash-screen": "~55.0.2",
     "expo-status-bar": "~55.0.2",

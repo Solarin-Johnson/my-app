@@ -15,6 +15,7 @@ interface FancyStrokeButtonProps {
   strokeColor?: string;
   height?: number;
   width?: number;
+  text?: string;
 }
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
@@ -25,6 +26,7 @@ export default function FancyStrokeButton({
   strokeColor = Colors.light.appleRed,
   height = 36,
   width = 45,
+  text = "Record",
 }: FancyStrokeButtonProps) {
   const r = height / 2;
   const stroke = 2;
@@ -64,22 +66,27 @@ export default function FancyStrokeButton({
     transform: `translate(1, 0)`,
   };
 
-  const getAnimatedProps = (direction: "left" | "right") => {
-    return useAnimatedProps(() => {
-      const completed = progress.get() === 1;
-      return {
-        strokeDashoffset: interpolate(
-          progress.value,
-          [0, 1],
-          [direction === "left" ? leftLength : rightLength, 0],
-        ),
-        fill: withTiming(completed ? strokeColor : "transparent", {
-          duration: completed ? 120 : 0,
-          easing: Easing.inOut(Easing.ease),
-        }),
-      };
-    });
-  };
+  const leftAnimatedProps = useAnimatedProps(() => {
+    const completed = progress.get() === 1;
+    return {
+      strokeDashoffset: interpolate(progress.value, [0, 1], [leftLength, 0]),
+      fill: withTiming(completed ? strokeColor : "transparent", {
+        duration: completed ? 120 : 0,
+        easing: Easing.inOut(Easing.ease),
+      }),
+    };
+  });
+
+  const rightAnimatedProps = useAnimatedProps(() => {
+    const completed = progress.get() === 1;
+    return {
+      strokeDashoffset: interpolate(progress.value, [0, 1], [rightLength, 0]),
+      fill: withTiming(completed ? strokeColor : "transparent", {
+        duration: completed ? 120 : 0,
+        easing: Easing.inOut(Easing.ease),
+      }),
+    };
+  });
 
   const animatedTextProps = useAnimatedProps(() => {
     const completed = progress.get() === 1;
@@ -103,14 +110,14 @@ export default function FancyStrokeButton({
         d={getPath("left")}
         {...pathProps}
         strokeDasharray={leftLength}
-        animatedProps={getAnimatedProps("right")}
+        animatedProps={leftAnimatedProps}
       />
       <AnimatedPath
         d={getPath("right")}
         {...pathProps}
         transform={`translate(${width - 1}, 0)`}
         strokeDasharray={rightLength}
-        animatedProps={getAnimatedProps("left")}
+        animatedProps={rightAnimatedProps}
       />
       <AnimatedText
         x={width}
@@ -121,7 +128,7 @@ export default function FancyStrokeButton({
         fontWeight={"450"}
         animatedProps={animatedTextProps}
       >
-        Record
+        {text}
       </AnimatedText>
     </Svg>
   );

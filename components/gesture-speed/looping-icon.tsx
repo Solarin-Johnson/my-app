@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import React from "react";
 import Animated, {
   useAnimatedStyle,
@@ -11,6 +11,7 @@ import Animated, {
 import { Ionicons } from "@expo/vector-icons";
 import { SharedValue } from "react-native-gesture-handler/lib/typescript/v3/types";
 import { ThemedTextWrapper } from "../ThemedText";
+import { MoreHorizontal } from "lucide-react-native";
 
 type LoopingIconProps = {
   speed?: SharedValue<number>;
@@ -33,11 +34,11 @@ const voidTiming = (v: number) => {
 
 export default function LoopingIcon({
   speed: _speed,
-  iconSize = 16,
+  iconSize = 14,
   initSpeed = 2,
 }: LoopingIconProps) {
   const speed = useDerivedValue(() => {
-    return 500 / Math.sqrt(_speed?.value || initSpeed);
+    return 400 / Math.sqrt(_speed?.value || initSpeed);
   });
 
   const progress = useDerivedValue(() => {
@@ -52,7 +53,7 @@ export default function LoopingIcon({
 
   const useCreateAnimatedStyle = (delayed?: boolean) => {
     return useAnimatedStyle(() => {
-      const delay = delayed ? speed.value / 4 : 0;
+      const delay = delayed ? speed.value / 5 : 0;
       const minO = getMin(progress.value, OPACITY_MIN);
       const minS = getMin(progress.value, SCALE_MIN);
       const o = withDelay(delay, voidTiming(minO));
@@ -68,17 +69,21 @@ export default function LoopingIcon({
     });
   };
 
-  const icon1animatedStyle = useCreateAnimatedStyle();
-  const icon2animatedStyle = useCreateAnimatedStyle(true);
+  const icon1animatedStyle = useCreateAnimatedStyle(true);
+  const icon2animatedStyle = useCreateAnimatedStyle();
+
+  const iconStyle: StyleProp<ViewStyle> = {
+    marginHorizontal: -iconSize / 6,
+  };
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.icon, icon1animatedStyle]}>
+      <Animated.View style={[styles.icon, iconStyle, icon1animatedStyle]}>
         <ThemedTextWrapper>
           <Ionicons name="play" size={iconSize} />
         </ThemedTextWrapper>
       </Animated.View>
-      <Animated.View style={[styles.icon, icon2animatedStyle]}>
+      <Animated.View style={[styles.icon, iconStyle, icon2animatedStyle]}>
         <ThemedTextWrapper>
           <Ionicons name="play" size={iconSize} />
         </ThemedTextWrapper>
@@ -93,7 +98,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  icon: {
-    marginHorizontal: -3,
-  },
+  icon: {},
 });
