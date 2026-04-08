@@ -41,6 +41,7 @@ export const Colors = {
     theme: "#FFFFFF",
     shimmerText: "#000000",
     invertedTheme: "#000000",
+    gestureBtnBg: "#D0D0D0",
     ...globalColors,
   },
   dark: {
@@ -69,6 +70,7 @@ export const Colors = {
     theme: "#000000",
     shimmerText: "#888888",
     invertedTheme: "#FFFFFF",
+    gestureBtnBg: "#303030",
     ...globalColors,
   },
 };

@@ -16,6 +16,7 @@ interface FancyStrokeButtonProps {
   height?: number;
   width?: number;
   text?: string;
+  strokeWidth?: number;
 }
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
@@ -27,10 +28,10 @@ export default function FancyStrokeButton({
   height = 36,
   width = 45,
   text = "Record",
+  strokeWidth = 2,
 }: FancyStrokeButtonProps) {
   const r = height / 2;
-  const stroke = 2;
-  const inset = stroke / 2;
+  const inset = strokeWidth / 2;
 
   const k = 0.7;
   const c = r * k;
@@ -61,9 +62,9 @@ export default function FancyStrokeButton({
 
   const pathProps: PathProps = {
     stroke: strokeColor,
-    strokeWidth: stroke,
+    strokeWidth,
     fill: "none",
-    transform: `translate(1, 0)`,
+    transform: `translate(${inset}, 0)`,
   };
 
   const leftAnimatedProps = useAnimatedProps(() => {
@@ -115,13 +116,13 @@ export default function FancyStrokeButton({
       <AnimatedPath
         d={getPath("right")}
         {...pathProps}
-        transform={`translate(${width - 1}, 0)`}
+        transform={`translate(${width - inset}, 0)`}
         strokeDasharray={rightLength}
         animatedProps={rightAnimatedProps}
       />
       <AnimatedText
         x={width}
-        y={height / 2 + stroke / 2}
+        y={height / 2 + inset}
         textAnchor="middle"
         alignmentBaseline="middle"
         fontSize={15}

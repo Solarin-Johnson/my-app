@@ -16,13 +16,14 @@ import { UIAnimatedText } from "../ui/ui-animated-text";
 import FancyStrokeButton from "../ui/fancy-stroke-button";
 import { runOnJS } from "react-native-worklets";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ThemedTextWrapper } from "../ThemedText";
 
 const THRESHOLD = 64;
 const LOCK_THRESHOLD = 80;
 const ACTIVATE_LOCK_THRESHOLD = 5;
 const WIDTH = 90;
 const TRANSLATE_Y_ENTRY = 15;
-const MAX_TRANSLATE_Y = 300;
+const MAX_TRANSLATE_Y = 200;
 
 const feedback = () => {
   Feedback.light();
@@ -33,9 +34,9 @@ const feedbackSoft = () => {
 };
 
 export const SPRING_CONFIG = {
-  damping: 30,
-  mass: 0.45,
-  stiffness: 150,
+  damping: 40,
+  mass: 0.7,
+  stiffness: 120,
 };
 
 export const SPRING_CONFIG_SNAP = {
@@ -44,9 +45,24 @@ export const SPRING_CONFIG_SNAP = {
   stiffness: 300,
 };
 
-const applySpring = (value: number, snap?: boolean) => {
+const PULSE_SPRING_CONFIG = {
+  damping: 14,
+  stiffness: 220,
+  mass: 0.8,
+  restDisplacementThreshold: 0.0001,
+  restSpeedThreshold: 0.0001,
+};
+
+const applySpring = (value: number, type?: "default" | "pulse" | "snap") => {
   "worklet";
-  return withSpring(value, snap ? SPRING_CONFIG_SNAP : SPRING_CONFIG);
+  return withSpring(
+    value,
+    type === "pulse"
+      ? PULSE_SPRING_CONFIG
+      : type === "snap"
+        ? SPRING_CONFIG_SNAP
+        : SPRING_CONFIG,
+  );
 };
 
 export default function GestureSpeed() {
@@ -137,15 +153,25 @@ export default function GestureSpeed() {
     );
   });
 
+  const indicatorLocked = useDerivedValue(() => {
+    return lockProgress.value === 1 || locked.value;
+  });
+
   const indicatorAnimatedStyle = useAnimatedStyle(() => {
+    const isLocked = lockProgress.value === 1 && dragging.value;
     return {
       transform: [
         {
           translateY: indictorTranslateY.value,
         },
-        { scale: applySpring(isVisible.value ? 1 : 0.75, true) },
+        {
+          scale: applySpring(
+            isLocked ? 1.14 : isVisible.value ? 1 : 0.75,
+            isLocked ? "pulse" : "snap",
+          ),
+        },
       ],
-      opacity: applySpring(isVisible.value ? 1 : 0, true),
+      opacity: applySpring(isVisible.value ? 1 : 0, "snap"),
     };
   });
 
@@ -154,15 +180,19 @@ export default function GestureSpeed() {
       <View style={styles.container}>
         <Animated.View style={[styles.speedIndicator, indicatorAnimatedStyle]}>
           <View style={StyleSheet.absoluteFill}>
-            <FancyStrokeButton
-              progress={buttonProgress}
-              strokeColor="red"
-              text=""
-              width={WIDTH / 2}
-            />
+            <ThemedTextWrapper attribute="strokeColor" colorName="gestureBtnBg">
+              <FancyStrokeButton
+                progress={buttonProgress}
+                text=""
+                width={WIDTH / 2}
+                strokeWidth={2.4}
+              />
+            </ThemedTextWrapper>
           </View>
           <UIAnimatedText text={speed} />
-          <LoopingIcon />
+          <View style={{ paddingRight: 2 }}>
+            <LoopingIcon />
+          </View>
         </Animated.View>
       </View>
     </GestureDetector>
@@ -182,6 +212,7 @@ const styles = StyleSheet.create({
     width: WIDTH,
     height: 36,
     justifyContent: "center",
+    marginVertical: 8,
   },
   fancyBorderContainer: {},
 });
