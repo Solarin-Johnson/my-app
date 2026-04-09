@@ -10,6 +10,7 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { Feedback } from "@/functions";
 import { UIAnimatedText } from "../ui/ui-animated-text";
@@ -17,6 +18,8 @@ import FancyStrokeButton from "../ui/fancy-stroke-button";
 import { runOnJS } from "react-native-worklets";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedTextWrapper } from "../ThemedText";
+import { Ionicons } from "@expo/vector-icons";
+import { Lock } from "lucide-react-native";
 
 const THRESHOLD = 64;
 const LOCK_THRESHOLD = 80;
@@ -24,6 +27,8 @@ const ACTIVATE_LOCK_THRESHOLD = 5;
 const WIDTH = 90;
 const TRANSLATE_Y_ENTRY = 15;
 const MAX_TRANSLATE_Y = 200;
+const LEFT_ICON_WIDTH = 20;
+const RIGHT_ICON_WIDTH = 24;
 
 const feedback = () => {
   Feedback.light();
@@ -37,6 +42,12 @@ export const SPRING_CONFIG = {
   damping: 40,
   mass: 0.7,
   stiffness: 120,
+};
+
+export const SPRING_CONFIG_FAST = {
+  damping: 38,
+  mass: 0.65,
+  stiffness: 150,
 };
 
 export const SPRING_CONFIG_SNAP = {
@@ -53,7 +64,10 @@ const PULSE_SPRING_CONFIG = {
   restSpeedThreshold: 0.0001,
 };
 
-const applySpring = (value: number, type?: "default" | "pulse" | "snap") => {
+const applySpring = (
+  value: number,
+  type?: "default" | "pulse" | "snap" | "fast",
+) => {
   "worklet";
   return withSpring(
     value,
@@ -61,7 +75,9 @@ const applySpring = (value: number, type?: "default" | "pulse" | "snap") => {
       ? PULSE_SPRING_CONFIG
       : type === "snap"
         ? SPRING_CONFIG_SNAP
-        : SPRING_CONFIG,
+        : type === "fast"
+          ? SPRING_CONFIG_FAST
+          : SPRING_CONFIG,
   );
 };
 
@@ -175,6 +191,36 @@ export default function GestureSpeed() {
     };
   });
 
+  const lockIconAnimatedStyle = useAnimatedStyle(() => {
+    const isVisible = indicatorLocked.value;
+
+    return {
+      opacity: withTiming(isVisible ? 1 : 0, { duration: 100 }),
+      width: applySpring(isVisible ? LEFT_ICON_WIDTH : 0, "fast"),
+      transform: [
+        {
+          translateX: applySpring(isVisible ? 0 : LEFT_ICON_WIDTH / 4, "fast"),
+        },
+      ],
+    };
+  });
+
+  const loopIconAnimatedStyle = useAnimatedStyle(() => {
+    const isVisible = !indicatorLocked.value;
+    return {
+      opacity: withTiming(isVisible ? 1 : 0, { duration: 100 }),
+      width: applySpring(isVisible ? RIGHT_ICON_WIDTH : 0, "fast"),
+      transform: [
+        {
+          translateX: applySpring(
+            isVisible ? 0 : -RIGHT_ICON_WIDTH / 4,
+            "fast",
+          ),
+        },
+      ],
+    };
+  });
+
   return (
     <GestureDetector gesture={panGesture}>
       <View style={styles.container}>
@@ -189,10 +235,15 @@ export default function GestureSpeed() {
               />
             </ThemedTextWrapper>
           </View>
+          <Animated.View style={[styles.leftIcon, lockIconAnimatedStyle]}>
+            <ThemedTextWrapper>
+              <Lock size={17} strokeWidth={2.4} />
+            </ThemedTextWrapper>
+          </Animated.View>
           <UIAnimatedText text={speed} />
-          <View style={{ paddingRight: 2 }}>
+          <Animated.View style={[styles.rightIcon, loopIconAnimatedStyle]}>
             <LoopingIcon />
-          </View>
+          </Animated.View>
         </Animated.View>
       </View>
     </GestureDetector>
@@ -208,11 +259,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignSelf: "center",
     alignItems: "center",
-    gap: 1,
     width: WIDTH,
     height: 36,
     justifyContent: "center",
     marginVertical: 8,
   },
   fancyBorderContainer: {},
+  rightIcon: {
+    width: 24,
+    paddingLeft: 1,
+    alignItems: "flex-start",
+    overflow: "visible",
+  },
+  leftIcon: {
+    width: 20,
+    paddingRight: 0.5,
+    alignItems: "flex-end",
+    overflow: "visible",
+  },
 });
