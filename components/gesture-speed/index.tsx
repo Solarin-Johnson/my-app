@@ -137,7 +137,7 @@ export default function GestureSpeed() {
     return interpolate(
       translateX.value,
       [-THRESHOLD, 0, THRESHOLD],
-      [1, 2, 3],
+      [1.1, 2, 3],
       Extrapolation.CLAMP,
     ).toFixed(1);
   });
@@ -237,7 +237,7 @@ export default function GestureSpeed() {
           </View>
           <Animated.View style={[styles.leftIcon, lockIconAnimatedStyle]}>
             <ThemedTextWrapper>
-              <Lock size={17} strokeWidth={2.4} />
+              <Lock size={16} strokeWidth={2.6} />
             </ThemedTextWrapper>
           </Animated.View>
           <UIAnimatedText text={speed} />
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
   },
   leftIcon: {
     width: 20,
-    paddingRight: 0.5,
+    paddingRight: 0.8,
     alignItems: "flex-end",
     overflow: "visible",
   },
