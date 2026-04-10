@@ -19,12 +19,10 @@ import { UIAnimatedText } from "../ui/ui-animated-text";
 import FancyStrokeButton from "../ui/fancy-stroke-button";
 import { runOnJS } from "react-native-worklets";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ThemedText, ThemedTextWrapper } from "../ThemedText";
-import { Ionicons } from "@expo/vector-icons";
+import { ThemedTextWrapper } from "../ThemedText";
 import { Lock } from "lucide-react-native";
-import FancyText from "../FancyText";
 
-const THRESHOLD = 64;
+const THRESHOLD = 100;
 const LOCK_THRESHOLD = 80;
 const ACTIVATE_LOCK_THRESHOLD = 5;
 const WIDTH = 90;
@@ -267,7 +265,8 @@ export default function GestureSpeed() {
 
 const HELPER_WORDS = [
   "Swipe sideways to adjust speed.",
-  "Swipe down to lock speed.",
+  "Pull down to lock it.",
+  "Now release",
 ];
 
 type HelperProps = {
@@ -284,6 +283,9 @@ const Helper = ({ speed, dragging, lockProgress }: HelperProps) => {
     console.log(speedChanged.value);
 
     if (dragging.value === false) {
+      return -1;
+    }
+    if (lockProgress.value === 1) {
       return 2;
     }
     if (lockProgress.value > 0.1 || speedChanged.value) {
@@ -321,7 +323,7 @@ const Helper = ({ speed, dragging, lockProgress }: HelperProps) => {
       currentWordIndex.value === 0 && dragging.value && !!!isIdle.value;
     return {
       opacity: withTiming(active ? 1 : 0, {
-        duration: 200,
+        duration: 250,
       }),
     };
   });
@@ -331,10 +333,21 @@ const Helper = ({ speed, dragging, lockProgress }: HelperProps) => {
       currentWordIndex.value === 1 && dragging.value && !!!isIdle.value;
     return {
       opacity: withTiming(active ? 1 : 0, {
-        duration: 200,
+        duration: 250,
       }),
     };
   });
+
+  const releaseAnimatedStyle = useAnimatedStyle(() => {
+    const active =
+      currentWordIndex.value === 2 && dragging.value && !!!isIdle.value;
+    return {
+      opacity: withTiming(active ? 1 : 0, {
+        duration: 250,
+      }),
+    };
+  });
+
   return (
     <View style={styles.helperContainer}>
       <ThemedTextWrapper style={styles.helperText}>
@@ -342,6 +355,11 @@ const Helper = ({ speed, dragging, lockProgress }: HelperProps) => {
       </ThemedTextWrapper>
       <ThemedTextWrapper style={styles.helperText}>
         <Animated.Text style={yAnimatedStyle}>{HELPER_WORDS[1]}</Animated.Text>
+      </ThemedTextWrapper>
+      <ThemedTextWrapper style={[styles.helperText, styles.helperTextRelease]}>
+        <Animated.Text style={releaseAnimatedStyle}>
+          {HELPER_WORDS[2]}
+        </Animated.Text>
       </ThemedTextWrapper>
     </View>
   );
@@ -382,10 +400,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    marginVertical: 15,
+    marginVertical: 12,
   },
   helperText: {
     fontSize: 14,
     position: "absolute",
+  },
+  helperTextRelease: {
+    fontSize: 12.8,
   },
 });
