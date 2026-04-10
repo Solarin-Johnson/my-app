@@ -9,6 +9,7 @@ import {
   useSharedValue,
   withDelay,
   withSpring,
+  WithSpringConfig,
 } from "react-native-reanimated";
 import { ThemedText, ThemedTextProps } from "./ThemedText";
 
@@ -21,28 +22,28 @@ export const SPRING_CONFIG = {
   restSpeedThreshold: 0.0001,
 };
 
-const applySpring = (value: number) => {
-  "worklet";
-  return withSpring(value, SPRING_CONFIG);
-};
-
 interface FancyTextProps {
   words: string[];
-  currentIndex: SharedValue<number>;
+  currentIndex?: SharedValue<number>;
   bounce?: boolean;
   style?: StyleProp<ViewStyle>;
   textProps?: ThemedTextProps;
+  springConfig?: WithSpringConfig;
 }
 
 const AnimatedThemedText = createAnimatedComponent(ThemedText);
 
 export default function FancyText({
   words,
-  currentIndex,
+  currentIndex: currentIndexProp,
   bounce,
   style,
   textProps,
+  springConfig = SPRING_CONFIG,
 }: FancyTextProps) {
+  const _currentIndex = useSharedValue(0);
+  const currentIndex = currentIndexProp || _currentIndex;
+
   return (
     <View style={[styles.container, style]}>
       {words.map((word, wordIndex) => (
@@ -57,6 +58,7 @@ export default function FancyText({
               wordIndex={wordIndex}
               words={words}
               bounce={bounce}
+              springConfig={springConfig}
             />
           ))}
         </View>
@@ -73,6 +75,7 @@ const Character = ({
   words,
   bounce = true,
   textProps,
+  springConfig,
 }: {
   char: string;
   currentIndex: SharedValue<number>;
@@ -81,9 +84,16 @@ const Character = ({
   words: string[];
   bounce?: boolean;
   textProps?: ThemedTextProps;
+  springConfig?: WithSpringConfig;
 }) => {
   const prevIndex = useSharedValue(0);
   const mounted = useSharedValue(false);
+
+  const applySpring = (value: number) => {
+    "worklet";
+    return withSpring(value, springConfig);
+  };
+
   useDerivedValue(() => {
     mounted.value = true;
   });
@@ -94,7 +104,7 @@ const Character = ({
       if (prev) {
         prevIndex.value = prev;
       }
-    }
+    },
   );
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -105,7 +115,7 @@ const Character = ({
     return {
       opacity: withDelay(
         delay - 20,
-        applySpring(isActive ? (textProps?.style as any)?.opacity || 1 : 0)
+        applySpring(isActive ? (textProps?.style as any)?.opacity || 1 : 0),
       ),
       transform: bounce
         ? [
@@ -115,7 +125,7 @@ const Character = ({
             {
               scale: withDelay(
                 delay,
-                applySpring(currentIndex.value === wordIndex ? 1 : 0.7)
+                applySpring(currentIndex.value === wordIndex ? 1 : 0.7),
               ),
             },
           ]

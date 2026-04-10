@@ -5,6 +5,7 @@ import LoopingIcon from "./looping-icon";
 import Animated, {
   Extrapolation,
   interpolate,
+  SharedValue,
   useAnimatedReaction,
   useAnimatedStyle,
   useDerivedValue,
@@ -17,9 +18,10 @@ import { UIAnimatedText } from "../ui/ui-animated-text";
 import FancyStrokeButton from "../ui/fancy-stroke-button";
 import { runOnJS } from "react-native-worklets";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ThemedTextWrapper } from "../ThemedText";
+import { ThemedText, ThemedTextWrapper } from "../ThemedText";
 import { Ionicons } from "@expo/vector-icons";
 import { Lock } from "lucide-react-native";
+import FancyText from "../FancyText";
 
 const THRESHOLD = 64;
 const LOCK_THRESHOLD = 80;
@@ -82,7 +84,7 @@ const applySpring = (
 };
 
 export default function GestureSpeed() {
-  const translateX = useSharedValue(0);
+  const translateX = useSharedValue(-THRESHOLD);
   const translateY = useSharedValue(0);
   const isVisible = useSharedValue(false);
   const locked = useSharedValue(false);
@@ -93,7 +95,19 @@ export default function GestureSpeed() {
   const MARGIN = top + bottom;
   const MAX_HEIGHT = height - MARGIN - 100;
 
+  const speed = useDerivedValue(() => {
+    return interpolate(
+      translateX.value,
+      [-THRESHOLD, 0, THRESHOLD],
+      [1, 2, 3],
+      Extrapolation.CLAMP,
+    ).toFixed(1);
+  });
+
   const lockProgress = useDerivedValue(() => {
+    if (speed && speed.value === "1.0") {
+      return 0;
+    }
     return interpolate(
       translateY.value,
       [0, LOCK_THRESHOLD],
@@ -117,29 +131,19 @@ export default function GestureSpeed() {
         translateX.value = e.translationX;
       }
       translateY.value = Math.max(0, e.translationY - TRANSLATE_Y_ENTRY);
-      console.log(e.translationX);
     },
     onDeactivate: () => {
       dragging.value = false;
       translateY.value = applySpring(0);
       if (lockProgress.value !== 1) {
         isVisible.value = false;
-        translateX.value = 0;
+        translateX.value = -THRESHOLD;
       }
       if (lockProgress.value === 1) {
         locked.value = true;
       }
     },
     activateAfterLongPress: 300,
-  });
-
-  const speed = useDerivedValue(() => {
-    return interpolate(
-      translateX.value,
-      [-THRESHOLD, 0, THRESHOLD],
-      [1.1, 2, 3],
-      Extrapolation.CLAMP,
-    ).toFixed(1);
   });
 
   useAnimatedReaction(
@@ -161,6 +165,8 @@ export default function GestureSpeed() {
   });
 
   const indictorTranslateY = useDerivedValue(() => {
+    console.log(speed.value);
+
     return interpolate(
       translateY.value,
       [0, MAX_TRANSLATE_Y, MAX_HEIGHT],
@@ -224,31 +230,56 @@ export default function GestureSpeed() {
   return (
     <GestureDetector gesture={panGesture}>
       <View style={styles.container}>
-        <Animated.View style={[styles.speedIndicator, indicatorAnimatedStyle]}>
-          <View style={StyleSheet.absoluteFill}>
-            <ThemedTextWrapper attribute="strokeColor" colorName="gestureBtnBg">
-              <FancyStrokeButton
-                progress={buttonProgress}
-                text=""
-                width={WIDTH / 2}
-                strokeWidth={2.4}
-              />
-            </ThemedTextWrapper>
+        <Animated.View style={[styles.wrapper, indicatorAnimatedStyle]}>
+          <View style={styles.speedIndicator}>
+            <View style={StyleSheet.absoluteFill}>
+              <ThemedTextWrapper
+                attribute="strokeColor"
+                colorName="gestureBtnBg"
+              >
+                <FancyStrokeButton
+                  progress={buttonProgress}
+                  text=""
+                  width={WIDTH / 2}
+                  strokeWidth={2.4}
+                />
+              </ThemedTextWrapper>
+            </View>
+            <Animated.View style={[styles.leftIcon, lockIconAnimatedStyle]}>
+              <ThemedTextWrapper>
+                <Lock size={16} strokeWidth={2.6} />
+              </ThemedTextWrapper>
+            </Animated.View>
+            <UIAnimatedText text={speed} />
+            <Animated.View style={[styles.rightIcon, loopIconAnimatedStyle]}>
+              <LoopingIcon />
+            </Animated.View>
           </View>
-          <Animated.View style={[styles.leftIcon, lockIconAnimatedStyle]}>
-            <ThemedTextWrapper>
-              <Lock size={16} strokeWidth={2.6} />
-            </ThemedTextWrapper>
-          </Animated.View>
-          <UIAnimatedText text={speed} />
-          <Animated.View style={[styles.rightIcon, loopIconAnimatedStyle]}>
-            <LoopingIcon />
-          </Animated.View>
+          <Helper speed={speed} dragging={dragging} />
         </Animated.View>
       </View>
     </GestureDetector>
   );
 }
+
+const HELPER_WORDS = [
+  "Swipe sideways to adjust speed.",
+  "Swipe down to lock speed.",
+];
+
+type HelperProps = {
+  speed: SharedValue<string>;
+  dragging: SharedValue<boolean>;
+};
+
+const Helper = ({ speed, dragging }: HelperProps) => {
+  return (
+    <View style={styles.helperContainer}>
+      <ThemedText style={styles.helperText}>{HELPER_WORDS[0]}</ThemedText>
+      <ThemedText style={styles.helperText}>{HELPER_WORDS[1]}</ThemedText>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -276,5 +307,18 @@ const styles = StyleSheet.create({
     paddingRight: 0.8,
     alignItems: "flex-end",
     overflow: "visible",
+  },
+  wrapper: {
+    width: "100%",
+    justifyContent: "center",
+  },
+  helperContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    marginVertical: 4,
+  },
+  helperText: {
+    fontSize: 14,
   },
 });
