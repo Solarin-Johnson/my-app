@@ -10,6 +10,7 @@ import Animated, {
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
+  withDelay,
   withSpring,
   withTiming,
 } from "react-native-reanimated";
@@ -165,8 +166,6 @@ export default function GestureSpeed() {
   });
 
   const indictorTranslateY = useDerivedValue(() => {
-    console.log(speed.value);
-
     return interpolate(
       translateY.value,
       [0, MAX_TRANSLATE_Y, MAX_HEIGHT],
@@ -255,7 +254,11 @@ export default function GestureSpeed() {
               <LoopingIcon />
             </Animated.View>
           </View>
-          <Helper speed={speed} dragging={dragging} />
+          <Helper
+            speed={speed}
+            dragging={dragging}
+            lockProgress={lockProgress}
+          />
         </Animated.View>
       </View>
     </GestureDetector>
@@ -270,13 +273,76 @@ const HELPER_WORDS = [
 type HelperProps = {
   speed: SharedValue<string>;
   dragging: SharedValue<boolean>;
+  lockProgress: SharedValue<number>;
 };
 
-const Helper = ({ speed, dragging }: HelperProps) => {
+const Helper = ({ speed, dragging, lockProgress }: HelperProps) => {
+  const isIdle = useSharedValue(1);
+  const speedChanged = useSharedValue(false);
+
+  const currentWordIndex = useDerivedValue(() => {
+    console.log(speedChanged.value);
+
+    if (dragging.value === false) {
+      return 2;
+    }
+    if (lockProgress.value > 0.1 || speedChanged.value) {
+      return 1;
+    }
+
+    return 0;
+  });
+
+  useAnimatedReaction(
+    () => currentWordIndex.value,
+    (val, prev) => {
+      isIdle.value = 0;
+      if (val !== prev) {
+        isIdle.value = withDelay(2000, withTiming(1, { duration: 0 }));
+      }
+    },
+  );
+
+  useAnimatedReaction(
+    () => speed.value,
+    (val, prev) => {
+      console.log("prev", prev);
+
+      if (val !== prev && prev !== "1.0") {
+        speedChanged.value = true;
+      } else {
+        speedChanged.value = false;
+      }
+    },
+  );
+
+  const xAnimatedStyle = useAnimatedStyle(() => {
+    const active =
+      currentWordIndex.value === 0 && dragging.value && !!!isIdle.value;
+    return {
+      opacity: withTiming(active ? 1 : 0, {
+        duration: 200,
+      }),
+    };
+  });
+
+  const yAnimatedStyle = useAnimatedStyle(() => {
+    const active =
+      currentWordIndex.value === 1 && dragging.value && !!!isIdle.value;
+    return {
+      opacity: withTiming(active ? 1 : 0, {
+        duration: 200,
+      }),
+    };
+  });
   return (
     <View style={styles.helperContainer}>
-      <ThemedText style={styles.helperText}>{HELPER_WORDS[0]}</ThemedText>
-      <ThemedText style={styles.helperText}>{HELPER_WORDS[1]}</ThemedText>
+      <ThemedTextWrapper style={styles.helperText}>
+        <Animated.Text style={xAnimatedStyle}>{HELPER_WORDS[0]}</Animated.Text>
+      </ThemedTextWrapper>
+      <ThemedTextWrapper style={styles.helperText}>
+        <Animated.Text style={yAnimatedStyle}>{HELPER_WORDS[1]}</Animated.Text>
+      </ThemedTextWrapper>
     </View>
   );
 };
@@ -316,9 +382,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    marginVertical: 4,
+    marginVertical: 15,
   },
   helperText: {
     fontSize: 14,
+    position: "absolute",
   },
 });
