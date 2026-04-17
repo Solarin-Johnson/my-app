@@ -111,7 +111,7 @@ export default function TextArea({
     return {
       width: layout.value.width + cordX.value,
       height: applyConfig(
-        Math.min(maxHeight, layout.value.height + cordY.value)
+        Math.min(maxHeight, layout.value.height + cordY.value),
       ),
     };
   });
@@ -123,7 +123,7 @@ export default function TextArea({
 
     const newHeight = Math.max(
       lines * lineHeight + padding * 2 + borderWidth * 2,
-      minHeight
+      minHeight,
     );
     layout.value = {
       ...layout.value,
@@ -175,6 +175,10 @@ export default function TextArea({
             handleAutoAdjustHeight(text);
           });
           onChangeText?.(text);
+        }}
+        onContentSizeChange={(e) => {
+          const height = e.nativeEvent.contentSize.height;
+          console.log(height);
         }}
         {...props}
       />

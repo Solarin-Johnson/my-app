@@ -106,6 +106,12 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="emoji-pop"
+        options={{
+          drawerLabel: "Emoji Pop",
+        }}
+      />
+      <Drawer.Screen
         name="gesture-speed"
         options={{
           drawerLabel: "Gesture Speed",
