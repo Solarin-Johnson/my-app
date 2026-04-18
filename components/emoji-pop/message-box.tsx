@@ -15,14 +15,14 @@ export default function MessageBox({ emojiPressableProps }: MessageBoxProps) {
   const { bottom } = useSafeAreaInsets();
   return (
     <KeyboardAvoidingView
-      behavior="padding"
+      behavior="position"
       keyboardVerticalOffset={-bottom / 2}
     >
       <GlassContainer
         style={[
           styles.container,
           {
-            paddingBottom: bottom,
+            bottom: bottom,
           },
         ]}
         spacing={6}
@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingHorizontal: 12,
     gap: 8,
+    position: "absolute",
   },
   buttonWrapper: {
     borderRadius: 25,

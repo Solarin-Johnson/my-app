@@ -17,11 +17,12 @@ import Animated, {
 export type BubbleProps = {
   emoji: string;
   popping?: SharedValue<boolean>;
-  index?: number;
+  index: number;
+  totalLength: number;
 };
 
 const MAX_BUBBLE_DURATION = 3000;
-const BUBBLE_MIN_SIZE = 20;
+const BUBBLE_MIN_SIZE = 32;
 const BUBBLE_MAX_SIZE = 80;
 
 const ROTATION_FACTOR = 4;
@@ -35,14 +36,13 @@ const SPRING_CONFIG = {
 
 export default function Bubble({
   emoji,
-  popping: poppingProp,
+  popping,
   index,
+  totalLength,
 }: BubbleProps) {
   const timer = useSharedValue(0);
   const lockedProgress = useSharedValue(0);
   const burst = useSharedValue(false);
-  const defaultPopping = useSharedValue(false);
-  const popping = poppingProp ?? defaultPopping;
 
   const progress = useDerivedValue(() => {
     const linearProgress = timer.value / MAX_BUBBLE_DURATION;
@@ -50,18 +50,19 @@ export default function Bubble({
   });
 
   useAnimatedReaction(
-    () => popping.value,
+    () => popping?.value,
     (isPopping) => {
+      // if (index !== totalLength) return;
       if (isPopping) {
-        lockedProgress.value = 0;
-        burst.value = false;
-        timer.value = 0;
+        // lockedProgress.value = 0;
+        // burst.value = false;
+        // timer.value = 0;
 
         timer.value = withTiming(
           MAX_BUBBLE_DURATION,
           { duration: MAX_BUBBLE_DURATION, easing: Easing.linear },
           (finished) => {
-            if (finished && popping.value) {
+            if (finished && popping?.value) {
               burst.value = true;
             }
           },
@@ -75,7 +76,7 @@ export default function Bubble({
   );
 
   const rotation = useDerivedValue(() => {
-    if (!popping.value) return 0;
+    if (!popping?.value) return 0;
     return withRepeat(
       withSequence(
         withTiming(-1, { duration: ROTATION_DURATION, easing: Easing.linear }),
@@ -89,12 +90,8 @@ export default function Bubble({
     );
   });
 
-  useDerivedValue(() => {
-    console.log(index, progress.value, lockedProgress.value, burst.value);
-  });
-
   const textAnimatedStyle = useAnimatedStyle(() => {
-    const activeProgress = popping.value
+    const activeProgress = popping?.value
       ? progress.value
       : lockedProgress.value;
 

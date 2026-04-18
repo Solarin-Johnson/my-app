@@ -1,49 +1,84 @@
 import { Pressable, Text, View } from "react-native";
-import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useRef } from "react";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import MessageBox from "@/components/emoji-pop/message-box";
 import Bubble from "@/components/emoji-pop/bubble";
-import { useSharedValue } from "react-native-reanimated";
+import Animated, {
+  LinearTransition,
+  useSharedValue,
+} from "react-native-reanimated";
+import { applySpringConfig } from "@/functions";
+import {
+  KeyboardAvoidingView,
+  KeyboardAwareScrollView,
+} from "react-native-keyboard-controller";
 
 export default function Page() {
   const pressing = useSharedValue(false);
-  const [messages, setMessages] = React.useState<string[]>([]);
+  const stalePressing = useSharedValue(false);
+  const activeId = useRef<number | null>(null);
+  const { bottom } = useSafeAreaInsets();
 
-  const sendEmoji = (emoji: string) => {
-    setMessages((prev) => [...prev, emoji]);
+  const [messages, setMessages] = React.useState<
+    { id: number; emoji: string; isLong: boolean }[]
+  >([]);
+
+  const sendEmoji = (emoji: string, isLong = false) => {
+    const id = Date.now();
+
+    setMessages((prev) => [...prev, { id, emoji, isLong }]);
+
+    if (isLong) {
+      activeId.current = id;
+    }
   };
 
   const handleLongPress = () => {
     pressing.set(true);
-    sendEmoji("🫪");
+    sendEmoji("🫪", true);
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
-      <View
-        style={{
-          flex: 1,
+    <>
+      <Animated.FlatList
+        data={messages}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item: msg, index }) => (
+          <Bubble
+            key={msg.id}
+            emoji={msg.emoji}
+            popping={msg.id === activeId.current ? pressing : stalePressing}
+            index={index + 1}
+            totalLength={messages.length}
+          />
+        )}
+        style={{ flex: 1 }}
+        contentContainerStyle={{
           justifyContent: "flex-end",
           alignItems: "flex-end",
-          paddingBottom: 20,
+          paddingBottom: 70 + bottom,
+          flexGrow: 1,
         }}
-      >
-        {messages.map((msg, index) => (
-          <Bubble
-            key={`${msg}-${Date.now()}-${index}`}
-            emoji={msg}
-            popping={index === messages.length - 1 ? pressing : undefined}
-            index={index}
+        showsVerticalScrollIndicator={false}
+        layout={applySpringConfig(LinearTransition)}
+        renderScrollComponent={(props) => (
+          <KeyboardAwareScrollView
+            {...props}
+            extraKeyboardSpace={-bottom * 0.8}
           />
-        ))}
-      </View>
+        )}
+      />
       <MessageBox
         emojiPressableProps={{
           onLongPress: handleLongPress,
           onPressOut: () => pressing.set(false),
           onPress: () => sendEmoji("🫪"),
+          delayLongPress: 200,
         }}
       />
-    </SafeAreaView>
+    </>
   );
 }
