@@ -7,7 +7,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import TextArea from "../TextArea";
 
-export default function MessageBox() {
+type MessageBoxProps = {
+  emojiPressableProps?: React.ComponentProps<typeof Pressable>;
+};
+
+export default function MessageBox({ emojiPressableProps }: MessageBoxProps) {
   const { bottom } = useSafeAreaInsets();
   return (
     <KeyboardAvoidingView
@@ -18,7 +22,7 @@ export default function MessageBox() {
         style={[
           styles.container,
           {
-            bottom,
+            paddingBottom: bottom,
           },
         ]}
         spacing={6}
@@ -44,7 +48,7 @@ export default function MessageBox() {
           </ThemedTextWrapper>
         </GlassView>
         <GlassView style={styles.buttonWrapper} isInteractive>
-          <Pressable style={styles.button}>
+          <Pressable style={styles.button} {...emojiPressableProps}>
             <ThemedText style={styles.emojiText}>🫪</ThemedText>
           </Pressable>
         </GlassView>
