@@ -13,7 +13,7 @@ export default function Page() {
   const pressing = useSharedValue(false);
   const stalePressing = useSharedValue(false);
   const activeId = useRef<number | null>(null);
-  const { bottom } = useSafeAreaInsets();
+  const { bottom, top } = useSafeAreaInsets();
 
   const [messages, setMessages] = React.useState<
     { id: number; emoji: string; isLong: boolean }[]
@@ -39,23 +39,31 @@ export default function Page() {
       <Animated.FlatList
         data={messages}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item: msg, index }) => (
-          <Bubble
-            key={msg.id}
-            emoji={msg.emoji}
-            popping={msg.id === activeId.current ? pressing : stalePressing}
-            index={index + 1}
-            totalLength={messages.length}
-            onBurst={() => {
-              setMessages((prev) => prev.filter((_, i) => i !== index));
-            }}
-          />
-        )}
+        renderItem={({ item: msg, index }) => {
+          const isCurrent = index === messages.length - 1;
+          return (
+            <Bubble
+              key={msg.id}
+              emoji={msg.emoji}
+              popping={
+                msg.id === activeId.current && isCurrent
+                  ? pressing
+                  : stalePressing
+              }
+              index={index + 1}
+              isCurrent={isCurrent}
+              onBurst={() => {
+                setMessages((prev) => prev.filter((_, i) => i !== index));
+              }}
+            />
+          );
+        }}
         style={{ flex: 1 }}
         contentContainerStyle={{
           justifyContent: "flex-end",
           alignItems: "flex-end",
           paddingBottom: 70 + bottom,
+          paddingTop: top,
           flexGrow: 1,
         }}
         showsVerticalScrollIndicator={false}

@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import React from "react";
 import Animated, {
   cancelAnimation,
@@ -17,10 +17,10 @@ import { runOnJS } from "react-native-worklets";
 
 export type BubbleProps = {
   emoji: string;
-  popping?: SharedValue<boolean>;
+  popping: SharedValue<boolean>;
   index: number;
-  totalLength: number;
   onBurst?: () => void;
+  isCurrent: boolean;
 };
 
 const MAX_BUBBLE_DURATION = 3000;
@@ -41,9 +41,8 @@ const SPRING_CONFIG = {
 export default function Bubble({
   emoji,
   popping,
-  index,
-  totalLength,
   onBurst,
+  isCurrent,
 }: BubbleProps) {
   const timer = useSharedValue(0);
   const lockedProgress = useSharedValue(0);
@@ -55,19 +54,15 @@ export default function Bubble({
   });
 
   useAnimatedReaction(
-    () => popping?.value,
+    () => popping.value,
     (isPopping) => {
-      // if (index !== totalLength) return;
       if (isPopping) {
-        // lockedProgress.value = 0;
-        // burst.value = false;
-        // timer.value = 0;
-
+        if (!isCurrent) return;
         timer.value = withTiming(
           MAX_BUBBLE_DURATION,
           { duration: MAX_BUBBLE_DURATION, easing: Easing.linear },
           (finished) => {
-            if (finished && popping?.value) {
+            if (finished && popping.value) {
               burst.value = true;
             }
           },
@@ -81,7 +76,7 @@ export default function Bubble({
   );
 
   const rotation = useDerivedValue(() => {
-    if (!popping?.value) return 0;
+    if (!popping.value) return 0;
     return withRepeat(
       withSequence(
         withTiming(-1, { duration: ROTATION_DURATION, easing: Easing.linear }),
@@ -105,7 +100,7 @@ export default function Bubble({
   );
 
   const textAnimatedStyle = useAnimatedStyle(() => {
-    const activeProgress = popping?.value
+    const activeProgress = popping.value
       ? progress.value
       : lockedProgress.value;
 
@@ -142,7 +137,6 @@ export default function Bubble({
     <View
       style={{
         paddingHorizontal: 16,
-        // backgroundColor: "red",
       }}
     >
       <Animated.Text style={[{}, textAnimatedStyle]}>{emoji}</Animated.Text>

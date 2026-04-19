@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable, TextInput } from "react-native";
+import { StyleSheet, Pressable } from "react-native";
 import React from "react";
 import { GlassContainer, GlassView } from "expo-glass-effect";
 import { ThemedText, ThemedTextWrapper } from "../ThemedText";
@@ -25,7 +25,7 @@ export default function MessageBox({ emojiPressableProps }: MessageBoxProps) {
             bottom: bottom,
           },
         ]}
-        spacing={6}
+        spacing={8}
       >
         <GlassView style={styles.buttonWrapper} isInteractive>
           <Pressable style={styles.button}>
