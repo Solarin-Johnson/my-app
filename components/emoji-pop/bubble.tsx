@@ -13,20 +13,24 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { runOnJS } from "react-native-worklets";
 
 export type BubbleProps = {
   emoji: string;
   popping?: SharedValue<boolean>;
   index: number;
   totalLength: number;
+  onBurst?: () => void;
 };
 
 const MAX_BUBBLE_DURATION = 3000;
-const BUBBLE_MIN_SIZE = 32;
-const BUBBLE_MAX_SIZE = 80;
+const BUBBLE_MIN_SIZE = 38;
+const BUBBLE_MAX_SIZE = 100;
 
 const ROTATION_FACTOR = 4;
-const ROTATION_DURATION = 5;
+const ROTATION_DURATION = 16;
+
+const BUBBLE_POP_SCALE = 1.3;
 
 const SPRING_CONFIG = {
   damping: 15,
@@ -39,6 +43,7 @@ export default function Bubble({
   popping,
   index,
   totalLength,
+  onBurst,
 }: BubbleProps) {
   const timer = useSharedValue(0);
   const lockedProgress = useSharedValue(0);
@@ -90,6 +95,15 @@ export default function Bubble({
     );
   });
 
+  useAnimatedReaction(
+    () => burst.value,
+    (b, prev) => {
+      if (b && b !== prev && onBurst) {
+        runOnJS(onBurst)();
+      }
+    },
+  );
+
   const textAnimatedStyle = useAnimatedStyle(() => {
     const activeProgress = popping?.value
       ? progress.value
@@ -100,7 +114,7 @@ export default function Bubble({
       lockedProgress.value <= 1 &&
       activeProgress > 0.2 &&
       !burst.value
-        ? 1.5
+        ? BUBBLE_POP_SCALE
         : 1;
     const PROGRESSING_SIZE =
       BUBBLE_MIN_SIZE + (BUBBLE_MAX_SIZE - BUBBLE_MIN_SIZE) * activeProgress;

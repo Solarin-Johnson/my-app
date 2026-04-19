@@ -1,9 +1,5 @@
-import { Pressable, Text, View } from "react-native";
 import React, { useRef } from "react";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MessageBox from "@/components/emoji-pop/message-box";
 import Bubble from "@/components/emoji-pop/bubble";
 import Animated, {
@@ -11,10 +7,7 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { applySpringConfig } from "@/functions";
-import {
-  KeyboardAvoidingView,
-  KeyboardAwareScrollView,
-} from "react-native-keyboard-controller";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 export default function Page() {
   const pressing = useSharedValue(false);
@@ -53,6 +46,9 @@ export default function Page() {
             popping={msg.id === activeId.current ? pressing : stalePressing}
             index={index + 1}
             totalLength={messages.length}
+            onBurst={() => {
+              setMessages((prev) => prev.filter((_, i) => i !== index));
+            }}
           />
         )}
         style={{ flex: 1 }}
