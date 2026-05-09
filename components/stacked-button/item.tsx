@@ -136,6 +136,7 @@ export default function Item({
       : !exp
         ? 0
         : -(current - 1) * spacing;
+
     return {
       opacity: applySpring(active ? 1 : 0),
       width: applySpring(isActive.value ? fullWidth : width),

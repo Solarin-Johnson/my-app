@@ -282,11 +282,12 @@ const BottomAction = ({
           alignItems: "center",
           justifyContent: "center",
           height: 50,
+          paddingVertical: 16,
         }}
         initialIndex={initialIndex}
         gap={12}
       >
-        <StackedButton.Container style={{ width: "100%", paddingVertical: 16 }}>
+        <StackedButton.Container>
           <ButtonItem
             expandedElement={
               <ButtonCluster
