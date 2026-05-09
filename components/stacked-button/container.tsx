@@ -45,7 +45,7 @@ export default function Container({ children, style }: ContainerProps) {
   });
 
   return (
-    <Animated.View style={[style]}>
+    <Animated.View style={[{ width: "100%" }, style]}>
       <Animated.View
         ref={animatedRef}
         style={[styles.container, { gap }]}

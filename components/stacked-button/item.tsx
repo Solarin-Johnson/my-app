@@ -184,24 +184,16 @@ export default function Item({
     const active = isActive.get();
     const w = itemWidth.get();
 
-    const expLeft = w / 2 - expandedWidth.get() / 2;
-    const childLeft = w / 2 - childWidth.get() / 2;
+    const containerW = containerWidth.get();
+    const expandedW = expandedWidth.get();
 
-    const translateX = applySpring(active ? 0 : childLeft - expLeft);
+    const expLeft = (containerW - expandedW) / 2;
+    const collapseLeft = (w - childWidth.get()) / 2;
 
     return {
-      transform: [{ translateX }],
+      left: applySpring(active ? expLeft : collapseLeft),
     };
   });
-
-  // useDerivedValue(() => {
-  //   console.log(
-  //     "Child width:",
-  //     childWidth.value,
-  //     "Expanded width:",
-  //     expandedWidth.value,
-  //   );
-  // });
 
   const measureMain = useCallback(() => {
     scheduleOnUI(() => {
@@ -246,7 +238,7 @@ export default function Item({
       >
         <Animated.View
           ref={expandedAnimatedRef}
-          style={[{}, expandedInnerAnimatedStyle]}
+          style={[{ position: "absolute" }, expandedInnerAnimatedStyle]}
         >
           {expandedElement}
         </Animated.View>
@@ -295,7 +287,10 @@ export default function Item({
         style={[combinedStyles, mainAnimatedStyle]}
         onLayout={measureMain}
       >
-        <Animated.View ref={animatedRef} style={childStyle}>
+        <Animated.View
+          ref={animatedRef}
+          style={[childStyle, innerAnimatedStyle]}
+        >
           {children}
         </Animated.View>
       </Animated.View>
