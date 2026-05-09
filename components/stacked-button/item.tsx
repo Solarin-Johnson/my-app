@@ -127,13 +127,15 @@ export default function Item({
       return {};
     }
 
+    console.log(index, current);
+
+    const spacing = width + gap;
+
     const translateX = isActive.get()
       ? -(index - 1) * width - itemGap
       : !exp
         ? 0
-        : (itemCount.get() - 1 + (current > index ? -1 : 1) - itemCount.value) *
-          width;
-
+        : -(current - 1) * spacing;
     return {
       opacity: applySpring(active ? 1 : 0),
       width: applySpring(isActive.value ? fullWidth : width),
