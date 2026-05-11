@@ -65,13 +65,18 @@ export default function Sheet() {
     currentIndex.value = 2;
   };
 
-  const handleUndo = () => {
+  const handleUndo = async () => {
     if (currentIndex.value === 2) {
       currentIndex.value = 0;
       return;
     }
     if (padRef.current) {
       padRef.current.undo();
+      setTimeout(() => {
+        if (pathLength.value === 0) {
+          currentIndex.value = 1;
+        }
+      }, 0);
     }
   };
 
@@ -106,7 +111,7 @@ export default function Sheet() {
           ),
         }}
       />
-      <View style={{ flex: 1, paddingTop: top, padding: 26, gap: 12 }}>
+      <View style={[styles.container, { paddingTop: top }]}>
         <View
           style={{ flex: 1 }}
           onTouchStart={() => {
@@ -130,14 +135,7 @@ export default function Sheet() {
         >
           <StackedButton.Provider
             currentIndex={currentIndex}
-            itemStyles={{
-              borderRadius: 25,
-              borderCurve: "continuous",
-              alignItems: "center",
-              justifyContent: "center",
-              height: 50,
-              paddingVertical: 16,
-            }}
+            itemStyles={styles.itemStyle}
             gap={12}
             initialIndex={1}
           >
@@ -188,6 +186,7 @@ export default function Sheet() {
                       colorName="background"
                     />
                   }
+                  //   expandedStyle={textStyle}
                   handleConfirmation={handleConfirmExpand}
                   onPress={handleConfirm}
                 >
@@ -196,12 +195,11 @@ export default function Sheet() {
                     icon={
                       <ButtonIcon
                         icon={Stamp}
-                        size={19}
+                        size={20}
                         colorName="background"
                       />
                     }
                     type="semiBold"
-                    ellipsizeMode="clip"
                     style={styles.btnText}
                     colorName="background"
                   />
@@ -216,13 +214,17 @@ export default function Sheet() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  container: { flex: 1, padding: 26, gap: 12 },
   btnText: {
     fontSize: 16,
     paddingHorizontal: 2,
+  },
+  itemStyle: {
+    borderRadius: 25,
+    borderCurve: "continuous",
+    alignItems: "center",
+    justifyContent: "center",
+    height: 50,
+    paddingVertical: 16,
   },
 });
