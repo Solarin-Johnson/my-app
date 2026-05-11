@@ -232,9 +232,9 @@ export default function Item({
     return (
       <Animated.View
         style={[
-          expandedStyle,
           StyleSheet.absoluteFill,
           combinedStyles,
+          expandedStyle,
           expandedAnimatedStyle,
         ]}
         onLayout={measureExpanded}

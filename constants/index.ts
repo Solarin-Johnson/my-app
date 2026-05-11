@@ -55,3 +55,4 @@ export const SPRING_CONFIG = {
 };
 
 export const isAndroid = Platform.OS === "android";
+export const isIos = Platform.OS === "ios";

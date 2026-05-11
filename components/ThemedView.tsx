@@ -9,6 +9,7 @@ export type ThemedViewProps = ViewProps & {
   darkColor?: string;
   invert?: boolean;
   colorName?: keyof typeof Colors.light & keyof typeof Colors.dark;
+  alphaHex?: string;
 };
 
 export function ThemedView({
@@ -17,6 +18,7 @@ export function ThemedView({
   darkColor,
   invert,
   colorName = "background",
+  alphaHex = "",
   ...otherProps
 }: ThemedViewProps) {
   const backgroundColor = useThemeColor(invert ? "text" : colorName, {
@@ -24,7 +26,12 @@ export function ThemedView({
     dark: darkColor,
   });
 
-  return <View style={[{ backgroundColor }, style]} {...otherProps} />;
+  return (
+    <View
+      style={[{ backgroundColor: backgroundColor + alphaHex }, style]}
+      {...otherProps}
+    />
+  );
 }
 
 export function ThemedViewWrapper({
@@ -34,6 +41,7 @@ export function ThemedViewWrapper({
   invert = false,
   colorName = "background",
   style,
+  alphaHex = "",
   ...rest
 }: ThemedViewProps & { children: React.ReactElement<any> }) {
   const backgroundColor = useThemeColor(invert ? "text" : colorName, {
@@ -41,7 +49,10 @@ export function ThemedViewWrapper({
     dark: darkColor,
   });
 
-  const combinedStyle = [{ backgroundColor }, style];
+  const combinedStyle = [
+    { backgroundColor: backgroundColor + alphaHex },
+    style,
+  ];
 
   return cloneElement(children, {
     style: [(children.props as any).style ?? {}, ...combinedStyle],
