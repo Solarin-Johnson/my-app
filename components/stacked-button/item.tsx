@@ -87,7 +87,13 @@ export default function Item({
     return (containerWidth.value - gapTotal) / Math.max(itemCount.value, 1);
   });
 
-  const combinedStyles = [style, styles.item, itemProps.style, itemStyles];
+  const combinedStyles = [
+    styles.defaultItemStyle,
+    style,
+    itemProps.style,
+    itemStyles,
+    styles.item,
+  ];
 
   const handlePress = (e: GestureResponderEvent) => {
     const isInit = index === initialIndex;
@@ -305,5 +311,11 @@ export default function Item({
 const styles = StyleSheet.create({
   item: {
     overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  defaultItemStyle: {
+    height: 50,
+    backgroundColor: "#88888840",
   },
 });

@@ -27,7 +27,7 @@ export function Provider({
   currentIndex: _currentIndex,
   itemStyles,
   itemProps,
-  gap = 0,
+  gap = 4,
   delayMs,
   initialIndex = 0,
 }: {
