@@ -106,6 +106,12 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="accordion"
+        options={{
+          drawerLabel: "Accordion",
+        }}
+      />
+      <Drawer.Screen
         name="stacked-button"
         options={{
           drawerLabel: "Stacked Button",
