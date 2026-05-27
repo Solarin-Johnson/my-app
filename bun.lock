@@ -39,6 +39,7 @@
         "react-dom": "19.2.0",
         "react-native": "0.83.2",
         "react-native-audio-api": "^0.11.5",
+        "react-native-ease": "^0.7.2",
         "react-native-gesture-handler": "^3.0.0-beta.1",
         "react-native-keyboard-controller": "1.20.7",
         "react-native-reanimated": "4.2.1",
@@ -1500,6 +1501,8 @@
     "react-native-audio-api": ["react-native-audio-api@0.11.7", "", { "dependencies": { "semver": "^7.7.3" }, "peerDependencies": { "react": "*", "react-native": "*" }, "bin": { "setup-rn-audio-api-web": "scripts/setup-rn-audio-api-web.js" } }, "sha512-2oIoP77Tn2nlouRVfEC3bAsuSyKU6xhGNkSnVXTLLQQZslEDoYX2cN9pVRZoWOqhFrLT8q4IZI9HaFgYL13L1A=="],
 
     "react-native-drawer-layout": ["react-native-drawer-layout@4.2.2", "", { "dependencies": { "color": "^4.2.3", "use-latest-callback": "^0.2.4" }, "peerDependencies": { "react": ">= 18.2.0", "react-native": "*", "react-native-gesture-handler": ">= 2.0.0", "react-native-reanimated": ">= 2.0.0" } }, "sha512-UG/PTTeyyr43KahbgoGyXri8LMO5USHY3/RUpeKBKwCc7xLVGnDLOVNSRrJw0dDc7YmPbmAyJ4oxp8nKboKKuw=="],
+
+    "react-native-ease": ["react-native-ease@0.7.2", "", { "peerDependencies": { "nativewind": ">=4", "react": "*", "react-native": "*", "uniwind": ">=1" }, "optionalPeers": ["nativewind", "uniwind"] }, "sha512-BircCQKjEylZ0WpdyncuUWfI7IswfiHWZoW3mMIwQM85JxU0egKXPFvjXZ+tKYYcLRqKEAecE1BbePFnuSP1zQ=="],
 
     "react-native-gesture-handler": ["react-native-gesture-handler@3.0.0-nightly-20260403-d21f1dd91", "", { "dependencies": { "@types/react-test-renderer": "^19.1.0", "invariant": "^2.2.4" }, "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-z1Zb2HiZgnq6aSmMDOHKPTGK2nV6Flsn3hhIOAIHHRFaCvx2bI6HwzfqhsW6kENwojVTNWBSpL5o6sdtxxX1oQ=="],
 

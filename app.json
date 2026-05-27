@@ -10,7 +10,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.solarin.myapp"
+      "bundleIdentifier": "com.solarin.myapp.dev"
     },
     "android": {
       "adaptiveIcon": {
