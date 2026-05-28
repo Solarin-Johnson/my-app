@@ -12,6 +12,7 @@ import { GlassView } from "expo-glass-effect";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { PowerIcon, Settings, X } from "lucide-react-native";
 import IconButton from "@/components/ui/icon-button";
+import { Feedback } from "@/functions";
 
 const SIZE = 120;
 
@@ -20,7 +21,12 @@ export default function OnlinePulseScreen() {
   const [status, setStatus] = useState("online");
   const isOnline = status === "online";
   const appleRed = useThemeColor("appleRed");
-  const { bottom } = useSafeAreaInsets();
+
+  const onToggleStatus = () => {
+    Feedback.medium();
+
+    setStatus(isOnline ? "offline" : "online");
+  };
 
   const pulseChild = (
     <ThemedTextWrapper colorName={isOnline ? "background" : "text"}>
@@ -30,8 +36,12 @@ export default function OnlinePulseScreen() {
   return (
     <ThemedViewWrapper colorName={isDark ? "background" : "theme"}>
       <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.float, styles.topItem]} edges={["top"]}>
+          <ThemedText style={styles.status}>{status.toUpperCase()}</ThemedText>
+          <ThemedText style={styles.title}>Device Status</ThemedText>
+        </SafeAreaView>
         <PressableBounce
-          onPress={() => setStatus(isOnline ? "offline" : "online")}
+          onPress={onToggleStatus}
           style={styles.screen}
           hitSlop={10}
         >
@@ -53,7 +63,10 @@ export default function OnlinePulseScreen() {
             </OnlinePulse>
           )}
         </PressableBounce>
-        <SafeAreaView style={styles.bottomItem} edges={["bottom"]}>
+        <SafeAreaView
+          style={[styles.float, styles.bottomItem]}
+          edges={["bottom"]}
+        >
           <IconButton
             themedViewProps={{ colorName: "text", alphaHex: "16" }}
             size={68}
@@ -97,11 +110,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  bottomItem: {
+  float: {
     position: "absolute",
-    bottom: 8,
     left: 0,
     right: 0,
+  },
+  bottomItem: {
+    bottom: 8,
     alignItems: "center",
     justifyContent: "space-between",
     flexDirection: "row",
@@ -119,4 +134,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   screen: {},
+  topItem: {
+    top: 16,
+    paddingHorizontal: 22,
+  },
+  status: {
+    fontSize: 13,
+    fontFamily: "regular",
+    fontWeight: "600",
+    lineHeight: 18,
+    opacity: 0.6,
+  },
+  title: {
+    fontSize: 36,
+    fontFamily: "system",
+    fontWeight: "700",
+    lineHeight: 42,
+  },
 });

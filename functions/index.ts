@@ -26,6 +26,10 @@ export class Feedback {
   static selection() {
     Haptics.selectionAsync();
   }
+
+  static error() {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+  }
 }
 
 export const applySpringConfig = (
