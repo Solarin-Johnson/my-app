@@ -29,7 +29,7 @@ export default function OnlinePulseScreen() {
   };
 
   const pulseChild = (
-    <ThemedTextWrapper colorName={isOnline ? "background" : "text"}>
+    <ThemedTextWrapper colorName={isOnline ? "black" : "white"}>
       <PowerIcon size={42} strokeWidth={2.2} />
     </ThemedTextWrapper>
   );
