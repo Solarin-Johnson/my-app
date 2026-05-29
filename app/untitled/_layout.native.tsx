@@ -3,7 +3,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import type {
   ParamListBase,
   StackNavigationState,
-} from "@react-navigation/native";
+} from "expo-router/react-navigation";
 import { withLayoutContext } from "expo-router";
 import { interpolate } from "react-native-reanimated";
 import {

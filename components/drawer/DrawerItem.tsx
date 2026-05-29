@@ -1,5 +1,5 @@
-import { PlatformPressable, Text } from "@react-navigation/elements";
-import { type Route, useTheme } from "@react-navigation/native";
+import { PlatformPressable, Text } from "expo-router/react-navigation";
+import { type Route, useTheme } from "expo-router/react-navigation";
 import * as React from "react";
 import {
   type StyleProp,

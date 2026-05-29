@@ -2,12 +2,12 @@ import {
   CommonActions,
   DrawerActions,
   useLinkBuilder,
-} from "@react-navigation/native";
+} from "expo-router/react-navigation";
 import * as React from "react";
 
 import { DrawerItem } from "./DrawerItem";
-import { DrawerContentComponentProps } from "@react-navigation/drawer";
 import { Href } from "expo-router";
+import { DrawerContentComponentProps } from "expo-router/build/react-navigation/drawer";
 
 /**
  * Component that renders the navigation list in the drawer.
@@ -68,8 +68,8 @@ export function DrawerItemList({
           drawerLabel !== undefined
             ? drawerLabel
             : title !== undefined
-            ? title
-            : route.name
+              ? title
+              : route.name
         }
         icon={drawerIcon}
         focused={focused}

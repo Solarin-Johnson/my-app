@@ -32,14 +32,12 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import {
-  DrawerNavigationProp,
-  useDrawerProgress,
-} from "@react-navigation/drawer";
+import { Drawer } from "expo-router/drawer";
 import { GrokIcon } from "@/components/icons";
 import { useNavigation } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TextArea from "@/components/TextArea";
+import { useDrawerProgress } from "expo-router/build/react-navigation/drawer";
 
 const CHAT_BOX_HEIGHT = 100;
 const CHAT_BOX_MARGIN_V = 6;

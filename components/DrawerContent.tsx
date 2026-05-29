@@ -1,9 +1,4 @@
 import React, { memo, useCallback, useEffect, useState } from "react";
-import {
-  DrawerContentComponentProps,
-  // DrawerItemList,
-  useDrawerStatus,
-} from "@react-navigation/drawer";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,6 +11,10 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Feedback } from "@/functions";
 import { DrawerItemList } from "./drawer/DrawerItemList";
+import {
+  DrawerContentComponentProps,
+  useDrawerStatus,
+} from "expo-router/build/react-navigation/drawer";
 
 const DrawerContent = memo((props: DrawerContentComponentProps) => {
   const demos = (props.state?.routes?.length || 0) - 1 || 0;
@@ -37,7 +36,7 @@ const DrawerContent = memo((props: DrawerContentComponentProps) => {
       return () => {
         setFocused(false);
       };
-    }, [])
+    }, []),
   );
 
   return (
@@ -107,6 +106,8 @@ const DrawerFooter = () => {
     </View>
   );
 };
+
+DrawerContent.displayName = "DrawerContent";
 
 export default DrawerContent;
 

@@ -1,6 +1,14 @@
-import { fonts } from "./../node_modules/@react-navigation/native/src/theming/fonts";
-import { Theme } from "@react-navigation/native";
+import { Theme } from "expo-router/react-navigation";
 import { Colors } from "./Colors";
+
+const fonts = {
+  regular: { fontFamily: "InterRegular", fontWeight: "400" as const },
+  medium: { fontFamily: "InterMedium", fontWeight: "500" as const },
+  semiBold: { fontFamily: "InterSemiBold", fontWeight: "600" as const },
+  bold: { fontFamily: "InterBold", fontWeight: "700" as const },
+  italic: { fontFamily: "LoraMediumItalic", fontWeight: "400" as const },
+  heavy: { fontFamily: "InterBold", fontWeight: "800" as const },
+};
 
 export const DarkTheme: Theme = {
   dark: true,

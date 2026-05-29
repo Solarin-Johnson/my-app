@@ -5,7 +5,6 @@ import Button from "@/components/ui/Button";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "expo-router";
-import { DrawerNavigationProp } from "@react-navigation/drawer";
 import TextArea from "@/components/TextArea";
 import { ThemedTextWrapper } from "@/components/ThemedText";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
@@ -14,7 +13,7 @@ import Slider from "@/components/Slider";
 export default function Index() {
   const text = useThemeColor("text");
   const bg = useThemeColor("background");
-  const navigation = useNavigation<DrawerNavigationProp<any>>();
+  const navigation = useNavigation<any>();
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
