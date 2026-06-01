@@ -71,13 +71,13 @@ export default function OnlinePulseScreen() {
             themedViewProps={{ colorName: "text", alphaHex: "16" }}
             size={68}
           >
-            <X size={30} opacity={0.9} />
+            <X size={30} />
           </IconButton>
           <IconButton
             themedViewProps={{ colorName: "text", alphaHex: "16" }}
             size={72}
           >
-            <Settings size={30} opacity={0.9} />
+            <Settings size={30} />
           </IconButton>
         </SafeAreaView>
       </SafeAreaView>
