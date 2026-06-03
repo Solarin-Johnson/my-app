@@ -40,7 +40,7 @@
     "react-native": "0.85.3",
     "react-native-audio-api": "^0.11.5",
     "react-native-ease": "^0.7.2",
-    "react-native-gesture-handler": "~2.31.1",
+    "react-native-gesture-handler": "^3.0.0",
     "react-native-keyboard-controller": "1.21.6",
     "react-native-reanimated": "4.3.1",
     "react-native-redash": "^18.1.4",
