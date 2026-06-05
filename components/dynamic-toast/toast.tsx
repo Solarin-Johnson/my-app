@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   },
   inner: {
     flexDirection: "row",
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     // position: "absolute",
     // top: 0,
     // left: 0,
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: COLLAPSED_SPACE,
   },
   blur: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   button: {
     height: 50,
