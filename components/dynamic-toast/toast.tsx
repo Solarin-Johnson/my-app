@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   },
   inner: {
     flexDirection: "row",
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     // position: "absolute",
     // top: 0,
     // left: 0,

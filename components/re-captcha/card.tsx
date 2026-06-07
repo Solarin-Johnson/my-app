@@ -64,7 +64,7 @@ export default function CaptchaCard({
         <View style={styles.captchLogo}>
           <Image
             source={
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/ReCAPTCHA_icon.svg/512px-ReCAPTCHA_icon.svg.png"
+              "https://upload.wikimedia.org/wikipedia/commons/8/83/ReCAPTCHA_icon.svg"
             }
             style={styles.image}
           />

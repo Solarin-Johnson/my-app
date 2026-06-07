@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   },
   numberText: {
     paddingRight: 8,
-    width: 150,
+    // width: 150,
     textAlign: "right",
     fontVariant: ["tabular-nums"],
     outlineWidth: 0,
