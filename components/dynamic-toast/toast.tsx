@@ -8,6 +8,7 @@ import {
 import React, { Children } from "react";
 import Animated, {
   SharedValue,
+  useAnimatedProps,
   useAnimatedStyle,
   useDerivedValue,
   withDelay,
@@ -154,6 +155,10 @@ export const Inner = ({
     };
   });
 
+  const animatedProp = useAnimatedProps(() => ({
+    intensity: intensity.value,
+  }));
+
   return (
     <Animated.View
       style={[
@@ -165,7 +170,7 @@ export const Inner = ({
       {children}
       {isIOS && (
         <AnimatedBlurView
-          intensity={intensity}
+          animatedProps={animatedProp}
           style={styles.blur}
           pointerEvents="none"
         />
