@@ -7,7 +7,7 @@ import { useSharedValue } from "react-native-reanimated";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import { ThemedViewWrapper } from "@/components/ThemedView";
+import { ThemedView, ThemedViewWrapper } from "@/components/ThemedView";
 import DrawPad, { DrawPadHandle } from "expo-drawpad";
 
 export default function Index({
@@ -19,25 +19,28 @@ export default function Index({
   const rotateRef = useRef<Rotate3dHandle>(null);
 
   return (
-    <KeyboardAwareScrollView
-      contentContainerStyle={styles.container}
-      style={{ flex: 1 }}
-      keyboardDismissMode="interactive"
-      keyboardShouldPersistTaps="handled"
-    >
-      <Rotate3d
-        ref={rotateRef}
-        style={styles.rotateCard}
-        frontContent={
-          <FrontContent goForward={() => rotateRef.current?.flipTo("back")} />
-        }
-        backContent={
-          <BackContent goBack={() => rotateRef.current?.flipTo("front")} />
-        }
-        {...rotate3dProps}
-      />
-      {children}
-    </KeyboardAwareScrollView>
+    <ThemedViewWrapper colorName="captchaBg">
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.container}
+        style={{ flex: 1 }}
+        keyboardDismissMode="interactive"
+        keyboardShouldPersistTaps="handled"
+      >
+        <Rotate3d
+          axis="y"
+          ref={rotateRef}
+          style={styles.rotateCard}
+          frontContent={
+            <FrontContent goForward={() => rotateRef.current?.flipTo("back")} />
+          }
+          backContent={
+            <BackContent goBack={() => rotateRef.current?.flipTo("front")} />
+          }
+          {...rotate3dProps}
+        />
+        {/* {children} */}
+      </KeyboardAwareScrollView>
+    </ThemedViewWrapper>
   );
 }
 
