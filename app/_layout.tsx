@@ -106,6 +106,12 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="floating-menu"
+        options={{
+          drawerLabel: "Floating Menu",
+        }}
+      />
+      <Drawer.Screen
         name="online-pulse"
         options={{
           drawerLabel: "Online Pulse",
