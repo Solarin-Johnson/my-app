@@ -1,5 +1,10 @@
 import { View, Text, ViewProps, StyleSheet } from "react-native";
-import React, { ReactNode } from "react";
+import React, {
+  Children,
+  cloneElement,
+  isValidElement,
+  ReactElement,
+} from "react";
 import { EaseView } from "react-native-ease";
 import { useFloatingMenu } from "./provider";
 
@@ -32,7 +37,11 @@ export default function Container({
       {...props}
       pointerEvents={isOpened ? "auto" : "none"}
     >
-      {children}
+      {Children.map(children, (child, index) =>
+        isValidElement(child)
+          ? cloneElement(child as ReactElement<any>, { index })
+          : child,
+      )}
     </EaseView>
   );
 }

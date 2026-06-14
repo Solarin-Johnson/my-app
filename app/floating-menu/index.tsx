@@ -4,10 +4,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import FloatingMenu from "@/components/floating-gesture-menu";
 import { Plus } from "lucide-react-native";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
+import { Feedback } from "@/functions";
 
 export default function FloatingMenuScreen() {
   return (
-    <FloatingMenu>
+    <FloatingMenu onOpen={Feedback.medium}>
       <SafeAreaView style={{ flex: 1 }}>
         <FloatingMenu.Container>
           <FloatingMenu.Item>

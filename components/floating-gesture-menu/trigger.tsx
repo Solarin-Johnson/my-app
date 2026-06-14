@@ -4,6 +4,7 @@ import { zIndex } from "@expo/ui/swift-ui/modifiers";
 import { useFloatingMenu } from "./provider";
 import {
   GestureDetector,
+  GestureEvent,
   usePanGesture,
   useSimultaneousGestures,
   useTapGesture,
@@ -16,6 +17,11 @@ type TriggerType = {
   inset?: number;
 } & ViewProps;
 
+type UpdatePositionType = {
+  absoluteX: number;
+  absoluteY: number;
+};
+
 export default function Trigger({
   children,
   style,
@@ -23,21 +29,47 @@ export default function Trigger({
   inset = 25,
   ...props
 }: TriggerType) {
-  const { bottomInset, open, close, isOpened, position } = useFloatingMenu();
+  const { bottomInset, open, close, state, isOpened, position, resetPosition } =
+    useFloatingMenu();
 
-  const panGesture = usePanGesture({
+  const updatePosition = (e: UpdatePositionType) => {
+    "worklet";
+    position.set({
+      x: e.absoluteX,
+      y: e.absoluteY,
+    });
+  };
+
+  const panGestureTrigger = usePanGesture({
     activateAfterLongPress: 700,
     onActivate: () => {
+      state.set("pan");
       scheduleOnRN(open);
     },
     onUpdate: (e) => {
-      position.set({
-        x: e.absoluteX,
-        y: e.absoluteY,
-      });
-      console.log(e.absoluteX, e.absoluteY);
+      updatePosition(e);
     },
-    onDeactivate: () => {},
+    onDeactivate: () => {
+      state.set("idle");
+      resetPosition();
+    },
+  });
+
+  const panGesture = usePanGesture({
+    onActivate: () => {
+      scheduleOnRN(open);
+    },
+    onBegin: (e) => {
+      updatePosition(e);
+    },
+    onUpdate: (e) => {
+      updatePosition(e);
+    },
+    onDeactivate: () => {
+      state.set("idle");
+      resetPosition();
+    },
+    minDistance: 0,
   });
 
   const singleTap = useTapGesture({
@@ -50,22 +82,29 @@ export default function Trigger({
     },
   });
 
-  const gesture = useSimultaneousGestures(singleTap, panGesture);
+  const gesture = useSimultaneousGestures(singleTap, panGestureTrigger);
 
   return (
-    <GestureDetector gesture={gesture}>
-      <View
-        style={[
-          !removeDefaultStyle && styles.defaultStyle,
-          style,
-          { margin: inset, marginBottom: 0, bottom: bottomInset },
-          styles.trigger,
-        ]}
-        {...props}
-      >
-        {children}
-      </View>
-    </GestureDetector>
+    <>
+      {isOpened && (
+        <GestureDetector gesture={panGesture}>
+          <View style={StyleSheet.absoluteFill} />
+        </GestureDetector>
+      )}
+      <GestureDetector gesture={gesture}>
+        <View
+          style={[
+            !removeDefaultStyle && styles.defaultStyle,
+            style,
+            { margin: inset, marginBottom: 0, bottom: bottomInset },
+            styles.trigger,
+          ]}
+          {...props}
+        >
+          {children}
+        </View>
+      </GestureDetector>
+    </>
   );
 }
 
