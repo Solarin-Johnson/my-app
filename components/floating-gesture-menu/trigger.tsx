@@ -34,6 +34,7 @@ export default function Trigger({
 
   const updatePosition = (e: UpdatePositionType) => {
     "worklet";
+    state.set("pan");
     position.set({
       x: e.absoluteX,
       y: e.absoluteY,
@@ -43,7 +44,6 @@ export default function Trigger({
   const panGestureTrigger = usePanGesture({
     activateAfterLongPress: 700,
     onActivate: () => {
-      state.set("pan");
       scheduleOnRN(open);
     },
     onUpdate: (e) => {
@@ -51,7 +51,7 @@ export default function Trigger({
     },
     onDeactivate: () => {
       state.set("idle");
-      resetPosition();
+      //   resetPosition();
     },
   });
 
@@ -62,12 +62,16 @@ export default function Trigger({
     onBegin: (e) => {
       updatePosition(e);
     },
+    onFinalize: (e) => {
+      state.set("touch");
+      console.log("touch");
+    },
     onUpdate: (e) => {
       updatePosition(e);
     },
     onDeactivate: () => {
       state.set("idle");
-      resetPosition();
+      //   resetPosition();
     },
     minDistance: 0,
   });
@@ -86,11 +90,6 @@ export default function Trigger({
 
   return (
     <>
-      {isOpened && (
-        <GestureDetector gesture={panGesture}>
-          <View style={StyleSheet.absoluteFill} />
-        </GestureDetector>
-      )}
       <GestureDetector gesture={gesture}>
         <View
           style={[
@@ -104,6 +103,11 @@ export default function Trigger({
           {children}
         </View>
       </GestureDetector>
+      {isOpened && (
+        <GestureDetector gesture={panGesture}>
+          <View style={StyleSheet.absoluteFill} />
+        </GestureDetector>
+      )}
     </>
   );
 }

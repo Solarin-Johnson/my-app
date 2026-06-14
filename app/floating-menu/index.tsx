@@ -11,10 +11,18 @@ export default function FloatingMenuScreen() {
     <FloatingMenu onOpen={Feedback.medium}>
       <SafeAreaView style={{ flex: 1 }}>
         <FloatingMenu.Container>
-          <FloatingMenu.Item>
+          <FloatingMenu.Item
+            onPress={() => {
+              console.log("hey");
+            }}
+          >
             <ThemedText>Heyy</ThemedText>
           </FloatingMenu.Item>
-          <FloatingMenu.Item>
+          <FloatingMenu.Item
+            onPress={() => {
+              console.log("hey");
+            }}
+          >
             <ThemedText>Another</ThemedText>
           </FloatingMenu.Item>
         </FloatingMenu.Container>

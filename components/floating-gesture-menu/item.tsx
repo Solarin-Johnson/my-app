@@ -7,7 +7,7 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated";
-import { runOnUI } from "react-native-worklets";
+import { runOnUI, scheduleOnRN } from "react-native-worklets";
 import { useFloatingMenu } from "./provider";
 
 type ItemType = {
@@ -28,9 +28,11 @@ export default function Item({
   style,
   removeDefaultStyle,
   index = 0,
+  onPress,
 }: ItemType) {
   const animatedRef = useAnimatedRef();
-  const { position, isOpened, hoveredItem } = useFloatingMenu();
+  const { position, isOpened, hoveredItem, state, resetPosition, close } =
+    useFloatingMenu();
   const bounds = useSharedValue<BoundsType>({
     x: 0,
     y: 0,
@@ -64,13 +66,32 @@ export default function Item({
     const withinX = p.x >= b.x && p.x <= b.x + b.width;
     const withinY = p.y >= b.y && p.y <= b.y + b.height;
 
-    console.log(withinX, withinY);
-
     const active = withinX && withinY;
-    hoveredItem.set(active ? index : null);
+
+    // console.log(active, index);
 
     return active;
   });
+
+  useAnimatedReaction(
+    () => ({ active: isActive.value, state: state.value }),
+    (curr, prev) => {
+      const curr_state = curr.state;
+      const prev_state = prev?.state;
+      if (
+        curr.active &&
+        (curr_state === "idle" || curr_state === "touch") &&
+        (!prev ||
+          !(prev.active && (prev_state === "idle" || prev_state === "touch")))
+      ) {
+        if (onPress) {
+          scheduleOnRN(onPress);
+          resetPosition();
+          scheduleOnRN(close);
+        }
+      }
+    },
+  );
 
   useAnimatedReaction(
     () => isActive.value,
