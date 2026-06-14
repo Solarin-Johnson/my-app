@@ -1,5 +1,10 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { SharedValue, useSharedValue } from "react-native-reanimated";
+import {
+  SharedValue,
+  useAnimatedReaction,
+  useSharedValue,
+} from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 
 export type PositionType = {
   x: number | null;
@@ -17,6 +22,7 @@ interface FloatingMenuContextValue {
   state: SharedValue<StateType>;
   resetPosition: () => void;
   hoveredItem: SharedValue<number | null>;
+  onItemHover?: () => void;
 }
 
 const FloatingMenuContext = createContext<FloatingMenuContextValue | null>(
@@ -38,6 +44,7 @@ export type ProviderType = {
   bottomInset?: number;
   onOpen?: () => void;
   onClose?: () => void;
+  onItemHover?: () => void;
 };
 
 const FloatingMenuProvider = ({
@@ -45,6 +52,7 @@ const FloatingMenuProvider = ({
   bottomInset = 54,
   onOpen,
   onClose,
+  onItemHover,
 }: ProviderType) => {
   const [isOpened, setIsOpened] = useState<boolean>(false);
   const position = useSharedValue<PositionType>({ x: null, y: null });
@@ -66,6 +74,18 @@ const FloatingMenuProvider = ({
     position.set({ x: null, y: null });
   };
 
+  useAnimatedReaction(
+    () => hoveredItem.value,
+    (current, previous) => {
+      if (current !== previous && current != null) {
+        console.log(hoveredItem.value);
+        if (onItemHover) {
+          scheduleOnRN(onItemHover);
+        }
+      }
+    },
+  );
+
   return (
     <FloatingMenuContext.Provider
       value={{
@@ -77,6 +97,7 @@ const FloatingMenuProvider = ({
         state,
         resetPosition,
         hoveredItem,
+        onItemHover,
       }}
     >
       {children}

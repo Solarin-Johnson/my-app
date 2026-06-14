@@ -95,10 +95,10 @@ export default function Item({
 
   useAnimatedReaction(
     () => isActive.value,
-    (active, previous) => {
-      if (active && !previous) {
+    (active) => {
+      if (active) {
         hoveredItem.set(index);
-      } else if (!active && previous) {
+      } else if (hoveredItem.get() === index) {
         hoveredItem.set(null);
       }
     },

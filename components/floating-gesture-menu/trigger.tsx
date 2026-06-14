@@ -42,7 +42,7 @@ export default function Trigger({
   };
 
   const panGestureTrigger = usePanGesture({
-    activateAfterLongPress: 700,
+    activateAfterLongPress: 600,
     onActivate: () => {
       scheduleOnRN(open);
     },
@@ -64,7 +64,6 @@ export default function Trigger({
     },
     onFinalize: (e) => {
       state.set("touch");
-      console.log("touch");
     },
     onUpdate: (e) => {
       updatePosition(e);
@@ -86,11 +85,11 @@ export default function Trigger({
     },
   });
 
-  const gesture = useSimultaneousGestures(singleTap, panGestureTrigger);
+  const gesture = useSimultaneousGestures(singleTap, panGesture);
 
   return (
     <>
-      <GestureDetector gesture={gesture}>
+      <GestureDetector gesture={panGestureTrigger}>
         <View
           style={[
             !removeDefaultStyle && styles.defaultStyle,
@@ -104,7 +103,7 @@ export default function Trigger({
         </View>
       </GestureDetector>
       {isOpened && (
-        <GestureDetector gesture={panGesture}>
+        <GestureDetector gesture={gesture}>
           <View style={StyleSheet.absoluteFill} />
         </GestureDetector>
       )}

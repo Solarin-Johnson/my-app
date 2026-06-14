@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, Alert } from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FloatingMenu from "@/components/floating-gesture-menu";
@@ -8,19 +8,19 @@ import { Feedback } from "@/functions";
 
 export default function FloatingMenuScreen() {
   return (
-    <FloatingMenu onOpen={Feedback.medium}>
+    <FloatingMenu onOpen={Feedback.medium} onItemHover={Feedback.light}>
       <SafeAreaView style={{ flex: 1 }}>
         <FloatingMenu.Container>
           <FloatingMenu.Item
             onPress={() => {
-              console.log("hey");
+              Alert.alert("Heyy");
             }}
           >
             <ThemedText>Heyy</ThemedText>
           </FloatingMenu.Item>
           <FloatingMenu.Item
             onPress={() => {
-              console.log("hey");
+              Alert.alert("Another");
             }}
           >
             <ThemedText>Another</ThemedText>
