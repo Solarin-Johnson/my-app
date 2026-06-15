@@ -49,6 +49,7 @@ export default function Container({
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFill,
+    zIndex: 1,
   },
   defaultStyle: {
     alignItems: "flex-end",

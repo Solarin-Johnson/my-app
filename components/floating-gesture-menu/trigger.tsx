@@ -1,5 +1,13 @@
-import { View, Text, StyleSheet, ViewProps, Pressable } from "react-native";
-import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ViewProps,
+  Pressable,
+  PressableProps,
+  Alert,
+} from "react-native";
+import React, { Fragment, JSX, ReactElement } from "react";
 import { zIndex } from "@expo/ui/swift-ui/modifiers";
 import { useFloatingMenu } from "./provider";
 import {
@@ -15,7 +23,8 @@ type TriggerType = {
   children: React.ReactNode;
   removeDefaultStyle?: boolean;
   inset?: number;
-} & ViewProps;
+  width?: number;
+} & PressableProps;
 
 type UpdatePositionType = {
   absoluteX: number;
@@ -27,6 +36,7 @@ export default function Trigger({
   style,
   removeDefaultStyle,
   inset = 25,
+  width = 60,
   ...props
 }: TriggerType) {
   const { bottomInset, open, close, state, isOpened, position, resetPosition } =
@@ -88,27 +98,40 @@ export default function Trigger({
 
   const gesture = useSimultaneousGestures(singleTap, panGesture);
 
+  const positionStyle = {
+    margin: inset,
+    marginBottom: 0,
+    bottom: bottomInset,
+    width,
+  };
+
+  const makeCombined = (s: any) => [
+    !removeDefaultStyle && styles.defaultStyle,
+    s,
+    positionStyle,
+    styles.trigger,
+  ];
+
+  const combinedStyle: PressableProps["style"] =
+    typeof style === "function"
+      ? (pressState) => makeCombined(style(pressState))
+      : makeCombined(style);
+
   return (
-    <>
+    <Fragment>
       <GestureDetector gesture={panGestureTrigger}>
-        <View
-          style={[
-            !removeDefaultStyle && styles.defaultStyle,
-            style,
-            { margin: inset, marginBottom: 0, bottom: bottomInset },
-            styles.trigger,
-          ]}
-          {...props}
-        >
+        <Pressable style={combinedStyle} {...props}>
           {children}
-        </View>
+        </Pressable>
       </GestureDetector>
       {isOpened && (
-        <GestureDetector gesture={gesture}>
-          <View style={StyleSheet.absoluteFill} />
-        </GestureDetector>
+        <View style={[StyleSheet.absoluteFill, { zIndex: 100 }]}>
+          <GestureDetector gesture={gesture}>
+            <View style={[StyleSheet.absoluteFill]} />
+          </GestureDetector>
+        </View>
       )}
-    </>
+    </Fragment>
   );
 }
 
@@ -120,8 +143,6 @@ const styles = StyleSheet.create({
   defaultStyle: {
     borderRadius: "50%",
     right: 0,
-    backgroundColor: "#88888888",
-    width: 60,
     aspectRatio: 1,
     alignItems: "center",
     justifyContent: "center",
