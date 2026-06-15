@@ -134,8 +134,10 @@ export default function Item({
   );
 }
 
+Item.displayName = "FloatingMenuItem";
+
 const styles = StyleSheet.create({
   item: {
-    paddingVertical: 8,
+    // paddingVertical: 8,
   },
 });

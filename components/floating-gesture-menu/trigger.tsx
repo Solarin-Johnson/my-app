@@ -66,9 +66,6 @@ export default function Trigger({
   });
 
   const panGesture = usePanGesture({
-    onActivate: () => {
-      scheduleOnRN(open);
-    },
     onBegin: (e) => {
       updatePosition(e);
       state.set("holding");
@@ -118,12 +115,12 @@ export default function Trigger({
       : makeCombined(style);
 
   return (
-    <Fragment>
-      <GestureDetector gesture={panGestureTrigger}>
-        <Pressable style={combinedStyle} {...props}>
+    <>
+      <Pressable style={combinedStyle} {...props}>
+        <GestureDetector gesture={panGestureTrigger}>
           {children}
-        </Pressable>
-      </GestureDetector>
+        </GestureDetector>
+      </Pressable>
       {isOpened && (
         <View style={[StyleSheet.absoluteFill, { zIndex: 100 }]}>
           <GestureDetector gesture={gesture}>
@@ -131,14 +128,14 @@ export default function Trigger({
           </GestureDetector>
         </View>
       )}
-    </Fragment>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   trigger: {
     position: "absolute",
-    zIndex: 100,
+    zIndex: 10,
   },
   defaultStyle: {
     borderRadius: "50%",

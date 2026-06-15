@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  Dispatch,
+} from "react";
 import {
   SharedValue,
   useAnimatedReaction,
@@ -23,6 +29,8 @@ interface FloatingMenuContextValue {
   resetPosition: () => void;
   hoveredIndex: SharedValue<number | null>;
   onItemHover?: () => void;
+  totalItems: number;
+  setTotalItems: Dispatch<React.SetStateAction<number>>;
 }
 
 const FloatingMenuContext = createContext<FloatingMenuContextValue | null>(
@@ -58,6 +66,7 @@ const FloatingMenuProvider = ({
   const position = useSharedValue<PositionType>({ x: null, y: null });
   const state = useSharedValue<StateType>("idle");
   const hoveredIndex = useSharedValue<number | null>(null);
+  const [totalItems, setTotalItems] = useState(0);
 
   const close = () => {
     setIsOpened(false);
@@ -98,6 +107,8 @@ const FloatingMenuProvider = ({
         resetPosition,
         hoveredIndex,
         onItemHover,
+        totalItems,
+        setTotalItems,
       }}
     >
       {children}

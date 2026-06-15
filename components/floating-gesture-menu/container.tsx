@@ -4,9 +4,11 @@ import React, {
   cloneElement,
   isValidElement,
   ReactElement,
+  useEffect,
 } from "react";
 import { EaseView } from "react-native-ease";
 import { useFloatingMenu } from "./provider";
+import Item from "./item";
 
 type ContainerType = {
   bottomInset?: number;
@@ -22,8 +24,21 @@ export default function Container({
   inset = 25,
   ...props
 }: ContainerType) {
-  const { isOpened, bottomInset: menuBottomInset } = useFloatingMenu();
+  const {
+    isOpened,
+    bottomInset: menuBottomInset,
+    setTotalItems,
+  } = useFloatingMenu();
   const bottom = menuBottomInset + bottomInset;
+
+  useEffect(() => {
+    const total = Children.toArray(children).filter((child) => {
+      return isValidElement(child) && (child.type as any).name === "Item";
+    }).length;
+
+    setTotalItems(total);
+  }, [children, setTotalItems]);
+
   return (
     <EaseView
       style={[

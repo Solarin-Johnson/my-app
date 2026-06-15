@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import React from "react";
 import { GlassView } from "expo-glass-effect";
 import { ThemedTextWrapper } from "../ThemedText";
@@ -7,12 +7,11 @@ import { useFloatingMenu } from "../floating-gesture-menu/provider";
 import { EaseView } from "react-native-ease";
 import Animated, {
   Easing,
-  useAnimatedProps,
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { ThemedView, ThemedViewWrapper } from "../ThemedView";
+import { ThemedView } from "../ThemedView";
 
 const AnimatedGlassView = Animated.createAnimatedComponent(GlassView);
 
@@ -35,10 +34,6 @@ export default function MenuButton() {
     opacity: applyTimingConfig(isOpened ? 0 : 1),
   }));
 
-  const buttonAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: applyTimingConfig(isOpened ? 1 : 0),
-  }));
-
   return (
     <View style={styles.buttonWraper}>
       <AnimatedGlassView
@@ -55,9 +50,14 @@ export default function MenuButton() {
           </ThemedTextWrapper>
         </EaseView>
       </AnimatedGlassView>
-      <ThemedViewWrapper colorName="untitledBg">
-        <Animated.View
-          style={[styles.button, buttonAnimatedStyle]}
+      <EaseView
+        animate={{ opacity: isOpened ? 1 : 0 }}
+        transition={{ type: "timing", duration: 200, easing: "easeIn" }}
+        style={{ flex: 1 }}
+      >
+        <ThemedView
+          colorName="untitledBg"
+          style={[styles.button]}
           pointerEvents="none"
         >
           <EaseView
@@ -68,8 +68,8 @@ export default function MenuButton() {
               <Plus size={25} />
             </ThemedTextWrapper>
           </EaseView>
-        </Animated.View>
-      </ThemedViewWrapper>
+        </ThemedView>
+      </EaseView>
     </View>
   );
 }
