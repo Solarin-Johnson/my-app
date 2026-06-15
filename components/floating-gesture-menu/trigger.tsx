@@ -61,6 +61,7 @@ export default function Trigger({
     },
     onBegin: (e) => {
       updatePosition(e);
+      state.set("holding");
     },
     onFinalize: (e) => {
       state.set("touch");

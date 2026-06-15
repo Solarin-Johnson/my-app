@@ -11,7 +11,7 @@ export type PositionType = {
   y: number | null;
 };
 
-export type StateType = "idle" | "touch" | "pan";
+export type StateType = "idle" | "touch" | "pan" | "holding";
 
 interface FloatingMenuContextValue {
   isOpened: boolean;
@@ -77,8 +77,8 @@ const FloatingMenuProvider = ({
   useAnimatedReaction(
     () => hoveredItem.value,
     (current, previous) => {
+      console.log(hoveredItem.value);
       if (current !== previous && current != null) {
-        console.log(hoveredItem.value);
         if (onItemHover) {
           scheduleOnRN(onItemHover);
         }

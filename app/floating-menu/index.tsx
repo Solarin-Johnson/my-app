@@ -15,12 +15,20 @@ export default function FloatingMenuScreen() {
             onPress={() => {
               Alert.alert("Heyy");
             }}
+            style={{
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+            }}
           >
             <ThemedText>Heyy</ThemedText>
           </FloatingMenu.Item>
           <FloatingMenu.Item
             onPress={() => {
               Alert.alert("Another");
+            }}
+            style={{
+              paddingHorizontal: 16,
+              paddingVertical: 12,
             }}
           >
             <ThemedText>Another</ThemedText>

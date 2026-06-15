@@ -1,5 +1,5 @@
 import { View, Text, ViewProps, StyleSheet } from "react-native";
-import React, { useEffect } from "react";
+import React, { cloneElement, ReactElement, useEffect } from "react";
 import Animated, {
   measure,
   useAnimatedReaction,
@@ -9,18 +9,25 @@ import Animated, {
 } from "react-native-reanimated";
 import { runOnUI, scheduleOnRN } from "react-native-worklets";
 import { useFloatingMenu } from "./provider";
+import { SharedValue } from "react-native-gesture-handler/lib/typescript/v3/types";
 
-type ItemType = {
+type ItemType = ViewProps & {
   removeDefaultStyle?: boolean;
   onPress?: () => void;
   index?: number;
-} & ViewProps;
+  children?: ReactElement;
+};
 
 type BoundsType = {
   x: number;
   y: number;
   width: number;
   height: number;
+};
+
+type ItemChildType = {
+  hovered: SharedValue<boolean>;
+  active: SharedValue<boolean>;
 };
 
 export default function Item({
@@ -90,13 +97,8 @@ export default function Item({
           scheduleOnRN(close);
         }
       }
-    },
-  );
 
-  useAnimatedReaction(
-    () => isActive.value,
-    (active) => {
-      if (active) {
+      if (curr.active && curr_state === "pan") {
         hoveredItem.set(index);
       } else if (hoveredItem.get() === index) {
         hoveredItem.set(null);
@@ -104,13 +106,28 @@ export default function Item({
     },
   );
 
+  const hovered = useDerivedValue(() => {
+    return hoveredItem.get() === index;
+  });
+
+  useDerivedValue(() => {
+    console.log(state.get());
+
+    console.log(isActive.value, hovered.value);
+  });
+
   return (
     <Animated.View
       ref={animatedRef}
       style={[!removeDefaultStyle && styles.item, style]}
       //   onLayout={measureItem}
     >
-      {children}
+      {children
+        ? cloneElement(children as ReactElement<ItemChildType>, {
+            hovered,
+            active: isActive,
+          })
+        : null}
     </Animated.View>
   );
 }
