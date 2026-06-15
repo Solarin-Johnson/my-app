@@ -25,9 +25,10 @@ type BoundsType = {
   height: number;
 };
 
-type ItemChildType = {
+export type ItemChildType = {
   hovered: SharedValue<boolean>;
   active: SharedValue<boolean>;
+  index: number;
 };
 
 export default function Item({
@@ -38,7 +39,7 @@ export default function Item({
   onPress,
 }: ItemType) {
   const animatedRef = useAnimatedRef();
-  const { position, isOpened, hoveredItem, state, resetPosition, close } =
+  const { position, isOpened, hoveredIndex, state, resetPosition, close } =
     useFloatingMenu();
   const bounds = useSharedValue<BoundsType>({
     x: 0,
@@ -99,15 +100,15 @@ export default function Item({
       }
 
       if (curr.active && curr_state === "pan") {
-        hoveredItem.set(index);
-      } else if (hoveredItem.get() === index) {
-        hoveredItem.set(null);
+        hoveredIndex.set(index);
+      } else if (hoveredIndex.get() === index) {
+        hoveredIndex.set(null);
       }
     },
   );
 
   const hovered = useDerivedValue(() => {
-    return hoveredItem.get() === index;
+    return hoveredIndex.get() === index;
   });
 
   useDerivedValue(() => {
@@ -126,6 +127,7 @@ export default function Item({
         ? cloneElement(children as ReactElement<ItemChildType>, {
             hovered,
             active: isActive,
+            index,
           })
         : null}
     </Animated.View>

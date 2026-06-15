@@ -5,34 +5,33 @@ import FloatingMenu from "@/components/floating-gesture-menu";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { Feedback } from "@/functions";
 import MenuButton from "@/components/slack-floating-menu/menu-button";
+import MenuItem from "@/components/slack-floating-menu/menu-item";
 
 export default function FloatingMenuScreen() {
   return (
     <FloatingMenu onOpen={Feedback.medium} onItemHover={Feedback.light}>
       <SafeAreaView style={{ flex: 1 }}></SafeAreaView>
       <FloatingMenu.Overlay />
-      <FloatingMenu.Container>
+      <FloatingMenu.Container inset={36}>
         <FloatingMenu.Item
           onPress={() => {
             Alert.alert("Heyy");
           }}
-          style={{
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-          }}
         >
-          <ThemedText>Heyy</ThemedText>
+          <MenuItem
+            text="Hello World"
+            image={require("@/assets/images/dp.png")}
+          />
         </FloatingMenu.Item>
         <FloatingMenu.Item
           onPress={() => {
-            Alert.alert("Another");
-          }}
-          style={{
-            paddingHorizontal: 16,
-            paddingVertical: 12,
+            Alert.alert("Heyy");
           }}
         >
-          <ThemedText>Another</ThemedText>
+          <MenuItem
+            text="Another One"
+            image={require("@/assets/images/dp.png")}
+          />
         </FloatingMenu.Item>
       </FloatingMenu.Container>
       <FloatingMenu.Trigger>

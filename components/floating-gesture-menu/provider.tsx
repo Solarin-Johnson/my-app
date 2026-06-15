@@ -21,7 +21,7 @@ interface FloatingMenuContextValue {
   position: SharedValue<PositionType>;
   state: SharedValue<StateType>;
   resetPosition: () => void;
-  hoveredItem: SharedValue<number | null>;
+  hoveredIndex: SharedValue<number | null>;
   onItemHover?: () => void;
 }
 
@@ -57,7 +57,7 @@ const FloatingMenuProvider = ({
   const [isOpened, setIsOpened] = useState<boolean>(false);
   const position = useSharedValue<PositionType>({ x: null, y: null });
   const state = useSharedValue<StateType>("idle");
-  const hoveredItem = useSharedValue<number | null>(null);
+  const hoveredIndex = useSharedValue<number | null>(null);
 
   const close = () => {
     setIsOpened(false);
@@ -75,9 +75,9 @@ const FloatingMenuProvider = ({
   };
 
   useAnimatedReaction(
-    () => hoveredItem.value,
+    () => hoveredIndex.value,
     (current, previous) => {
-      console.log(hoveredItem.value);
+      console.log(hoveredIndex.value);
       if (current !== previous && current != null) {
         if (onItemHover) {
           scheduleOnRN(onItemHover);
@@ -96,7 +96,7 @@ const FloatingMenuProvider = ({
         position,
         state,
         resetPosition,
-        hoveredItem,
+        hoveredIndex,
         onItemHover,
       }}
     >
