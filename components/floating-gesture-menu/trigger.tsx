@@ -104,8 +104,8 @@ export default function Trigger({
 
   const makeCombined = (s: any) => [
     !removeDefaultStyle && styles.defaultStyle,
-    s,
     positionStyle,
+    s,
     styles.trigger,
   ];
 

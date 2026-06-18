@@ -43,9 +43,10 @@ export default function Container({
     <EaseView
       style={[
         !removeDefaultStyle && styles.defaultStyle,
+        { marginBottom: 0, margin: inset },
         style,
         styles.container,
-        { bottom, marginBottom: 0, margin: inset },
+        { bottom },
       ]}
       animate={{ opacity: isOpened ? 1 : 0 }}
       transition={{ type: "timing", duration: 0 }}

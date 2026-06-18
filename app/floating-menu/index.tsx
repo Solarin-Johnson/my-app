@@ -6,6 +6,7 @@ import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { Feedback } from "@/functions";
 import MenuButton from "@/components/slack-floating-menu/menu-button";
 import MenuItem from "@/components/slack-floating-menu/menu-item";
+import { ThemedViewWrapper } from "@/components/ThemedView";
 const MENU = [
   {
     id: "1",
@@ -51,7 +52,9 @@ export default function FloatingMenuScreen() {
       onItemHover={Feedback.light}
       bottomInset={72}
     >
-      <SafeAreaView style={{ flex: 1 }}></SafeAreaView>
+      <SafeAreaView style={{ flex: 1 }}>
+        <ThemedText>Content</ThemedText>
+      </SafeAreaView>
       <FloatingMenu.Overlay />
       <FloatingMenu.Container inset={36}>
         {MENU.map((item) => (
@@ -68,6 +71,26 @@ export default function FloatingMenuScreen() {
       <FloatingMenu.Trigger>
         <MenuButton />
       </FloatingMenu.Trigger>
+      <FloatingMenu.ButtonContainer right={106} height={60}>
+        <ThemedViewWrapper colorName="untitledBg">
+          <FloatingMenu.Button
+            style={{ height: "100%", paddingHorizontal: 28 }}
+            onPress={() => {
+              Alert.alert("Manage");
+            }}
+          >
+            <ThemedText
+              style={{
+                letterSpacing: -0.2,
+                fontFamily: "system",
+                fontWeight: 600,
+              }}
+            >
+              Manage List
+            </ThemedText>
+          </FloatingMenu.Button>
+        </ThemedViewWrapper>
+      </FloatingMenu.ButtonContainer>
     </FloatingMenu>
   );
 }
