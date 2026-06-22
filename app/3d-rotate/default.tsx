@@ -38,7 +38,7 @@ export default function Index({
           }
           {...rotate3dProps}
         />
-        {/* {children} */}
+        {children}
       </KeyboardAwareScrollView>
     </ThemedViewWrapper>
   );
