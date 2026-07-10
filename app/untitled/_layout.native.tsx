@@ -39,18 +39,13 @@ export default function Layout() {
     <ThemedView style={{ flex: 1 }} colorName={"untitledBg"}>
       <Stack
         screenOptions={{
-          // headerShown: false,
-          experimental_enableHighRefreshRate: false,
+          experimental_enableHighRefreshRate: true,
         }}
       >
-        <Stack.Screen
-          name="index"
-          // options={{ contentStyle: { backgroundColor: bg } }}
-        />
+        <Stack.Screen name="index" />
         <Stack.Screen
           name="[id]"
           options={{
-            // enableTransitions: true,
             gestureEnabled: true,
             gestureDirection: "horizontal",
             screenStyleInterpolator: ({
@@ -63,8 +58,10 @@ export default function Layout() {
 
               const x = interpolate(progress, [0, 1, 2], [width, 0, -width]);
               return {
-                contentStyle: {
-                  transform: [{ translateX: x }],
+                content: {
+                  style: {
+                    transform: [{ translateX: x }],
+                  },
                 },
               };
             },
