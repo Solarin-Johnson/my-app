@@ -29,6 +29,7 @@ type ItemProps = {
   childStyle?: StyleProp<ViewStyle>;
   expandedStyle?: StyleProp<ViewStyle>;
   style?: StyleProp<ViewStyle>;
+  useDefaultStyle?: boolean;
 } & PressableProps;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -56,6 +57,7 @@ export default function Item({
   childStyle = {},
   expandedStyle = {},
   expandedElement,
+  useDefaultStyle,
   ...pressableProps
 }: ItemProps) {
   const {
@@ -88,7 +90,7 @@ export default function Item({
   });
 
   const combinedStyles = [
-    styles.defaultItemStyle,
+    useDefaultStyle && styles.defaultItemStyle,
     style,
     itemProps.style,
     itemStyles,

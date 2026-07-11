@@ -14,14 +14,16 @@ function StackedButtonExample() {
         <StackedButton.Container>
           <StackedButton.Item
             expandedElement={<ThemedText>First Item</ThemedText>}
+            useDefaultStyle
           >
             <ThemedText>First</ThemedText>
           </StackedButton.Item>
-          <StackedButton.Item disableExpand>
+          <StackedButton.Item disableExpand useDefaultStyle>
             <ThemedText>Second</ThemedText>
           </StackedButton.Item>
           <StackedButton.Item
             expandedElement={<ThemedText>Third Item</ThemedText>}
+            useDefaultStyle
           >
             <ThemedText>Third</ThemedText>
           </StackedButton.Item>
