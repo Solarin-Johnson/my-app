@@ -106,6 +106,13 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="zoom-trans"
+        options={{
+          drawerLabel: "Zoom Transition",
+          ...edgeSwipe,
+        }}
+      />
+      <Drawer.Screen
         name="floating-menu"
         options={{
           drawerLabel: "Floating Menu",

@@ -48,7 +48,7 @@
     "react-native-reanimated": "4.3.1",
     "react-native-redash": "^18.1.4",
     "react-native-safe-area-context": "~5.7.0",
-    "react-native-screen-transitions": "^3.7.0",
+    "react-native-screen-transitions": "^3.8.0",
     "react-native-screens": "4.25.2",
     "react-native-svg": "15.15.4",
     "react-native-web": "^0.21.0",
