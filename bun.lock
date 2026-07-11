@@ -57,6 +57,7 @@
         "eslint": "^9.25.0",
         "eslint-config-expo": "~56.0.4",
         "eslint-plugin-react-compiler": "^19.1.0-rc.2",
+        "expo-color-space-plugin": "^0.1.0",
         "typescript": "~6.0.3",
       },
     },
@@ -858,6 +859,8 @@
     "expo-blur": ["expo-blur@56.0.3", "", { "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-KDDtrpWc2tYlm1WCPaOgBtv+YEGqe5ELheFPIgSNgHt28NQUDcfBcFsA9Us2StDh6osmSD6NbKxOt5bU6PcDbQ=="],
 
     "expo-clipboard": ["expo-clipboard@56.0.4", "", { "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-qb4DYlkiowHYHaUYVT2FN9nk/nI1xShXOUYsI7J9dVpQCOHcGFjCBPX1VAvEW4Ye4/Aagd6IuhOVAq/+scBOiA=="],
+
+    "expo-color-space-plugin": ["expo-color-space-plugin@0.1.0", "", { "peerDependencies": { "expo": ">=53.0.0" }, "bin": { "expo-color-space-plugin": "build/cli.js" } }, "sha512-upnnJyCzuCiDD+90ovstQDifdVXflxywPUKPzktgU7d30I3v5jAA/R59G8hofaeerxBKc+VMopl4gx15qbAe8Q=="],
 
     "expo-constants": ["expo-constants@56.0.18", "", { "dependencies": { "@expo/env": "~2.3.0" }, "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-8AMtbDGl/WVPnWlmbpGmvcdnNCy9E4PFnwdVwj600vljkMDPSxcAcjw8GVXEPk3PpZ+ngTqsrkltWyj0UKYAxw=="],
 

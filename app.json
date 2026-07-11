@@ -54,7 +54,13 @@
           "iosMicrophonePermission": "App needs microphone access to record."
         }
       ],
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "expo-color-space-plugin",
+        {
+          "colorSpace": "displayP3"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

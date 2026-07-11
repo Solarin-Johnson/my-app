@@ -106,6 +106,13 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="change-mood"
+        options={{
+          drawerLabel: "Change Mood",
+          ...edgeSwipe,
+        }}
+      />
+      <Drawer.Screen
         name="zoom-trans"
         options={{
           drawerLabel: "Zoom Transition",

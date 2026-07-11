@@ -63,6 +63,7 @@
     "eslint": "^9.25.0",
     "eslint-config-expo": "~56.0.4",
     "eslint-plugin-react-compiler": "^19.1.0-rc.2",
+    "expo-color-space-plugin": "^0.1.0",
     "typescript": "~6.0.3"
   },
   "private": true,
