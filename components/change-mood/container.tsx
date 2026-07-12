@@ -16,7 +16,7 @@ import {
   useSimultaneousGestures,
   useTapGesture,
 } from "react-native-gesture-handler";
-import { type Dimensions } from "./item";
+import Item, { type Dimensions } from "./item";
 import { SPRING_CONFIG_BOUNCE, useChangeMood } from "./provider";
 
 type ContainerProps = {
@@ -40,12 +40,23 @@ export default function Container({
 }: ContainerProps) {
   const { currentIndex } = useChangeMood();
   const containerWidth = useSharedValue(0);
+  const hasTriggered = useSharedValue(false);
 
   const collapsedWidth =
     collapsedSize?.width ?? size?.width ?? expandedSize?.width ?? 0;
 
   const expandedWidth =
     expandedSize?.width ?? size?.width ?? collapsedSize?.width ?? 0;
+
+  const validItems = Children.toArray(children).filter(
+    (child) => isValidElement(child) && (child as ReactElement).type === Item,
+  ) as ReactElement[];
+
+  const numberOfValidItems = validItems.length;
+
+  const otherChildren = Children.toArray(children).filter(
+    (child) => !isValidElement(child) || (child as ReactElement).type !== Item,
+  );
 
   const animatedStyle = useAnimatedStyle(() => {
     const index = currentIndex.value;
@@ -66,10 +77,6 @@ export default function Container({
     };
   });
 
-  const numberOfItems = Children.count(children);
-
-  const hasTriggered = useSharedValue(false);
-
   const panGesture = usePanGesture({
     onActivate: () => {
       hasTriggered.value = false;
@@ -83,7 +90,7 @@ export default function Container({
         currentIndex.set(Math.max(1, currentIndex.value - 1));
       } else if (event.translationX < -threshold) {
         hasTriggered.value = true;
-        currentIndex.set(Math.min(numberOfItems, currentIndex.value + 1));
+        currentIndex.set(Math.min(numberOfValidItems, currentIndex.value + 1));
       }
     },
   });
@@ -103,7 +110,6 @@ export default function Container({
       <GestureDetector gesture={swipeGesture}>
         <View
           style={{
-            flex: 1,
             justifyContent: "center",
             alignItems: "center",
           }}
@@ -115,17 +121,16 @@ export default function Container({
               containerWidth.value = width;
             }}
           >
-            {Children.map(children, (child, index) =>
-              isValidElement(child)
-                ? cloneElement(child as ReactElement<any>, {
-                    index: index + 1,
-                    expandedSize,
-                    size,
-                    collapsedSize,
-                  })
-                : child,
+            {validItems.map((child, index) =>
+              cloneElement(child as ReactElement<any>, {
+                index: index + 1,
+                expandedSize,
+                size,
+                collapsedSize,
+              }),
             )}
           </Animated.View>
+          {otherChildren}
         </View>
       </GestureDetector>
       {/* <Button

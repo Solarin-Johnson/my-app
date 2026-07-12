@@ -78,3 +78,31 @@ export function describeArc(
 
   return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
 }
+
+export const hex2Rgb = (hex: string) =>
+  hex.match(/\w\w/g)?.map((x) => parseInt(x, 16)) || [];
+
+export const hexToRgb = (hex: string) => {
+  const [r, g, b] = hex2Rgb(hex.replace("#", ""));
+  return `rgb(${r}, ${g}, ${b})`;
+};
+
+export const hexToRgba = (hex: string, alpha: number) => {
+  const [r, g, b] = hex2Rgb(hex.replace("#", ""));
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+export const tintHex = (hex: string, amount: number) => {
+  const [r, g, b] = hex2Rgb(hex.replace("#", ""));
+
+  return (
+    "#" +
+    [r, g, b]
+      .map((c) =>
+        Math.round(c + (255 - c) * amount)
+          .toString(16)
+          .padStart(2, "0"),
+      )
+      .join("")
+  );
+};

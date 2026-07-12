@@ -1,9 +1,12 @@
+import { Feedback } from "@/functions";
 import React, { createContext, useContext, type ReactNode } from "react";
 import {
   SharedValue,
+  useAnimatedReaction,
   useSharedValue,
   WithSpringConfig,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 
 type ChangeMoodContextValue = {
   currentIndex: SharedValue<number>;
@@ -46,6 +49,16 @@ export function ChangeMoodProvider({
   const goToIndex = (index: number) => {
     currentIndex.value = index;
   };
+
+  useAnimatedReaction(
+    () => currentIndex.value,
+    (index, prev) => {
+      if (index === prev) return;
+      scheduleOnRN(() => {
+        Feedback.light();
+      });
+    },
+  );
   return (
     <ChangeMoodContext.Provider value={{ currentIndex, goToIndex }}>
       {children}
