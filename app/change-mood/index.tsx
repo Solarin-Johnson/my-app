@@ -1,21 +1,18 @@
-import React from "react";
 import MoodChange from "@/components/change-mood";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedViewWrapper } from "@/components/ThemedView";
 
+const MOOD_COLORS = ["#3E26B1", "#193FC0", "#5798AF", "#C6A235", "#ED7F46"];
+
 export default function Index() {
   return (
     <ThemedViewWrapper colorName="black">
-      <SafeAreaView
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-      >
+      <SafeAreaView style={{ flex: 1 }}>
         <MoodChange>
           <MoodChange.Container>
-            <MoodChange.Item tintColor="#3E26B1" />
-            <MoodChange.Item tintColor="#193FC0" />
-            <MoodChange.Item tintColor="#5798AF" />
-            <MoodChange.Item tintColor="#C6A235" />
-            <MoodChange.Item tintColor="#ED7F46" />
+            {MOOD_COLORS.map((color) => (
+              <MoodChange.Item key={color} tintColor={color} />
+            ))}
           </MoodChange.Container>
         </MoodChange>
       </SafeAreaView>

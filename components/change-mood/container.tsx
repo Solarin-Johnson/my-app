@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import React, {
   Children,
   cloneElement,
@@ -101,24 +101,32 @@ export default function Container({
   return (
     <>
       <GestureDetector gesture={swipeGesture}>
-        <Animated.View
-          style={[styles.container, { gap }, animatedStyle]}
-          onLayout={(event) => {
-            const { width } = event.nativeEvent.layout;
-            containerWidth.value = width;
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
-          {Children.map(children, (child, index) =>
-            isValidElement(child)
-              ? cloneElement(child as ReactElement<any>, {
-                  index: index + 1,
-                  expandedSize,
-                  size,
-                  collapsedSize,
-                })
-              : child,
-          )}
-        </Animated.View>
+          <Animated.View
+            style={[styles.container, { gap }, animatedStyle]}
+            onLayout={(event) => {
+              const { width } = event.nativeEvent.layout;
+              containerWidth.value = width;
+            }}
+          >
+            {Children.map(children, (child, index) =>
+              isValidElement(child)
+                ? cloneElement(child as ReactElement<any>, {
+                    index: index + 1,
+                    expandedSize,
+                    size,
+                    collapsedSize,
+                  })
+                : child,
+            )}
+          </Animated.View>
+        </View>
       </GestureDetector>
       {/* <Button
         title="Previous"
