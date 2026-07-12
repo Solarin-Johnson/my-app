@@ -11,6 +11,7 @@ import Animated, {
 import { SPRING_CONFIG_BOUNCE, useChangeMood } from "./provider";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
+import { SharedValue } from "react-native-gesture-handler/src/v3/types";
 
 export type Dimensions = {
   width: number;
@@ -37,6 +38,11 @@ export default function Item({
   index,
 }: ItemProps) {
   const { currentIndex, goToIndex } = useChangeMood();
+
+  const isCollapsed = useDerivedValue(() => {
+    return currentIndex.value !== 0 && currentIndex.value !== index;
+  });
+
   const animatedStyle = useAnimatedStyle(() => {
     const isIdle = currentIndex.value === 0;
     const isSelected = currentIndex.value === index;
@@ -57,9 +63,7 @@ export default function Item({
   });
 
   const animatedProgress = useDerivedValue(() => {
-    const isCollapsed =
-      currentIndex.value !== 0 && currentIndex.value !== index;
-    return withSpring(isCollapsed ? 0 : 1, SPRING_CONFIG_BOUNCE);
+    return withSpring(isCollapsed.value ? 0 : 1, SPRING_CONFIG_BOUNCE);
   });
 
   const animatedProps = useAnimatedProps(() => {
@@ -73,11 +77,8 @@ export default function Item({
   });
 
   const innerAnimatedStyle = useAnimatedStyle(() => {
-    const isCollapsed =
-      currentIndex.value !== 0 && currentIndex.value !== index;
-
     return {
-      opacity: withSpring(isCollapsed ? 0 : 1, SPRING_CONFIG_BOUNCE),
+      opacity: withSpring(isCollapsed.value ? 0 : 1, SPRING_CONFIG_BOUNCE),
     };
   });
 
@@ -109,9 +110,7 @@ export default function Item({
           index && goToIndex(index);
         }}
       >
-        {/* <Animated.View
-          style={[StyleSheet.absoluteFill, styles.gradient, innerAnimatedStyle]}
-        /> */}
+        <Shape isCollapsed={isCollapsed} size={size} />
         <AnimatedLinearGradient
           colors={["#ffffff40", tintColor + "00"]}
           start={{ x: 0, y: 0 }}
@@ -122,6 +121,36 @@ export default function Item({
     </AnimatedGlassView>
   );
 }
+
+const Shape = ({
+  isCollapsed,
+  size,
+}: {
+  isCollapsed: SharedValue<boolean>;
+  size?: Dimensions;
+}) => {
+  return (
+    <View
+      style={{
+        width: "100%",
+        height: size?.height,
+        justifyContent: "center",
+        alignItems: "center",
+        // backgroundColor: "red",
+      }}
+    >
+      <Animated.View
+        style={{
+          width: 28,
+          aspectRatio: 1,
+          borderRadius: "50%",
+          experimental_backgroundImage:
+            "radial-gradient(circle, #ffffff80, #ffffffee )",
+        }}
+      />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   glass: {
@@ -134,7 +163,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 999,
     alignItems: "center",
-    justifyContent: "center",
+    // justifyContent: "center",
     borderCurve: "continuous",
     overflow: "hidden",
   },
