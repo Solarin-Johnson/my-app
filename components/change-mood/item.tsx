@@ -20,10 +20,8 @@ import {
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { SharedValue } from "react-native-gesture-handler/src/v3/types";
-import { ArrowUp } from "lucide-react-native";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { ThemedText } from "../ThemedText";
-import { size } from "@shopify/react-native-skia";
 
 export type Dimensions = {
   width: number;
@@ -133,7 +131,7 @@ export default function Item({
 
   const innerAnimatedStyle = useAnimatedStyle(() => {
     return {
-      opacity: applySpring(isCollapsed.value ? 0 : 1, "normal"),
+      opacity: applySpring(isCollapsed.value ? 0 : 1, "bounce"),
     };
   });
 
@@ -159,6 +157,9 @@ export default function Item({
           index && goToIndex(index);
         }}
       >
+        <Animated.View
+          style={[StyleSheet.absoluteFill, styles.gradient, innerAnimatedStyle]}
+        />
         <Shape
           isCollapsed={isCollapsed}
           size={size}
@@ -170,12 +171,6 @@ export default function Item({
           isSelected={isSelected}
           size={size}
           expandedSize={expandedSize}
-        />
-        <AnimatedLinearGradient
-          colors={["#ffffff40", tintColor + "00"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 0.7 }}
-          style={[StyleSheet.absoluteFill, innerAnimatedStyle]}
         />
       </Pressable>
     </AnimatedGlassView>
@@ -321,7 +316,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   gradient: {
-    experimental_backgroundImage: "linear-gradient(170deg, #ffffff, #00000000)",
+    height: "70%",
+    experimental_backgroundImage:
+      "linear-gradient(to bottom, #ffffff40 , #00000000 )",
   },
   shape: {
     width: 28,

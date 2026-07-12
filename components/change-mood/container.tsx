@@ -1,11 +1,4 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  useWindowDimensions,
-  Button,
-} from "react-native";
+import { StyleSheet } from "react-native";
 import React, {
   Children,
   cloneElement,
@@ -17,6 +10,12 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import {
+  GestureDetector,
+  usePanGesture,
+  useSimultaneousGestures,
+  useTapGesture,
+} from "react-native-gesture-handler";
 import { type Dimensions } from "./item";
 import { SPRING_CONFIG_BOUNCE, useChangeMood } from "./provider";
 
@@ -39,7 +38,7 @@ export default function Container({
   collapsedSize = defaultCollapsedSize,
   size = defaultSize,
 }: ContainerProps) {
-  const { currentIndex, goToIndex } = useChangeMood();
+  const { currentIndex } = useChangeMood();
   const containerWidth = useSharedValue(0);
 
   const collapsedWidth =
@@ -67,21 +66,41 @@ export default function Container({
     };
   });
 
-  
+  const numberOfItems = Children.count(children);
+
+  const hasTriggered = useSharedValue(false);
+
+  const panGesture = usePanGesture({
+    onActivate: () => {
+      hasTriggered.value = false;
+    },
+
+    onUpdate: (event) => {
+      if (hasTriggered.value || currentIndex.value === 0) return;
+      const threshold = 50;
+      if (event.translationX > threshold) {
+        hasTriggered.value = true;
+        currentIndex.set(Math.max(1, currentIndex.value - 1));
+      } else if (event.translationX < -threshold) {
+        hasTriggered.value = true;
+        currentIndex.set(Math.min(numberOfItems, currentIndex.value + 1));
+      }
+    },
+  });
+
+  const tapGesture = useTapGesture({
+    maxDistance: 0,
+    onDeactivate: () => {
+      if (currentIndex.value === 0) return;
+      currentIndex.set(0);
+    },
+  });
+
+  const swipeGesture = useSimultaneousGestures(panGesture, tapGesture);
 
   return (
     <>
-      <Pressable
-        pointerEvents="box-none"
-        onPress={() => {
-          goToIndex(0);
-        }}
-        style={{
-          width: "100%",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
+      <GestureDetector gesture={swipeGesture}>
         <Animated.View
           style={[styles.container, { gap }, animatedStyle]}
           onLayout={(event) => {
@@ -100,7 +119,7 @@ export default function Container({
               : child,
           )}
         </Animated.View>
-      </Pressable>
+      </GestureDetector>
       {/* <Button
         title="Previous"
         onPress={() => goToIndex(currentIndex.value - 1)}
@@ -112,11 +131,9 @@ export default function Container({
 
 const styles = StyleSheet.create({
   container: {
-    // width: "100%",
-    // backgroundColor: "red",
+    height: 500,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    // paddingHorizontal: 20,
   },
 });
