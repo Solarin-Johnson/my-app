@@ -6,7 +6,7 @@ import { ThemedViewWrapper } from "@/components/ThemedView";
 
 export default function Index() {
   return (
-    <ThemedViewWrapper colorName="theme">
+    <ThemedViewWrapper colorName="black">
       <SafeAreaView
         style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
       >

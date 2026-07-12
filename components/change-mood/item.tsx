@@ -94,14 +94,15 @@ export default function Item({
     return currentIndex.value === index;
   });
 
+  const defaultW = size?.width ?? 0;
+  const defaultH = size?.height ?? 0;
+  const expandedW = expandedSize?.width ?? defaultW;
+  const expandedH = expandedSize?.height ?? defaultH;
+  const collapsedW = collapsedSize?.width ?? defaultW;
+  const collapsedH = collapsedSize?.height ?? defaultH;
+
   const animatedStyle = useAnimatedStyle(() => {
     const isIdle = currentIndex.value === 0;
-    const defaultW = size?.width ?? 0;
-    const defaultH = size?.height ?? 0;
-    const expandedW = expandedSize?.width ?? defaultW;
-    const expandedH = expandedSize?.height ?? defaultH;
-    const collapsedW = collapsedSize?.width ?? defaultW;
-    const collapsedH = collapsedSize?.height ?? defaultH;
 
     const width = isIdle ? defaultW : isSelected.value ? expandedW : collapsedW;
     const height = isIdle
@@ -132,7 +133,7 @@ export default function Item({
 
   const innerAnimatedStyle = useAnimatedStyle(() => {
     return {
-      opacity: applySpring(isCollapsed.value ? 0 : 1, "bounce"),
+      opacity: applySpring(isCollapsed.value ? 0 : 1, "normal"),
     };
   });
 
@@ -148,18 +149,12 @@ export default function Item({
         animatedStyle,
       ]}
       glassEffectStyle="clear"
-      // isInteractive
       colorScheme="dark"
       animatedProps={animatedProps}
     >
-      <AnimatedPressable
+      <Pressable
         pointerEvents={"auto"}
-        style={[
-          styles.item,
-          {
-            // backgroundColor: tintColor,
-          },
-        ]}
+        style={[styles.item]}
         onPress={() => {
           index && goToIndex(index);
         }}
@@ -182,7 +177,7 @@ export default function Item({
           end={{ x: 0, y: 0.7 }}
           style={[StyleSheet.absoluteFill, innerAnimatedStyle]}
         />
-      </AnimatedPressable>
+      </Pressable>
     </AnimatedGlassView>
   );
 }
@@ -298,9 +293,13 @@ const Content = ({
           animatedStyle,
         ]}
       >
-        <ThemedText style={styles.text}>Emotions</ThemedText>
+        <ThemedText style={styles.text} colorName="white">
+          Emotions
+        </ThemedText>
         <View style={styles.line} />
-        <ThemedText style={styles.text}>Context</ThemedText>
+        <ThemedText style={styles.text} colorName="white">
+          Context
+        </ThemedText>
       </Animated.View>
     </View>
   );
