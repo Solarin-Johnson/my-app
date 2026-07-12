@@ -2,11 +2,15 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { GlassView } from "expo-glass-effect";
 import Animated, {
+  interpolateColor,
+  useAnimatedProps,
   useAnimatedStyle,
+  useDerivedValue,
   withSpring,
 } from "react-native-reanimated";
-import { useChangeMood } from "./provider";
-import { SPRING_CONFIG } from "@/constants";
+import { SPRING_CONFIG_BOUNCE, useChangeMood } from "./provider";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 
 export type Dimensions = {
   width: number;
@@ -22,6 +26,8 @@ type ItemProps = {
 };
 
 const AnimatedGlassView = Animated.createAnimatedComponent(GlassView);
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 export default function Item({
   tintColor,
@@ -45,8 +51,33 @@ export default function Item({
     const height = isIdle ? defaultH : isSelected ? expandedH : collapsedH;
 
     return {
-      width: withSpring(width, SPRING_CONFIG),
-      height: withSpring(height, SPRING_CONFIG),
+      width: withSpring(width, SPRING_CONFIG_BOUNCE),
+      height: withSpring(height, SPRING_CONFIG_BOUNCE),
+    };
+  });
+
+  const animatedProgress = useDerivedValue(() => {
+    const isCollapsed =
+      currentIndex.value !== 0 && currentIndex.value !== index;
+    return withSpring(isCollapsed ? 0 : 1, SPRING_CONFIG_BOUNCE);
+  });
+
+  const animatedProps = useAnimatedProps(() => {
+    return {
+      tintColor: interpolateColor(
+        animatedProgress.value,
+        [0, 1],
+        ["#00000000", tintColor ?? "#00000000"],
+      ),
+    };
+  });
+
+  const innerAnimatedStyle = useAnimatedStyle(() => {
+    const isCollapsed =
+      currentIndex.value !== 0 && currentIndex.value !== index;
+
+    return {
+      opacity: withSpring(isCollapsed ? 0 : 1, SPRING_CONFIG_BOUNCE),
     };
   });
 
@@ -54,18 +85,22 @@ export default function Item({
     <AnimatedGlassView
       style={[
         styles.glass,
-        { width: size?.width, height: size?.height },
+        {
+          width: size?.width,
+          height: size?.height,
+          boxShadow: `0px 0px 280px 8px ${tintColor ?? "#00000000"}`,
+        },
         animatedStyle,
       ]}
-      tintColor={tintColor}
-      glassEffectStyle="regular"
+      glassEffectStyle="clear"
       // isInteractive
       colorScheme="dark"
+      animatedProps={animatedProps}
     >
-      <Pressable
+      <AnimatedPressable
+        pointerEvents={"auto"}
         style={[
           styles.item,
-          styles.gradient,
           {
             // backgroundColor: tintColor,
           },
@@ -73,7 +108,17 @@ export default function Item({
         onPress={() => {
           index && goToIndex(index);
         }}
-      ></Pressable>
+      >
+        {/* <Animated.View
+          style={[StyleSheet.absoluteFill, styles.gradient, innerAnimatedStyle]}
+        /> */}
+        <AnimatedLinearGradient
+          colors={["#ffffff40", tintColor + "00"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 0.7 }}
+          style={[StyleSheet.absoluteFill, innerAnimatedStyle]}
+        />
+      </AnimatedPressable>
     </AnimatedGlassView>
   );
 }
@@ -91,9 +136,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderCurve: "continuous",
+    overflow: "hidden",
   },
   gradient: {
-    experimental_backgroundImage:
-      "linear-gradient(to bottom, #ffffff50, #00000000)",
+    experimental_backgroundImage: "linear-gradient(170deg, #ffffff, #00000000)",
   },
 });

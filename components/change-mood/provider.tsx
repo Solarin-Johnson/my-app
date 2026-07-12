@@ -1,5 +1,9 @@
 import React, { createContext, useContext, type ReactNode } from "react";
-import { SharedValue, useSharedValue } from "react-native-reanimated";
+import {
+  SharedValue,
+  useSharedValue,
+  WithSpringConfig,
+} from "react-native-reanimated";
 
 type ChangeMoodContextValue = {
   currentIndex: SharedValue<number>;
@@ -9,6 +13,13 @@ type ChangeMoodContextValue = {
 export type ChangeMoodProviderProps = {
   children: ReactNode;
   currentIndex?: SharedValue<number>;
+};
+
+export const SPRING_CONFIG_BOUNCE: WithSpringConfig = {
+  stiffness: 180,
+  damping: 24,
+  mass: 1.6,
+  energyThreshold: 0.00001,
 };
 
 const ChangeMoodContext = createContext<ChangeMoodContextValue | null>(null);

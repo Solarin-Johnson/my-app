@@ -18,8 +18,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { type Dimensions } from "./item";
-import { useChangeMood } from "./provider";
-import { SPRING_CONFIG } from "../gesture-speed";
+import { SPRING_CONFIG_BOUNCE, useChangeMood } from "./provider";
 
 type ContainerProps = {
   children?: React.ReactNode;
@@ -30,7 +29,7 @@ type ContainerProps = {
 };
 
 const defaultSize = { width: 60, height: 100 };
-const defaultExpandedSize = { width: 150, height: 270 };
+const defaultExpandedSize = { width: 150, height: 280 };
 const defaultCollapsedSize = { width: 42, height: 70 };
 
 export default function Container({
@@ -58,7 +57,7 @@ export default function Container({
 
     if (index === 0) {
       return {
-        transform: [{ translateX: withSpring(0, SPRING_CONFIG) }],
+        transform: [{ translateX: withSpring(0, SPRING_CONFIG_BOUNCE) }],
       };
     }
 
@@ -68,7 +67,7 @@ export default function Container({
       (index - 1) * (collapsedWidth + gap);
 
     return {
-      transform: [{ translateX: withSpring(translateX, SPRING_CONFIG) }],
+      transform: [{ translateX: withSpring(translateX, SPRING_CONFIG_BOUNCE) }],
     };
   });
 
@@ -104,11 +103,11 @@ export default function Container({
           )}
         </Animated.View>
       </Pressable>
-      <Button
+      {/* <Button
         title="Previous"
         onPress={() => goToIndex(currentIndex.value - 1)}
       />
-      <Button title="Next" onPress={() => goToIndex(currentIndex.value + 1)} />
+      <Button title="Next" onPress={() => goToIndex(currentIndex.value + 1)} /> */}
     </>
   );
 }
