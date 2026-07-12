@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { ComponentType, ReactElement } from "react";
 import { GlassView } from "expo-glass-effect";
 import Animated, {
   Easing,
@@ -22,6 +22,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { SharedValue } from "react-native-gesture-handler/src/v3/types";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { ThemedText } from "../ThemedText";
+import { Star5, Star5Rounded } from "../icons/star";
+import { IconProps } from "../icons";
 
 export type Dimensions = {
   width: number;
@@ -34,6 +36,7 @@ type ItemProps = {
   expandedSize?: Dimensions;
   size?: Dimensions;
   collapsedSize?: Dimensions;
+  shape?: ComponentType<IconProps>;
 };
 
 const AnimatedGlassView = Animated.createAnimatedComponent(GlassView);
@@ -81,6 +84,7 @@ export default function Item({
   size,
   collapsedSize,
   index,
+  shape,
 }: ItemProps) {
   const { currentIndex, goToIndex } = useChangeMood();
 
@@ -164,7 +168,9 @@ export default function Item({
           isCollapsed={isCollapsed}
           size={size}
           collapsedSize={collapsedSize}
-        />
+        >
+          {shape}
+        </Shape>
         <Content expandedSize={expandedSize} isSelected={isSelected} />
         <Arrow
           tintColor={tintColor}
@@ -181,19 +187,33 @@ const Shape = ({
   isCollapsed,
   size,
   collapsedSize,
+  children: ShapeElement,
 }: {
   isCollapsed: SharedValue<boolean>;
   size?: Dimensions;
   collapsedSize?: Dimensions;
+  children?: ComponentType<IconProps>;
 }) => {
-  const animatedStyle = useAnimatedStyle(() => {
+  // const animatedStyle = useAnimatedStyle(() => {
+  //   return {
+  //     width: applySpring(
+  //       isCollapsed.value
+  //         ? (collapsedSize?.width ?? 0) / 2
+  //         : (size?.width ?? 0) / 2,
+  //       "bounce",
+  //     ),
+  //   };
+  // });
+
+  const shapeAnimatedStyle = useAnimatedStyle(() => {
+    if (!size || !collapsedSize) return {};
+    const scale = collapsedSize?.width / size?.width || 1;
     return {
-      width: applySpring(
-        isCollapsed.value
-          ? (collapsedSize?.width ?? 0) / 2
-          : (size?.width ?? 0) / 2,
-        "bounce",
-      ),
+      transform: [
+        {
+          scale: applySpring(isCollapsed.value ? scale : 1, "bounce"),
+        },
+      ],
     };
   });
 
@@ -215,7 +235,13 @@ const Shape = ({
         wrapperAnimatedStyle,
       ]}
     >
-      <Animated.View style={[styles.shape, animatedStyle]} />
+      <Animated.View style={[shapeAnimatedStyle]}>
+        {ShapeElement ? (
+          <ShapeElement size={(size?.width ?? 0) / 2} />
+        ) : (
+          <Animated.View style={styles.shape} />
+        )}
+      </Animated.View>
     </Animated.View>
   );
 };
