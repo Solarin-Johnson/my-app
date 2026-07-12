@@ -194,17 +194,6 @@ const Shape = ({
   collapsedSize?: Dimensions;
   children?: ComponentType<IconProps>;
 }) => {
-  // const animatedStyle = useAnimatedStyle(() => {
-  //   return {
-  //     width: applySpring(
-  //       isCollapsed.value
-  //         ? (collapsedSize?.width ?? 0) / 2
-  //         : (size?.width ?? 0) / 2,
-  //       "bounce",
-  //     ),
-  //   };
-  // });
-
   const shapeAnimatedStyle = useAnimatedStyle(() => {
     if (!size || !collapsedSize) return {};
     const scale = collapsedSize?.width / size?.width || 1;
