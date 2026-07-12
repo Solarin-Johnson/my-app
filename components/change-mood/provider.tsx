@@ -22,6 +22,12 @@ export const SPRING_CONFIG_BOUNCE: WithSpringConfig = {
   energyThreshold: 0.00001,
 };
 
+export const SPRING_CONFIG = {
+  stiffness: 210,
+  damping: 24,
+  mass: 1,
+};
+
 const ChangeMoodContext = createContext<ChangeMoodContextValue | null>(null);
 
 export function ChangeMoodProvider({

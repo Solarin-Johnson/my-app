@@ -8,10 +8,12 @@ import Animated, {
   useDerivedValue,
   withSpring,
 } from "react-native-reanimated";
-import { SPRING_CONFIG_BOUNCE, useChangeMood } from "./provider";
+import { SPRING_CONFIG, SPRING_CONFIG_BOUNCE, useChangeMood } from "./provider";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { SharedValue } from "react-native-gesture-handler/src/v3/types";
+import { ArrowUp } from "lucide-react-native";
+import { FontAwesome6 } from "@expo/vector-icons";
 
 export type Dimensions = {
   width: number;
@@ -29,6 +31,7 @@ type ItemProps = {
 const AnimatedGlassView = Animated.createAnimatedComponent(GlassView);
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
+const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
 export default function Item({
   tintColor,
@@ -43,9 +46,12 @@ export default function Item({
     return currentIndex.value !== 0 && currentIndex.value !== index;
   });
 
+  const isSelected = useDerivedValue(() => {
+    return currentIndex.value === index;
+  });
+
   const animatedStyle = useAnimatedStyle(() => {
     const isIdle = currentIndex.value === 0;
-    const isSelected = currentIndex.value === index;
     const defaultW = size?.width ?? 0;
     const defaultH = size?.height ?? 0;
     const expandedW = expandedSize?.width ?? defaultW;
@@ -53,8 +59,12 @@ export default function Item({
     const collapsedW = collapsedSize?.width ?? defaultW;
     const collapsedH = collapsedSize?.height ?? defaultH;
 
-    const width = isIdle ? defaultW : isSelected ? expandedW : collapsedW;
-    const height = isIdle ? defaultH : isSelected ? expandedH : collapsedH;
+    const width = isIdle ? defaultW : isSelected.value ? expandedW : collapsedW;
+    const height = isIdle
+      ? defaultH
+      : isSelected.value
+        ? expandedH
+        : collapsedH;
 
     return {
       width: withSpring(width, SPRING_CONFIG_BOUNCE),
@@ -110,7 +120,13 @@ export default function Item({
           index && goToIndex(index);
         }}
       >
-        <Shape isCollapsed={isCollapsed} size={size} />
+        <Shape
+          isCollapsed={isCollapsed}
+          size={size}
+          collapsedSize={collapsedSize}
+        />
+        <Content />
+        <Arrow tintColor={tintColor} isSelected={isSelected} size={size} />
         <AnimatedLinearGradient
           colors={["#ffffff40", tintColor + "00"]}
           start={{ x: 0, y: 0 }}
@@ -125,29 +141,85 @@ export default function Item({
 const Shape = ({
   isCollapsed,
   size,
+  collapsedSize,
 }: {
   isCollapsed: SharedValue<boolean>;
   size?: Dimensions;
+  collapsedSize?: Dimensions;
 }) => {
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      width: withSpring(
+        isCollapsed.value
+          ? (collapsedSize?.width ?? 0) / 2
+          : (size?.width ?? 0) / 2,
+        SPRING_CONFIG_BOUNCE,
+      ),
+    };
+  });
+
+  const wrapperAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      height: withSpring(
+        isCollapsed.value ? (collapsedSize?.height ?? 0) : (size?.height ?? 0),
+        SPRING_CONFIG_BOUNCE,
+      ),
+    };
+  });
+  return (
+    <Animated.View
+      style={[
+        styles.shapeWrapper,
+        {
+          height: size?.height,
+        },
+        wrapperAnimatedStyle,
+      ]}
+    >
+      <Animated.View style={[styles.shape, animatedStyle]} />
+    </Animated.View>
+  );
+};
+
+const Arrow = ({
+  tintColor,
+  isSelected,
+  size,
+}: {
+  tintColor?: string;
+  isSelected: SharedValue<boolean>;
+  size?: Dimensions;
+}) => {
+  const iconAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          scale: withSpring(isSelected.value ? 1 : 0, SPRING_CONFIG_BOUNCE),
+        },
+      ],
+      opacity: withSpring(isSelected.value ? 1 : 0, SPRING_CONFIG),
+    };
+  });
+
+  return (
+    <View style={[styles.arrowWrapper, { height: size?.height }]}>
+      <Animated.View style={[styles.arrow, iconAnimatedStyle]}>
+        <FontAwesome6 name="arrow-up" size={28} color={tintColor} />
+      </Animated.View>
+    </View>
+  );
+};
+
+const Content = () => {
   return (
     <View
       style={{
-        width: "100%",
-        height: size?.height,
+        flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        // backgroundColor: "red",
       }}
     >
-      <Animated.View
-        style={{
-          width: 28,
-          aspectRatio: 1,
-          borderRadius: "50%",
-          experimental_backgroundImage:
-            "radial-gradient(circle, #ffffff80, #ffffffee )",
-        }}
-      />
+      <Text>Content</Text>
     </View>
   );
 };
@@ -163,11 +235,36 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 999,
     alignItems: "center",
-    // justifyContent: "center",
+    // justifyContent: "space-between",
     borderCurve: "continuous",
     overflow: "hidden",
   },
   gradient: {
     experimental_backgroundImage: "linear-gradient(170deg, #ffffff, #00000000)",
+  },
+  shape: {
+    width: 28,
+    aspectRatio: 1,
+    borderRadius: "50%",
+    experimental_backgroundImage: "radial-gradient(circle, #ffffff80, #ffffff)",
+  },
+  shapeWrapper: {
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  arrow: {
+    width: 54,
+    aspectRatio: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "50%",
+    experimental_backgroundImage:
+      "linear-gradient(to bottom, #ffffff 20%, #ffffff80)",
+  },
+  arrowWrapper: {
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
