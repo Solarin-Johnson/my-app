@@ -114,6 +114,7 @@ export default function Container({
             alignItems: "center",
           }}
         >
+          {otherChildren}
           <Animated.View
             style={[styles.container, { gap }, animatedStyle]}
             onLayout={(event) => {
@@ -130,7 +131,6 @@ export default function Container({
               }),
             )}
           </Animated.View>
-          {otherChildren}
         </View>
       </GestureDetector>
       {/* <Button

@@ -37,6 +37,12 @@ export const SPRING_CONFIG_FAST = {
   mass: 1,
 };
 
+export const SPRING_CONFIG_SLOW = {
+  stiffness: 180,
+  damping: 22,
+  mass: 1,
+};
+
 const ChangeMoodContext = createContext<ChangeMoodContextValue | null>(null);
 
 export function ChangeMoodProvider({
