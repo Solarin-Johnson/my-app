@@ -46,15 +46,35 @@ const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 const applySpring = (
   toValue: number,
   type: "fast" | "bounce" | "normal" = "normal",
+  delay: number = 0,
 ) => {
   "worklet";
-  let config = SPRING_CONFIG; 
+  let config = SPRING_CONFIG;
   if (type === "fast") {
     config = SPRING_CONFIG_FAST;
   } else if (type === "bounce") {
     config = SPRING_CONFIG_BOUNCE as any;
   }
-  return withSpring(toValue, config);
+  return withDelay(delay, withSpring(toValue, config));
+};
+
+const applyTiming = (
+  toValue: number,
+  type: "fast" | "normal" = "normal",
+  delay: number = 0,
+) => {
+  "worklet";
+  let config = {
+    duration: 300,
+    easing: Easing.inOut(Easing.ease),
+  };
+  if (type === "fast") {
+    config = {
+      duration: 100,
+      easing: Easing.inOut(Easing.cubic),
+    };
+  }
+  return withDelay(delay, withTiming(toValue, config));
 };
 
 export default function Item({
@@ -91,13 +111,13 @@ export default function Item({
         : collapsedH;
 
     return {
-      width: withSpring(width, SPRING_CONFIG_BOUNCE),
-      height: withSpring(height, SPRING_CONFIG_BOUNCE),
+      width: applySpring(width, "bounce"),
+      height: applySpring(height, "bounce"),
     };
   });
 
   const animatedProgress = useDerivedValue(() => {
-    return withSpring(isCollapsed.value ? 0 : 1, SPRING_CONFIG_BOUNCE);
+    return applySpring(isCollapsed.value ? 0 : 1, "bounce");
   });
 
   const animatedProps = useAnimatedProps(() => {
@@ -112,7 +132,7 @@ export default function Item({
 
   const innerAnimatedStyle = useAnimatedStyle(() => {
     return {
-      opacity: withSpring(isCollapsed.value ? 0 : 1, SPRING_CONFIG_BOUNCE),
+      opacity: applySpring(isCollapsed.value ? 0 : 1, "bounce"),
     };
   });
 
@@ -178,20 +198,20 @@ const Shape = ({
 }) => {
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      width: withSpring(
+      width: applySpring(
         isCollapsed.value
           ? (collapsedSize?.width ?? 0) / 2
           : (size?.width ?? 0) / 2,
-        SPRING_CONFIG_BOUNCE,
+        "bounce",
       ),
     };
   });
 
   const wrapperAnimatedStyle = useAnimatedStyle(() => {
     return {
-      height: withSpring(
+      height: applySpring(
         isCollapsed.value ? (collapsedSize?.height ?? 0) : (size?.height ?? 0),
-        SPRING_CONFIG_BOUNCE,
+        "bounce",
       ),
     };
   });
@@ -226,16 +246,10 @@ const Arrow = ({
     return {
       transform: [
         {
-          scale: withSpring(selected ? 1 : 0, SPRING_CONFIG_BOUNCE),
+          scale: applySpring(selected ? 1 : 0, "bounce"),
         },
       ],
-      opacity: withDelay(
-        selected ? 100 : 0,
-        withTiming(selected ? 1 : 0, {
-          duration: 200,
-          easing: Easing.out(Easing.ease),
-        }),
-      ),
+      opacity: applyTiming(selected ? 1 : 0, "fast", selected ? 100 : 0),
     };
   });
 
@@ -261,11 +275,10 @@ const Content = ({
   isSelected: SharedValue<boolean>;
 }) => {
   const animatedStyle = useAnimatedStyle(() => {
+    const selected = isSelected.value;
     return {
-      opacity: withSpring(isSelected.value ? 1 : 0, SPRING_CONFIG),
-      transform: [
-        { scale: withSpring(isSelected.value ? 1 : 0.8, SPRING_CONFIG) },
-      ],
+      opacity: applyTiming(selected ? 1 : 0, "fast", selected ? 100 : 0),
+      transform: [{ scale: applySpring(selected ? 1 : 0.8, "bounce") }],
     };
   });
   return (
