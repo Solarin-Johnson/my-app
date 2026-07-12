@@ -2,18 +2,28 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { GlassView } from "expo-glass-effect";
 import Animated, {
+  Easing,
   interpolateColor,
   useAnimatedProps,
   useAnimatedStyle,
   useDerivedValue,
+  withDelay,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
-import { SPRING_CONFIG, SPRING_CONFIG_BOUNCE, useChangeMood } from "./provider";
+import {
+  SPRING_CONFIG,
+  SPRING_CONFIG_BOUNCE,
+  SPRING_CONFIG_FAST,
+  useChangeMood,
+} from "./provider";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { SharedValue } from "react-native-gesture-handler/src/v3/types";
 import { ArrowUp } from "lucide-react-native";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { ThemedText } from "../ThemedText";
+import { size } from "@shopify/react-native-skia";
 
 export type Dimensions = {
   width: number;
@@ -32,6 +42,20 @@ const AnimatedGlassView = Animated.createAnimatedComponent(GlassView);
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
+
+const applySpring = (
+  toValue: number,
+  type: "fast" | "bounce" | "normal" = "normal",
+) => {
+  "worklet";
+  let config = SPRING_CONFIG; 
+  if (type === "fast") {
+    config = SPRING_CONFIG_FAST;
+  } else if (type === "bounce") {
+    config = SPRING_CONFIG_BOUNCE as any;
+  }
+  return withSpring(toValue, config);
+};
 
 export default function Item({
   tintColor,
@@ -125,8 +149,13 @@ export default function Item({
           size={size}
           collapsedSize={collapsedSize}
         />
-        <Content />
-        <Arrow tintColor={tintColor} isSelected={isSelected} size={size} />
+        <Content expandedSize={expandedSize} isSelected={isSelected} />
+        <Arrow
+          tintColor={tintColor}
+          isSelected={isSelected}
+          size={size}
+          expandedSize={expandedSize}
+        />
         <AnimatedLinearGradient
           colors={["#ffffff40", tintColor + "00"]}
           start={{ x: 0, y: 0 }}
@@ -185,24 +214,38 @@ const Arrow = ({
   tintColor,
   isSelected,
   size,
+  expandedSize,
 }: {
   tintColor?: string;
   isSelected: SharedValue<boolean>;
   size?: Dimensions;
+  expandedSize?: Dimensions;
 }) => {
   const iconAnimatedStyle = useAnimatedStyle(() => {
+    const selected = isSelected.value;
     return {
       transform: [
         {
-          scale: withSpring(isSelected.value ? 1 : 0, SPRING_CONFIG_BOUNCE),
+          scale: withSpring(selected ? 1 : 0, SPRING_CONFIG_BOUNCE),
         },
       ],
-      opacity: withSpring(isSelected.value ? 1 : 0, SPRING_CONFIG),
+      opacity: withDelay(
+        selected ? 100 : 0,
+        withTiming(selected ? 1 : 0, {
+          duration: 200,
+          easing: Easing.out(Easing.ease),
+        }),
+      ),
     };
   });
 
   return (
-    <View style={[styles.arrowWrapper, { height: size?.height }]}>
+    <View
+      style={[
+        styles.arrowWrapper,
+        { height: (expandedSize?.width ?? 0) * 0.8 },
+      ]}
+    >
       <Animated.View style={[styles.arrow, iconAnimatedStyle]}>
         <FontAwesome6 name="arrow-up" size={28} color={tintColor} />
       </Animated.View>
@@ -210,16 +253,42 @@ const Arrow = ({
   );
 };
 
-const Content = () => {
+const Content = ({
+  expandedSize,
+  isSelected,
+}: {
+  expandedSize?: Dimensions;
+  isSelected: SharedValue<boolean>;
+}) => {
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: withSpring(isSelected.value ? 1 : 0, SPRING_CONFIG),
+      transform: [
+        { scale: withSpring(isSelected.value ? 1 : 0.8, SPRING_CONFIG) },
+      ],
+    };
+  });
   return (
     <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
+      style={[
+        styles.contentWrapper,
+        { top: (expandedSize?.height ?? 0) * -0.04 },
+      ]}
     >
-      <Text>Content</Text>
+      <Animated.View
+        style={[
+          styles.content,
+          {
+            width: (expandedSize?.width ?? 0) * 0.8,
+            backgroundColor: "#ffffff20",
+          },
+          animatedStyle,
+        ]}
+      >
+        <ThemedText style={styles.text}>Emotions</ThemedText>
+        <View style={styles.line} />
+        <ThemedText style={styles.text}>Context</ThemedText>
+      </Animated.View>
     </View>
   );
 };
@@ -266,5 +335,31 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
+  },
+  content: {
+    // position: "absolute",
+    height: 82,
+    width: "80%",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 24,
+    borderWidth: 0.8,
+    borderColor: "#ffffff50",
+    borderCurve: "continuous",
+  },
+  contentWrapper: {
+    height: 60,
+    width: "100%",
+    alignItems: "center",
+  },
+  line: {
+    width: "70%",
+    height: 1,
+    marginVertical: 8,
+    backgroundColor: "#ffffff50",
+  },
+  text: {
+    fontFamily: "ui-rounded",
+    fontWeight: "500",
   },
 });

@@ -16,15 +16,21 @@ export type ChangeMoodProviderProps = {
 };
 
 export const SPRING_CONFIG_BOUNCE: WithSpringConfig = {
-  stiffness: 180,
-  damping: 24,
-  mass: 1.6,
+  stiffness: 200,
+  damping: 21,
+  mass: 1.1,
   energyThreshold: 0.00001,
 };
 
 export const SPRING_CONFIG = {
   stiffness: 210,
   damping: 24,
+  mass: 1,
+};
+
+export const SPRING_CONFIG_FAST = {
+  stiffness: 250,
+  damping: 20,
   mass: 1,
 };
 
