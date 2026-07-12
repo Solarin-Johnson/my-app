@@ -273,7 +273,7 @@ const Content = ({
     const selected = isSelected.value;
     return {
       opacity: applyTiming(selected ? 1 : 0, "fast", selected ? 100 : 0),
-      transform: [{ scale: applySpring(selected ? 1 : 0.8, "bounce") }],
+      transform: [{ scale: applySpring(selected ? 1 : 0.8, "fast") }],
     };
   });
   return (

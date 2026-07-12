@@ -39,7 +39,6 @@ export default function Container({
   collapsedSize = defaultCollapsedSize,
   size = defaultSize,
 }: ContainerProps) {
-  const { width: windowWidth } = useWindowDimensions();
   const { currentIndex, goToIndex } = useChangeMood();
   const containerWidth = useSharedValue(0);
 
@@ -48,9 +47,6 @@ export default function Container({
 
   const expandedWidth =
     expandedSize?.width ?? size?.width ?? collapsedSize?.width ?? 0;
-
-  const sizeWidth =
-    size?.width ?? expandedSize?.width ?? collapsedSize?.width ?? 0;
 
   const animatedStyle = useAnimatedStyle(() => {
     const index = currentIndex.value;
@@ -70,6 +66,8 @@ export default function Container({
       transform: [{ translateX: withSpring(translateX, SPRING_CONFIG_BOUNCE) }],
     };
   });
+
+  
 
   return (
     <>

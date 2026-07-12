@@ -1,4 +1,3 @@
-import { View, Text } from "react-native";
 import React from "react";
 import MoodChange from "@/components/change-mood";
 import { SafeAreaView } from "react-native-safe-area-context";
