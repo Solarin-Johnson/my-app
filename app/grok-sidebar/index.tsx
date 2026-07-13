@@ -28,11 +28,12 @@ import {
 } from "lucide-react-native";
 import { BlurView } from "expo-blur";
 import Animated, {
+  useAnimatedProps,
   useAnimatedReaction,
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { Drawer } from "expo-router/drawer";
+import { Drawer, DrawerNavigationProp } from "expo-router/drawer";
 import { GrokIcon } from "@/components/icons";
 import { useNavigation } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -67,6 +68,10 @@ export default function GrokSidebar() {
     ],
   }));
 
+  const animatedProps = useAnimatedProps(() => ({
+    intensity: intensity.value,
+  }));
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -89,7 +94,7 @@ export default function GrokSidebar() {
       <AnimatedBlurView
         style={StyleSheet.absoluteFill}
         pointerEvents="none"
-        intensity={intensity}
+        animatedProps={animatedProps}
       />
     </SafeAreaView>
   );
