@@ -37,7 +37,7 @@ export default function Index() {
   return (
     <ThemedViewWrapper colorName="untitledBg">
       <SafeAreaView style={styles.container}>
-        <StackedButtonExample />
+        {/* <StackedButtonExample /> */}
         <GlassView glassEffectStyle="clear" isInteractive style={styles.glass}>
           <ThemedTextWrapper style={styles.text} type="semiBold">
             <Link href="/stacked-button/sheet" suppressHighlighting>
@@ -53,7 +53,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "space-around",
+    justifyContent: "flex-end",
     alignItems: "center",
     paddingVertical: 16,
   },
