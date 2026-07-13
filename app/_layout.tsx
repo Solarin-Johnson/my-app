@@ -52,24 +52,6 @@ export default function RootLayout() {
           </ThemeProvider>
         </SafeAreaProvider>
       </KeyboardProvider>
-      {/* <Pressable
-        style={{
-          width: 45,
-          height: 45,
-          borderRadius: 25,
-          backgroundColor: "red",
-          position: "absolute",
-          top: 62,
-          left: 16,
-          zIndex: 999,
-        }}
-        onPress={() => {
-          if (!router.canGoBack()) return;
-          router.back();
-
-          // router.back();
-        }}
-      /> */}
     </GestureHandlerRootView>
   );
 }
@@ -113,13 +95,6 @@ export function NavigationDrawer() {
         }}
       />
       <Drawer.Screen
-        name="zoom-trans"
-        options={{
-          drawerLabel: "Zoom Transition",
-          ...edgeSwipe,
-        }}
-      />
-      <Drawer.Screen
         name="floating-menu"
         options={{
           drawerLabel: "Floating Menu",
@@ -129,12 +104,6 @@ export function NavigationDrawer() {
         name="online-pulse"
         options={{
           drawerLabel: "Online Pulse",
-        }}
-      />
-      <Drawer.Screen
-        name="accordion"
-        options={{
-          drawerLabel: "Accordion",
         }}
       />
       <Drawer.Screen
@@ -154,12 +123,6 @@ export function NavigationDrawer() {
         options={{
           drawerLabel: "Gesture Speed",
           ...edgeSwipe,
-        }}
-      />
-      <Drawer.Screen
-        name="wheel-input"
-        options={{
-          drawerLabel: "Wheel Input",
         }}
       />
       <Drawer.Screen
@@ -223,18 +186,6 @@ export function NavigationDrawer() {
         }}
       />
       <Drawer.Screen
-        name="shared-option"
-        options={{
-          drawerLabel: "Shared Option",
-        }}
-      />
-      <Drawer.Screen
-        name="open-gift"
-        options={{
-          drawerLabel: "Open Gift",
-        }}
-      />
-      <Drawer.Screen
         name="slider-demo"
         options={{
           drawerLabel: "Slider Demo",
@@ -267,28 +218,9 @@ export function NavigationDrawer() {
         }}
       />
       <Drawer.Screen
-        name="safari-bar"
-        options={{
-          drawerLabel: "Safari Bar",
-          headerTransparent: true,
-        }}
-      />
-      <Drawer.Screen
         name="slack-liquid-glass"
         options={{
           drawerLabel: "Slack Liquid Glass",
-        }}
-      />
-      <Drawer.Screen
-        name="wa-status"
-        options={{
-          drawerLabel: "WhatsApp Status",
-        }}
-      />
-      <Drawer.Screen
-        name="gesture-menu"
-        options={{
-          drawerLabel: "Gesture Menu",
         }}
       />
       <Drawer.Screen
