@@ -1436,7 +1436,7 @@
 
     "react-native-ease": ["react-native-ease@0.7.3", "", { "peerDependencies": { "nativewind": ">=4", "react": "*", "react-native": "*", "uniwind": ">=1" }, "optionalPeers": ["nativewind", "uniwind"] }, "sha512-RiZdoWFD+XBWX1RrikXz/AW9HBBMdWBNUDrSgmrjbldZDWtPorlc6QHZddTyILqiteoV2aOZMc4iYn0TVu1Y6A=="],
 
-    "react-native-gesture-handler": ["react-native-gesture-handler@3.0.0", "", { "dependencies": { "@types/react-test-renderer": "^19.1.0", "invariant": "^2.2.4" }, "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-6E8o9D2sHwhFGiU0c4aCweMdJwIbQeBV+dq3IQ3HcqKhVGzg7ccEycap6i0zGCtIYfs3V29Xd4OycwcRj5qxBQ=="],
+    "react-native-gesture-handler": ["react-native-gesture-handler@3.0.2", "", { "dependencies": { "@types/react-test-renderer": "^19.1.0", "invariant": "^2.2.4" }, "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-XBTgmvr2jh/xrMwlHTV2Z1x6IFUl3zfLxyaCAnvj3GSXK5YlY3ZmiIs57hniPmh3I7RtjPFxtGdRr0i+PzyBrg=="],
 
     "react-native-is-edge-to-edge": ["react-native-is-edge-to-edge@1.3.1", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-NIXU/iT5+ORyCc7p0z2nnlkouYKX425vuU1OEm6bMMtWWR9yvb+Xg5AZmImTKoF9abxCPqrKC3rOZsKzUYgYZA=="],
 
