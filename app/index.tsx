@@ -9,6 +9,7 @@ import TextArea from "@/components/TextArea";
 import { ThemedTextWrapper } from "@/components/ThemedText";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import Slider from "@/components/Slider";
+import Demo from "@/components/Demo";
 
 export default function Index() {
   const text = useThemeColor("text");
@@ -18,6 +19,8 @@ export default function Index() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <SafeAreaView style={{ flex: 1 }}>
+        <Demo />
+
         <View style={[styles.container, { backgroundColor: bg }]}>
           <View style={styles.container}>
             <Logo />
@@ -43,6 +46,7 @@ export default function Index() {
               />
             </ThemedTextWrapper> */}
           </View>
+
           <Button
             title="Start Exploring"
             bgcolor={text}
