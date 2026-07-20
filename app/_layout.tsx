@@ -88,6 +88,13 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="mail-app"
+        options={{
+          drawerLabel: "Mail App",
+          ...edgeSwipe,
+        }}
+      />
+      <Drawer.Screen
         name="change-mood"
         options={{
           drawerLabel: "Change Mood",
