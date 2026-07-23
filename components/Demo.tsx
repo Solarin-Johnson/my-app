@@ -1,54 +1,33 @@
-import {
-  Button,
-  Host,
-  List,
-  Section,
-  SwipeActions,
-  Text,
-  VStack,
-} from "@expo/ui/swift-ui";
-import { Stack } from "expo-router";
-import { View } from "react-native";
+import { useState } from "react";
+import { Host, ConfirmationDialog, Button, Text } from "@expo/ui/swift-ui";
 
-export default function SwipeActionsExample() {
+export default function MultiActionConfirmationDialogExample() {
+  const [isPresented, setIsPresented] = useState(false);
+
   return (
-    <>
-      <Stack.Screen
-        options={{
-          swipeEdgeWidth: 20,
-        }}
-      />
-
-      <SwipeActions>
-        <VStack>
-          <Text>Message from Expo</Text>
-          <Text>Message from Expo</Text>
-          <Text>Message from Expo</Text>
-          <Text>Message from Expo</Text>
-          <Text>Message from Expo</Text>
-        </VStack>
-
-        <SwipeActions.Actions edge="leading" allowsFullSwipe={false}>
-          <Button label="Pin" systemImage="pin" onPress={() => {}} />
-        </SwipeActions.Actions>
-
-        <SwipeActions.Actions edge="trailing">
+    <Host matchContents>
+      <ConfirmationDialog
+        title="Save Changes?"
+        isPresented={isPresented}
+        onIsPresentedChange={setIsPresented}
+        titleVisibility="visible"
+      >
+        <ConfirmationDialog.Trigger>
+          <Button label="Close Document" onPress={() => setIsPresented(true)} />
+        </ConfirmationDialog.Trigger>
+        <ConfirmationDialog.Actions>
+          <Button label="Save" onPress={() => console.log("Saved")} />
           <Button
-            label="Delete"
-            systemImage="trash"
+            label="Discard"
             role="destructive"
-            onPress={() => {
-              console.log("deleted");
-            }}
+            onPress={() => console.log("Discarded")}
           />
-          <Button
-            label="Delete"
-            systemImage="trash"
-            role="destructive"
-            onPress={() => {}}
-          />
-        </SwipeActions.Actions>
-      </SwipeActions>
-    </>
+          <Button label="Cancel" role="cancel" />
+        </ConfirmationDialog.Actions>
+        <ConfirmationDialog.Message>
+          <Text>You have unsaved changes. What would you like to do?</Text>
+        </ConfirmationDialog.Message>
+      </ConfirmationDialog>
+    </Host>
   );
 }

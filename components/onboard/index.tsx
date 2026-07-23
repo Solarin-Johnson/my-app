@@ -1,8 +1,15 @@
 import { JSX } from "react";
-import { OnboardContextType, OnboardProvider } from "./provider";
+import { OnboardProvider, OnboardProviderProps } from "./provider";
+import Screen from "./screen";
+import Screenshot from "./screenshot";
 
-type OnboardType = ((props: OnboardContextType) => JSX.Element) & {};
+type OnboardType = ((props: OnboardProviderProps) => JSX.Element) & {
+  Screen: typeof Screen;
+  Screenshot: typeof Screenshot;
+};
 
 const Onboard = OnboardProvider as OnboardType;
+Onboard.Screen = Screen;
+Onboard.Screenshot = Screenshot;
 
 export default Onboard;

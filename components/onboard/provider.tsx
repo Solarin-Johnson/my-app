@@ -3,15 +3,15 @@
 import React, { createContext, useContext, ReactNode } from "react";
 import Animated, { SharedValue, useSharedValue } from "react-native-reanimated";
 
-export interface OnboardContextType {
+interface OnboardContextType {
   currentIndex: SharedValue<number>;
 }
 
 const OnboardContext = createContext<OnboardContextType | undefined>(undefined);
 
-interface OnboardProviderProps {
+export interface OnboardProviderProps {
   children: ReactNode;
-  currentIndex: SharedValue<number>;
+  currentIndex?: SharedValue<number>;
 }
 
 export function OnboardProvider({
