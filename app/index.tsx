@@ -19,7 +19,7 @@ export default function Index() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <SafeAreaView style={{ flex: 1 }}>
-        <Demo />
+        {/* <Demo /> */}
         <View style={[styles.container, { backgroundColor: bg }]}>
           <View style={styles.container}>
             <Logo />

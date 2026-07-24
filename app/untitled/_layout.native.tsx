@@ -37,11 +37,7 @@ export default function Layout() {
   const bg = useThemeColor("untitledBg");
   return (
     <ThemedView style={{ flex: 1 }} colorName={"untitledBg"}>
-      <Stack
-        screenOptions={{
-          experimental_enableHighRefreshRate: true,
-        }}
-      >
+      <Stack screenOptions={{}}>
         <Stack.Screen name="index" />
         <Stack.Screen
           name="[id]"

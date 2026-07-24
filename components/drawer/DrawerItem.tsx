@@ -2,6 +2,8 @@ import { PlatformPressable, Text } from "expo-router/react-navigation";
 import { type Route, useTheme } from "expo-router/react-navigation";
 import * as React from "react";
 import {
+  AnimatableNumericValue,
+  Pressable,
   type StyleProp,
   StyleSheet,
   type TextStyle,
@@ -10,6 +12,10 @@ import {
 } from "react-native";
 import { Href, Link } from "expo-router";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { LinkMenuAction } from "expo-router/build/link/elements";
+import { Host, RNHostView } from "@expo/ui";
+import { Button, ConfirmationDialog } from "@expo/ui/swift-ui";
+import { isIos } from "@/constants";
 
 type Props = {
   /**
@@ -100,6 +106,7 @@ type Props = {
  */
 export function DrawerItem(props: Props) {
   const { colors, fonts } = useTheme();
+  const [isConfirming, setIsConfirming] = React.useState(false);
 
   const {
     href,
@@ -123,7 +130,7 @@ export function DrawerItem(props: Props) {
   } = props;
 
   const { borderRadius = 56 } = StyleSheet.flatten(style || {});
-  const color = focused ? activeTintColor : inactiveTintColor;
+  const color = (focused ? activeTintColor : inactiveTintColor) as string;
   const backgroundColor = focused
     ? activeBackgroundColor
     : inactiveBackgroundColor;
@@ -132,30 +139,34 @@ export function DrawerItem(props: Props) {
   const noPreview = (route?.params as any)?.noPreview || false;
   const bg = useThemeColor("barColor");
   return (
-    <View
-      collapsable={false}
-      {...rest}
-      style={[styles.container, { borderRadius, backgroundColor }, style]}
-    >
+    <>
       <Link href={href} asChild>
         {!noPreview && <Link.Preview style={{ backgroundColor: bg }} />}
         <Link.Menu>
+          <Link.MenuAction icon="square.and.arrow.up" onPress={() => {}}>
+            Share
+          </Link.MenuAction>
           <Link.MenuAction
-            title="Share"
-            icon="square.and.arrow.up"
-            onPress={() => {}}
-          />
-          <Link.MenuAction
-            title="Delete"
             icon="trash"
             destructive
-            onPress={() => {}}
-          />
+            onPress={() => {
+              setIsConfirming(true);
+            }}
+          >
+            Delete
+          </Link.MenuAction>
         </Link.Menu>
 
         <Link.Trigger>
           <PlatformPressable
             testID={testID}
+            collapsable={false}
+            {...rest}
+            style={StyleSheet.flatten([
+              styles.container,
+              { borderRadius, backgroundColor },
+              style,
+            ])}
             // onPress={onPress}
             role="button"
             aria-label={accessibilityLabel}
@@ -165,33 +176,90 @@ export function DrawerItem(props: Props) {
             hoverEffect={{ color }}
             // href={href}
           >
-            <View style={[styles.wrapper, { borderRadius }]}>
-              {iconNode}
-              <View style={[styles.label, { marginStart: iconNode ? 12 : 0 }]}>
-                {typeof label === "string" ? (
-                  <Text
-                    numberOfLines={1}
-                    allowFontScaling={allowFontScaling}
-                    style={[
-                      styles.labelText,
-                      { color },
-                      fonts.medium,
-                      labelStyle,
-                    ]}
-                  >
-                    {label}
+            <Host matchContents>
+              {/* <ConfirmationDialog
+                title="Save Changes?"
+                isPresented={isConfirming}
+                onIsPresentedChange={setIsConfirming}
+                titleVisibility="visible"
+              >
+                <ConfirmationDialog.Trigger> */}
+              <RNHostView matchContents>
+                <Item
+                  borderRadius={borderRadius}
+                  color={color}
+                  focused={focused}
+                  iconNode={iconNode}
+                  label={label}
+                  allowFontScaling={allowFontScaling}
+                  fonts={fonts}
+                  labelStyle={labelStyle}
+                />
+              </RNHostView>
+              {/* </ConfirmationDialog.Trigger> */}
+              {/* <ConfirmationDialog.Actions>
+                  <Button label="Save" onPress={() => console.log("Saved")} />
+                  <Button
+                    label="Discard"
+                    role="destructive"
+                    onPress={() => console.log("Discarded")}
+                  />
+                  <Button label="Cancel" role="cancel" />
+                </ConfirmationDialog.Actions>
+                <ConfirmationDialog.Message>
+                  <Text>
+                    You have unsaved changes. What would you like to do?
                   </Text>
-                ) : (
-                  label({ color, focused })
-                )}
-              </View>
-            </View>
+                </ConfirmationDialog.Message>
+              </ConfirmationDialog> */}
+            </Host>
           </PlatformPressable>
         </Link.Trigger>
       </Link>
-    </View>
+    </>
   );
 }
+
+const Item = ({
+  iconNode,
+  label,
+  allowFontScaling,
+  color,
+  focused,
+  fonts,
+  labelStyle,
+  borderRadius,
+}: {
+  iconNode: React.ReactNode;
+  label:
+    | string
+    | ((props: { focused: boolean; color: string }) => React.ReactNode);
+  allowFontScaling?: boolean;
+  color: string;
+  focused: boolean;
+  fonts: { medium: TextStyle };
+  labelStyle?: StyleProp<TextStyle>;
+  borderRadius: string | AnimatableNumericValue;
+}) => {
+  return (
+    <View style={[styles.wrapper, { borderRadius }]}>
+      {iconNode}
+      <View style={[styles.label, { marginStart: iconNode ? 12 : 0 }]}>
+        {typeof label === "string" ? (
+          <Text
+            numberOfLines={1}
+            allowFontScaling={allowFontScaling}
+            style={[styles.labelText, { color }, fonts.medium, labelStyle]}
+          >
+            {label}
+          </Text>
+        ) : (
+          label({ color, focused })
+        )}
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

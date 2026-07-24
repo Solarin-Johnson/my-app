@@ -13,6 +13,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { NotifyProvider } from "@/components/notify";
 import HeadComponent from "@/components/HeadComponent";
+import { isIos } from "@/constants";
 
 const isAndroid = Platform.OS === "android";
 
@@ -78,6 +79,7 @@ export function NavigationDrawer() {
         },
         drawerItemStyle: {
           borderRadius: 12,
+          // height: 24,
           borderCurve: "continuous",
         },
         drawerActiveTintColor: text,
@@ -87,7 +89,7 @@ export function NavigationDrawer() {
       }}
       drawerContent={(props) => <DrawerContent {...props} />}
     >
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name="onboard"
         options={{
           drawerLabel: "Onboard",
@@ -99,7 +101,7 @@ export function NavigationDrawer() {
           drawerLabel: "Mail App",
           ...edgeSwipe,
         }}
-      />
+      /> */}
       <Drawer.Screen
         name="change-mood"
         options={{
@@ -142,7 +144,7 @@ export function NavigationDrawer() {
         name="untitled"
         options={{
           drawerLabel: "[untitled]",
-          swipeEdgeWidth: 10,
+          swipeEdgeWidth: isIos ? 10 : width,
         }}
         initialParams={{ noPreview: true }}
       />
