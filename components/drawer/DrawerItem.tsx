@@ -13,7 +13,7 @@ import {
 import { Href, Link } from "expo-router";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { LinkMenuAction } from "expo-router/build/link/elements";
-import { Host, RNHostView } from "@expo/ui";
+import { Host, RNHostView, Text as UIText } from "@expo/ui";
 import { Button, ConfirmationDialog } from "@expo/ui/swift-ui";
 import { isIos } from "@/constants";
 
@@ -143,6 +143,9 @@ export function DrawerItem(props: Props) {
       <Link href={href} asChild>
         {!noPreview && <Link.Preview style={{ backgroundColor: bg }} />}
         <Link.Menu>
+          <Link.MenuAction icon="pin" onPress={() => {}}>
+            Pin
+          </Link.MenuAction>
           <Link.MenuAction icon="square.and.arrow.up" onPress={() => {}}>
             Share
           </Link.MenuAction>
@@ -176,43 +179,22 @@ export function DrawerItem(props: Props) {
             hoverEffect={{ color }}
             // href={href}
           >
-            <Host matchContents>
-              {/* <ConfirmationDialog
-                title="Save Changes?"
-                isPresented={isConfirming}
-                onIsPresentedChange={setIsConfirming}
-                titleVisibility="visible"
-              >
-                <ConfirmationDialog.Trigger> */}
-              <RNHostView matchContents>
-                <Item
-                  borderRadius={borderRadius}
-                  color={color}
-                  focused={focused}
-                  iconNode={iconNode}
-                  label={label}
-                  allowFontScaling={allowFontScaling}
-                  fonts={fonts}
-                  labelStyle={labelStyle}
-                />
-              </RNHostView>
-              {/* </ConfirmationDialog.Trigger> */}
-              {/* <ConfirmationDialog.Actions>
-                  <Button label="Save" onPress={() => console.log("Saved")} />
-                  <Button
-                    label="Discard"
-                    role="destructive"
-                    onPress={() => console.log("Discarded")}
-                  />
-                  <Button label="Cancel" role="cancel" />
-                </ConfirmationDialog.Actions>
-                <ConfirmationDialog.Message>
-                  <Text>
-                    You have unsaved changes. What would you like to do?
-                  </Text>
-                </ConfirmationDialog.Message>
-              </ConfirmationDialog> */}
-            </Host>
+            <ConfirmationDialogComponent
+              isPresented={isConfirming}
+              onIsPresentedChange={setIsConfirming}
+              label={label as string}
+            >
+              <Item
+                borderRadius={borderRadius}
+                color={color}
+                focused={focused}
+                iconNode={iconNode}
+                label={label}
+                allowFontScaling={allowFontScaling}
+                fonts={fonts}
+                labelStyle={labelStyle}
+              />
+            </ConfirmationDialogComponent>
           </PlatformPressable>
         </Link.Trigger>
       </Link>
@@ -261,6 +243,54 @@ const Item = ({
   );
 };
 
+const ConfirmationDialogComponent = ({
+  isPresented,
+  onIsPresentedChange,
+  children,
+  label,
+}: {
+  isPresented: boolean;
+  onIsPresentedChange: (isPresented: boolean) => void;
+  children: React.ReactElement;
+  label?: string;
+}) => {
+  const displayLength =
+    typeof label === "string"
+      ? (() => {
+          const trimmed = label.trim();
+          if (!trimmed) return trimmed;
+          return trimmed.split(/\s+/)[0];
+        })()
+      : label;
+  if (!isIos) return children;
+  return (
+    <Host matchContents>
+      <ConfirmationDialog
+        title={`Delete ${displayLength || "Component"}?`}
+        isPresented={isPresented}
+        onIsPresentedChange={onIsPresentedChange}
+        titleVisibility="visible"
+      >
+        <ConfirmationDialog.Trigger>
+          <RNHostView matchContents>{children}</RNHostView>
+        </ConfirmationDialog.Trigger>
+        <ConfirmationDialog.Actions>
+          <Button
+            label="Delete"
+            role="destructive"
+            onPress={() => console.log("Discarded")}
+          />
+          <Button label="Cancel" role="cancel" />
+        </ConfirmationDialog.Actions>
+        <ConfirmationDialog.Message>
+          <UIText>
+            This can't be undone. Please make sure you want to continue.
+          </UIText>
+        </ConfirmationDialog.Message>
+      </ConfirmationDialog>
+    </Host>
+  );
+};
 const styles = StyleSheet.create({
   container: {
     overflow: "hidden",
