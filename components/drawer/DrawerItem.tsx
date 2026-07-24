@@ -278,7 +278,7 @@ const ConfirmationDialogComponent = ({
           <Button
             label="Delete"
             role="destructive"
-            onPress={() => console.log("Discarded")}
+            onPress={() => console.log("Deleted")}
           />
           <Button label="Cancel" role="cancel" />
         </ConfirmationDialog.Actions>
