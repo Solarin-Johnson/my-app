@@ -8,8 +8,12 @@ export default function StatusBarPage() {
   return (
     <>
       <StatusBarUI
-        itemStyle={{ color: textColor, fontSize: 20 }}
+        itemStyle={{
+          color: textColor,
+          fontSize: 20,
+        }}
         batterySize={38}
+        
       />
       <View>{/* <Text>StatusBarPage</Text> */}</View>
     </>

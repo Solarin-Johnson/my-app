@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BatteryIcon } from "@/components/status-bar-ui/icons";
+import { BatteryIcon } from "./icons";
 import {
   addBatteryLevelListener,
   addBatteryStateListener,
@@ -28,6 +28,7 @@ type StatusBarUIProps = {
   itemStyle?: StyleProp<ViewStyle | TextStyle>;
   batteryColor?: string;
   batterySize?: number;
+  batterVariant?: "percentage" | "fill";
 };
 
 function getCurrentTime(format: TimeFormat = "24") {
@@ -49,12 +50,12 @@ export default function StatusBarUI({
   itemStyle,
   batteryColor,
   batterySize = 32,
+  batterVariant = "percentage",
 }: StatusBarUIProps) {
   const [timeFormat, setTimeFormat] = useState<TimeFormat>(_timeFormat || "24");
   const currentTime = getCurrentTime(timeFormat);
   const [battery, setBattery] = useState<number | null>(null);
   const [isCharging, setIsCharging] = useState<boolean | null>(null);
-  const batteryLevel = Math.floor((battery ?? 0) * 100);
   const { top } = useSafeAreaInsets();
   const flattenedItemStyle = StyleSheet.flatten(itemStyle as TextStyle);
 
@@ -101,28 +102,17 @@ export default function StatusBarUI({
         <Text style={[styles.timeText, itemStyle as TextStyle, timeStyle]}>
           {currentTime}
         </Text>
-        <View>
-          <BatteryIcon
-            color={
-              batteryColor || (flattenedItemStyle?.color as string) || "black"
-            }
-            size={batterySize}
-          />
-          <View style={styles.percent}>
-            <Text
-              style={[
-                styles.percentText,
-                itemStyle as TextStyle,
-                {
-                  fontSize: batterySize / 2.3,
-                  letterSpacing: batteryLevel === 100 ? 0 : 1.5,
-                },
-              ]}
-            >
-              {isCharging ? "ϟ" : batteryLevel >= 0 ? `${batteryLevel}` : "?"}
-            </Text>
-          </View>
-        </View>
+        <BatteryIcon
+          color={
+            batteryColor || (flattenedItemStyle?.color as string) || "black"
+          }
+          size={batterySize}
+          percent={battery ?? 0}
+          textStyle={[itemStyle as TextStyle]}
+          //   variant="percentage"
+          variant={batterVariant}
+          isCharging={isCharging ?? false}
+        />
       </View>
     </>
   );
