@@ -14,6 +14,7 @@
         "@shopify/react-native-skia": "2.6.2",
         "deps": "^1.0.0",
         "expo": "~56.0.15",
+        "expo-battery": "~56.0.4",
         "expo-blur": "^56.0.3",
         "expo-clipboard": "~56.0.4",
         "expo-constants": "~56.0.20",
@@ -857,6 +858,8 @@
     "expo": ["expo@56.0.15", "", { "dependencies": { "@babel/runtime": "^7.20.0", "@expo/cli": "^56.1.19", "@expo/config": "~56.0.11", "@expo/config-plugins": "~56.0.12", "@expo/devtools": "~56.0.2", "@expo/dom-webview": "~56.0.6", "@expo/fingerprint": "^0.19.7", "@expo/local-build-cache-provider": "^56.0.9", "@expo/log-box": "^56.0.14", "@expo/metro": "~56.0.0", "@expo/metro-config": "~56.0.16", "@ungap/structured-clone": "^1.3.0", "babel-preset-expo": "~56.0.17", "expo-asset": "~56.0.19", "expo-constants": "~56.0.20", "expo-file-system": "~56.0.8", "expo-font": "~56.0.7", "expo-keep-awake": "~56.0.3", "expo-modules-autolinking": "~56.0.19", "expo-modules-core": "~56.0.20", "pretty-format": "^29.7.0", "react-refresh": "^0.14.2", "whatwg-url-minimum": "^0.1.2" }, "peerDependencies": { "@expo/metro-runtime": "*", "react": "*", "react-dom": "*", "react-native": "*", "react-native-web": "*", "react-native-webview": "*" }, "optionalPeers": ["@expo/metro-runtime", "react-dom", "react-native-web", "react-native-webview"], "bin": { "expo": "bin/cli", "fingerprint": "bin/fingerprint", "expo-modules-autolinking": "bin/autolinking" } }, "sha512-Tnas9Sq1fDY865rhSQ4266Kd4GULEUyBEBEchbNLQsiY6U+AAt4MgCKJUsRvUkNHdaZwnGzexy6hdnOjsgvNcA=="],
 
     "expo-asset": ["expo-asset@56.0.19", "", { "dependencies": { "@expo/image-utils": "^0.10.2", "expo-constants": "~56.0.20" }, "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-huGY0bVfYUivNOir+iUEjjW9IbNHzLFNo8d6FGh22u1OsXcFR7Za3vpu5V1gMp0dc31wiqmsXkTazjm+Rro3vA=="],
+
+    "expo-battery": ["expo-battery@56.0.4", "", { "peerDependencies": { "expo": "*", "react": "*" } }, "sha512-JkWVSAt8WUgMxSxK8kNm6xOM7E+J7kTyNKqFoGgmALjz04h0w9rffQg9VrD1WXPhp2nWFvhy5yZryY6Xe9YU8g=="],
 
     "expo-blur": ["expo-blur@56.0.3", "", { "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-KDDtrpWc2tYlm1WCPaOgBtv+YEGqe5ELheFPIgSNgHt28NQUDcfBcFsA9Us2StDh6osmSD6NbKxOt5bU6PcDbQ=="],
 

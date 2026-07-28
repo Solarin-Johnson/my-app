@@ -89,6 +89,12 @@ export function NavigationDrawer() {
       }}
       drawerContent={(props) => <DrawerContent {...props} />}
     >
+      <Drawer.Screen
+        name="status-bar"
+        options={{
+          drawerLabel: "Status Bar",
+        }}
+      />
       {/* <Drawer.Screen
         name="onboard"
         options={{

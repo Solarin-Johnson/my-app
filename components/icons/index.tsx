@@ -105,4 +105,3 @@ export const SpeedIcon = (props: IconProps) => {
     </Svg>
   );
 };
-

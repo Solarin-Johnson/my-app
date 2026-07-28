@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import Logo from "@/components/ui/Logo";
 import Button from "@/components/ui/Button";
@@ -10,6 +10,7 @@ import { ThemedTextWrapper } from "@/components/ThemedText";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import Slider from "@/components/Slider";
 import Demo from "@/components/Demo";
+import { StatusBar } from "expo-status-bar";
 
 export default function Index() {
   const text = useThemeColor("text");
