@@ -9,7 +9,14 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BatteryIcon } from "@/components/status-bar-ui/icons";
-import { useBatteryLevel } from "expo-battery";
+import {
+  addBatteryLevelListener,
+  addBatteryStateListener,
+  BatteryState,
+  getBatteryLevelAsync,
+  getBatteryStateAsync,
+} from "expo-battery";
+import { useEffect, useState } from "react";
 
 type TimeFormat = "12" | "24";
 
@@ -42,10 +49,39 @@ export default function StatusBarUI({
   batterySize = 32,
 }: StatusBarUIProps) {
   const currentTime = getCurrentTime(timeFormat);
-  const batteryLevel = useBatteryLevel();
-  const _batteryLevel = Math.round(Math.abs(batteryLevel ?? 0) * 100);
+  const [battery, setBattery] = useState<number | null>(null);
+  const [isCharging, setIsCharging] = useState<boolean | null>(null);
+  const batteryLevel = Math.floor((battery ?? 0) * 100);
   const { top } = useSafeAreaInsets();
   const flattenedItemStyle = StyleSheet.flatten(itemStyle as TextStyle);
+
+  console.log(battery);
+
+  useEffect(() => {
+    getBatteryLevelAsync().then(setBattery);
+
+    const subscription = addBatteryLevelListener(({ batteryLevel }) => {
+      console.log("Battery changed:", batteryLevel);
+
+      setBattery(batteryLevel);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    getBatteryStateAsync().then((state) => {
+      setIsCharging(state === BatteryState.CHARGING);
+    });
+
+    const subscription = addBatteryStateListener(({ batteryState }) => {
+      setIsCharging(batteryState === BatteryState.CHARGING);
+    });
+
+    return () => subscription.remove();
+  }, []);
 
   return (
     <>
@@ -68,11 +104,11 @@ export default function StatusBarUI({
                 itemStyle as TextStyle,
                 {
                   fontSize: batterySize / 2.3,
-                  letterSpacing: -batteryLevel === 1 ? 0 : 1.5,
+                  letterSpacing: batteryLevel === 100 ? 0 : 1.5,
                 },
               ]}
             >
-              {batteryLevel !== null ? `${_batteryLevel}` : "?"}
+              {isCharging ? "ϟ" : batteryLevel >= 0 ? `${batteryLevel}` : "?"}
             </Text>
           </View>
         </View>
@@ -111,5 +147,6 @@ const styles = StyleSheet.create({
     fontFamily: "ui-serif",
     fontWeight: "400",
     marginLeft: "-5%",
+    fontVariant: ["tabular-nums"],
   },
 });
