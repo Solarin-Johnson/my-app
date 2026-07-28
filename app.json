@@ -60,7 +60,8 @@
         {
           "colorSpace": "displayP3"
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,
