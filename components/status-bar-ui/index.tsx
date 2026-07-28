@@ -1,4 +1,5 @@
 import {
+  AppState,
   StyleProp,
   StyleSheet,
   Text,
@@ -17,6 +18,7 @@ import {
   getBatteryStateAsync,
 } from "expo-battery";
 import { useEffect, useState } from "react";
+import { getCalendars } from "expo-localization";
 
 type TimeFormat = "12" | "24";
 
@@ -42,12 +44,13 @@ function getCurrentTime(format: TimeFormat = "24") {
 }
 
 export default function StatusBarUI({
-  timeFormat = "24",
+  timeFormat: _timeFormat,
   timeStyle,
   itemStyle,
   batteryColor,
   batterySize = 32,
 }: StatusBarUIProps) {
+  const [timeFormat, setTimeFormat] = useState<TimeFormat>(_timeFormat || "24");
   const currentTime = getCurrentTime(timeFormat);
   const [battery, setBattery] = useState<number | null>(null);
   const [isCharging, setIsCharging] = useState<boolean | null>(null);
@@ -55,14 +58,10 @@ export default function StatusBarUI({
   const { top } = useSafeAreaInsets();
   const flattenedItemStyle = StyleSheet.flatten(itemStyle as TextStyle);
 
-  console.log(battery);
-
   useEffect(() => {
     getBatteryLevelAsync().then(setBattery);
 
     const subscription = addBatteryLevelListener(({ batteryLevel }) => {
-      console.log("Battery changed:", batteryLevel);
-
       setBattery(batteryLevel);
     });
 
@@ -81,6 +80,18 @@ export default function StatusBarUI({
     });
 
     return () => subscription.remove();
+  }, []);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextState) => {
+      if (nextState === "active" && !_timeFormat) {
+        const is24Hour = getCalendars()[0].uses24hourClock;
+        setTimeFormat(is24Hour ? "24" : "12");
+      }
+    });
+    return () => {
+      subscription.remove();
+    };
   }, []);
 
   return (
