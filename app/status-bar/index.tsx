@@ -6,7 +6,7 @@ import DrawPad from "expo-drawpad";
 import { ThemedTextWrapper } from "@/components/ThemedText";
 
 export default function StatusBarPage() {
-  const textColor = useThemeColor("text");
+  const textColor = useThemeColor("invertedTheme");
 
   return (
     <>
