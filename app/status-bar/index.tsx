@@ -1,6 +1,8 @@
 import { View } from "react-native";
 import StatusBarUI from "@/components/status-bar-ui";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { ThemedView } from "@/components/ThemedView";
+import DrawPad from "expo-drawpad";
 
 export default function StatusBarPage() {
   const textColor = useThemeColor("text");
@@ -13,9 +15,10 @@ export default function StatusBarPage() {
           fontSize: 20,
         }}
         batterySize={38}
-        
       />
-      <View>{/* <Text>StatusBarPage</Text> */}</View>
+      <ThemedView style={{ flex: 1 }} colorName="theme">
+        <DrawPad />
+      </ThemedView>
     </>
   );
 }

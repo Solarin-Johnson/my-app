@@ -1,5 +1,6 @@
 import {
   AppState,
+  Pressable,
   StyleProp,
   StyleSheet,
   Text,
@@ -28,7 +29,7 @@ type StatusBarUIProps = {
   itemStyle?: StyleProp<ViewStyle | TextStyle>;
   batteryColor?: string;
   batterySize?: number;
-  batterVariant?: "percentage" | "fill";
+  batteryVariant?: "percentage" | "fill";
 };
 
 function getCurrentTime(format: TimeFormat = "24") {
@@ -50,7 +51,7 @@ export default function StatusBarUI({
   itemStyle,
   batteryColor,
   batterySize = 32,
-  batterVariant = "percentage",
+  batteryVariant: initBatteryVariant = "percentage",
 }: StatusBarUIProps) {
   const [timeFormat, setTimeFormat] = useState<TimeFormat>(_timeFormat || "24");
   const currentTime = getCurrentTime(timeFormat);
@@ -58,6 +59,10 @@ export default function StatusBarUI({
   const [isCharging, setIsCharging] = useState<boolean | null>(null);
   const { top } = useSafeAreaInsets();
   const flattenedItemStyle = StyleSheet.flatten(itemStyle as TextStyle);
+
+  const [batteryVariant, setBatteryVariant] = useState<"percentage" | "fill">(
+    initBatteryVariant,
+  );
 
   useEffect(() => {
     getBatteryLevelAsync().then(setBattery);
@@ -99,20 +104,34 @@ export default function StatusBarUI({
     <>
       <StatusBar hidden />
       <View style={[styles.bar, { height: top }]}>
-        <Text style={[styles.timeText, itemStyle as TextStyle, timeStyle]}>
-          {currentTime}
-        </Text>
-        <BatteryIcon
-          color={
-            batteryColor || (flattenedItemStyle?.color as string) || "black"
-          }
-          size={batterySize}
-          percent={battery ?? 0}
-          textStyle={[itemStyle as TextStyle]}
-          //   variant="percentage"
-          variant={batterVariant}
-          isCharging={isCharging ?? false}
-        />
+        <Pressable
+          onPress={() => {
+            console.log("pressed");
+          }}
+        >
+          <Text style={[styles.timeText, itemStyle as TextStyle, timeStyle]}>
+            {currentTime}
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => {
+            setBatteryVariant((prev) =>
+              prev === "percentage" ? "fill" : "percentage",
+            );
+          }}
+        >
+          <BatteryIcon
+            color={
+              batteryColor || (flattenedItemStyle?.color as string) || "black"
+            }
+            size={batterySize}
+            percent={0.25}
+            textStyle={[itemStyle as TextStyle]}
+            //   variant="percentage"
+            variant={batteryVariant}
+            isCharging={isCharging ?? false}
+          />
+        </Pressable>
       </View>
     </>
   );
