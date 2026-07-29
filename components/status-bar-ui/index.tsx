@@ -20,6 +20,7 @@ import {
 } from "expo-battery";
 import { useEffect, useState } from "react";
 import { getCalendars } from "expo-localization";
+import { useCurrentTimeShared } from "./hook";
 
 type TimeFormat = "12" | "24";
 
@@ -32,19 +33,6 @@ type StatusBarUIProps = {
   batteryVariant?: "percentage" | "fill";
 };
 
-function getCurrentTime(format: TimeFormat = "24") {
-  const now = new Date();
-  let hours = now.getHours();
-  const minutes = now.getMinutes().toString().padStart(2, "0");
-
-  if (Number(format) === 12) {
-    hours = hours % 12 || 12;
-    return `${hours}:${minutes}`;
-  }
-
-  return `${hours.toString().padStart(2, "0")}:${minutes}`;
-}
-
 export default function StatusBarUI({
   timeFormat: _timeFormat,
   timeStyle,
@@ -54,7 +42,7 @@ export default function StatusBarUI({
   batteryVariant: initBatteryVariant = "percentage",
 }: StatusBarUIProps) {
   const [timeFormat, setTimeFormat] = useState<TimeFormat>(_timeFormat || "24");
-  const currentTime = getCurrentTime(timeFormat);
+  const currentTime = useCurrentTimeShared(timeFormat);
   const [battery, setBattery] = useState<number | null>(null);
   const [isCharging, setIsCharging] = useState<boolean | null>(null);
   const { top } = useSafeAreaInsets();
@@ -106,7 +94,7 @@ export default function StatusBarUI({
       <View style={[styles.bar, { height: top }]}>
         <Pressable
           onPress={() => {
-            console.log("pressed");
+            setTimeFormat((prev) => (prev === "24" ? "12" : "24"));
           }}
         >
           <Text style={[styles.timeText, itemStyle as TextStyle, timeStyle]}>

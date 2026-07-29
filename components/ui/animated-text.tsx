@@ -7,17 +7,26 @@ import Animated, {
 import type { TextInputProps } from "react-native";
 
 interface TextProps extends Omit<TextInputProps, "value"> {
-  text: SharedValue<string> | SharedValue<number>;
+  text: SharedValue<string> | SharedValue<number> | string | number;
 }
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
+const isSharedValue = (
+  text: TextProps["text"],
+): text is SharedValue<string> | SharedValue<number> => {
+  return typeof text === "object" && text !== null && "value" in text;
+};
+
 export const AnimatedText = (props: TextProps) => {
   const { text, ...rest } = props;
+  const textValue = isSharedValue(text)
+    ? String((text as SharedValue<string | number>).value)
+    : String(text);
 
   const animatedProps = useAnimatedProps(() => {
     return {
-      text: String(text.value),
+      text: textValue,
     } as any;
   });
 
@@ -25,7 +34,8 @@ export const AnimatedText = (props: TextProps) => {
     <AnimatedTextInput
       underlineColorAndroid="transparent"
       editable={false}
-      value={String(text.value)}
+      value={textValue}
+      pointerEvents={"none"}
       {...rest}
       animatedProps={animatedProps}
     />

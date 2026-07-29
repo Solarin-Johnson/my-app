@@ -27,7 +27,7 @@ interface IconProps {
 
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
 
-const applySpring = (value: number) => {
+export const applySpring = (value: number) => {
   "worklet";
   return withSpring(value, SPRING_CONFIG);
 };
@@ -48,11 +48,11 @@ export const BatteryIcon = ({
   const batteryLevel = Math.floor(battery * 100);
 
   const rectAnimatedProps = useAnimatedProps(() => ({
-    width: applySpring(variant === "fill" ? 43 * battery : 0),
+    width: applySpring(variant === "fill" && !isCharging ? 43 * battery : 0),
   }));
 
   const percentAnimatedStyle = useAnimatedStyle(() => {
-    const active = variant === "percentage" || battery <= 0;
+    const active = variant === "percentage" || battery <= 0 || isCharging;
     return {
       opacity: applySpring(active ? 1 : 0),
       transform: [

@@ -10,7 +10,7 @@ import {
   frame,
 } from "@expo/ui/swift-ui/modifiers";
 
-interface TextProps extends Omit<TextFieldProps, "value"> {
+interface TextProps extends Omit<TextFieldProps, "value" | "text"> {
   text: SharedValue<string> | SharedValue<number>;
 }
 
