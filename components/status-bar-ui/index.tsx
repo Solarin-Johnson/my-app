@@ -93,7 +93,7 @@ export default function StatusBarUI({
       <StatusBar hidden />
       <View style={[styles.bar, { height: top }]}>
         <Pressable
-          style={{ minWidth: 50 }}
+          style={{ minWidth: 70 }}
           onPress={() => {
             setTimeFormat((prev) => (prev === "24" ? "12" : "24"));
           }}
@@ -114,7 +114,8 @@ export default function StatusBarUI({
               batteryColor || (flattenedItemStyle?.color as string) || "black"
             }
             size={batterySize}
-            percent={battery ?? -1}
+            // percent={battery ?? -1}
+            percent={0.64}
             textStyle={[itemStyle as TextStyle]}
             //   variant="percentage"
             variant={batteryVariant}
