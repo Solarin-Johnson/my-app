@@ -2,6 +2,7 @@ import { View, Text, ViewProps, StyleSheet } from "react-native";
 import React, { cloneElement, ReactElement, useEffect } from "react";
 import Animated, {
   measure,
+  SharedValue,
   useAnimatedReaction,
   useAnimatedRef,
   useDerivedValue,
@@ -9,7 +10,6 @@ import Animated, {
 } from "react-native-reanimated";
 import { runOnUI, scheduleOnRN } from "react-native-worklets";
 import { useFloatingMenu } from "./provider";
-import { SharedValue } from "react-native-gesture-handler/lib/typescript/v3/types";
 
 type ItemType = ViewProps & {
   removeDefaultStyle?: boolean;
@@ -111,11 +111,11 @@ export default function Item({
     return hoveredIndex.get() === index;
   });
 
-  useDerivedValue(() => {
-    console.log(state.get());
+  // useDerivedValue(() => {
+  //   console.log(state.get());
 
-    console.log(isActive.value, hovered.value);
-  });
+  //   console.log(isActive.value, hovered.value);
+  // });
 
   return (
     <Animated.View

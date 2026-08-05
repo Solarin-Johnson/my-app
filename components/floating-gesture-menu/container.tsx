@@ -9,6 +9,7 @@ import React, {
 import { EaseView } from "react-native-ease";
 import { useFloatingMenu } from "./provider";
 import Item from "./item";
+import Animated from "react-native-reanimated";
 
 type ContainerType = {
   bottomInset?: number;
@@ -40,16 +41,19 @@ export default function Container({
   }, [children, setTotalItems]);
 
   return (
-    <EaseView
+    <Animated.View
       style={[
         !removeDefaultStyle && styles.defaultStyle,
         { marginBottom: 0, margin: inset },
         style,
         styles.container,
-        { bottom },
+        {
+          bottom,
+          opacity: isOpened ? 1 : 0,
+          transitionProperty: "opacity",
+          transitionDuration: 100,
+        },
       ]}
-      animate={{ opacity: isOpened ? 1 : 0 }}
-      transition={{ type: "timing", duration: 0 }}
       {...props}
       pointerEvents={isOpened ? "auto" : "none"}
     >
@@ -58,7 +62,7 @@ export default function Container({
           ? cloneElement(child as ReactElement<any>, { index })
           : child,
       )}
-    </EaseView>
+    </Animated.View>
   );
 }
 

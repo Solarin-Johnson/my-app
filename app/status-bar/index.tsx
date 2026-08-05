@@ -17,7 +17,7 @@ export default function StatusBarPage() {
   }, []);
 
   return (
-    <>
+    <View style={{ flex: 1 }}>
       <StatusBarUI
         itemStyle={{
           color: textColor,
@@ -29,12 +29,12 @@ export default function StatusBarPage() {
         <ThemedTextWrapper>
           <DotPatternBackground opacity={0.25} />
         </ThemedTextWrapper>
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, paddingLeft: 10 }}>
           <ThemedTextWrapper colorName="invertedTheme" attribute="stroke">
             <DrawPad ref={padRef} />
           </ThemedTextWrapper>
         </SafeAreaView>
       </ThemedView>
-    </>
+    </View>
   );
 }

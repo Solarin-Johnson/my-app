@@ -93,6 +93,7 @@ export function NavigationDrawer() {
         name="status-bar"
         options={{
           drawerLabel: "Status Bar",
+          ...edgeSwipe,
         }}
       />
       {/* <Drawer.Screen

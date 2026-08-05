@@ -3,13 +3,10 @@ import {
   Pressable,
   PressableProps,
   StyleSheet,
-  Text,
-  View,
   ViewProps,
 } from "react-native";
-import React from "react";
 import { useFloatingMenu } from "./provider";
-import { EaseView } from "react-native-ease";
+import Animated from "react-native-reanimated";
 
 type ButtonContainerType = {
   removeDefaultStyle?: boolean;
@@ -53,15 +50,20 @@ export function ButtonContainer({
   ];
 
   return (
-    <EaseView
-      style={combinedStyle}
-      animate={{ opacity: isOpened ? 1 : 0 }}
+    <Animated.View
+      style={[
+        combinedStyle,
+        {
+          opacity: isOpened ? 1 : 0,
+          transitionProperty: "opacity",
+          transitionDuration: 300,
+        },
+      ]}
       pointerEvents={isOpened ? "auto" : "none"}
-      transition={{ type: "timing" }}
       {...props}
     >
       {children}
-    </EaseView>
+    </Animated.View>
   );
 }
 export function Button({

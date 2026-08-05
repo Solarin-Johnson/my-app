@@ -1,16 +1,12 @@
-import { View, Text, StyleSheet } from "react-native";
-import React from "react";
+import { StyleSheet } from "react-native";
 import { Image, ImageSource } from "expo-image";
-import { ThemedText, ThemedTextWrapper } from "../ThemedText";
+import { ThemedTextWrapper } from "../ThemedText";
 import { ItemChildType } from "../floating-gesture-menu/item";
 import Animated, {
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
-import { AnimatedText } from "../ui/animated-text";
-import { opacity } from "react-native-redash";
 import { useFloatingMenu } from "../floating-gesture-menu/provider";
-import { EaseView } from "react-native-ease";
 
 type MenuItemType = {
   text: string;
@@ -45,7 +41,6 @@ export default function MenuItem({
   const { state, hoveredIndex, totalItems, isOpened, bottomInset } =
     useFloatingMenu();
   const textAnmatedStyle = useAnimatedStyle(() => {
-    console.log(text, active?.get(), hovered?.get());
     const activeHold =
       active?.get() && !hovered?.get() && state.get() === "holding";
 
@@ -57,7 +52,6 @@ export default function MenuItem({
   const animatedStyle = useAnimatedStyle(() => {
     const hoveredIdx = hoveredIndex.get();
     const isHovered = hoveredIdx == null || hoveredIdx === index;
-    console.log(hoveredIndex.get(), "h");
 
     return {
       transform: [{ scale: applySpring(hovered?.get() ? 1.15 : 1) }],
@@ -65,18 +59,23 @@ export default function MenuItem({
     };
   });
 
-  console.log(text, index);
+  const containerAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: applySpring(
+            isOpened
+              ? 0
+              : (totalItems - 1 - index) * ITEM_HEIGHT + bottomInset * 1.5,
+          ),
+        },
+      ],
+      opacity: applySpring(isOpened ? 1 : 0.7),
+    };
+  });
 
   return (
-    <EaseView
-      animate={{
-        translateY: isOpened
-          ? 0
-          : (totalItems - 1 - index) * ITEM_HEIGHT + bottomInset * 1.5,
-        opacity: isOpened ? 1 : 0.7,
-      }}
-      transition={{ type: "spring", ...SPRING_CONFIG }}
-    >
+    <Animated.View style={containerAnimatedStyle}>
       <Animated.View style={[styles.container, animatedStyle]}>
         <ThemedTextWrapper
           style={styles.text}
@@ -88,7 +87,7 @@ export default function MenuItem({
         </ThemedTextWrapper>
         <Image source={image} style={styles.image} contentFit="contain" />
       </Animated.View>
-    </EaseView>
+    </Animated.View>
   );
 }
 
