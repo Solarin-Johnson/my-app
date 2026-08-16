@@ -119,7 +119,7 @@ export default function Trigger({
       <Pressable style={combinedStyle} {...props}>
         <GestureDetector gesture={panGestureTrigger}>
           {children}
-        </GestureDetector>
+        </GestureDetector> 
       </Pressable>
       {isOpened && (
         <View style={[StyleSheet.absoluteFill, { zIndex: 100 }]}>

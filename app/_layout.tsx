@@ -14,6 +14,7 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { NotifyProvider } from "@/components/notify";
 import HeadComponent from "@/components/HeadComponent";
 import { isIos } from "@/constants";
+import ButtonKeyboard from "@/components/button-keyboard";
 
 const isAndroid = Platform.OS === "android";
 
@@ -46,10 +47,12 @@ export default function RootLayout() {
           <ThemeProvider
             value={colorScheme === "dark" ? DarkTheme : LightTheme}
           >
-            <NotifyProvider>
-              <NavigationDrawer />
-              <StatusBar style="auto" />
-            </NotifyProvider>
+            <ButtonKeyboard.Provider>
+              <NotifyProvider>
+                <NavigationDrawer />
+                <StatusBar style="auto" />
+              </NotifyProvider>
+            </ButtonKeyboard.Provider>
           </ThemeProvider>
         </SafeAreaProvider>
       </KeyboardProvider>
@@ -89,6 +92,12 @@ export function NavigationDrawer() {
       }}
       drawerContent={(props) => <DrawerContent {...props} />}
     >
+      <Drawer.Screen
+        name="button-keyboard"
+        options={{
+          drawerLabel: "Button Keyboard",
+        }}
+      />
       <Drawer.Screen
         name="status-bar"
         options={{
