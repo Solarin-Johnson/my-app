@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   View,
   Text,
@@ -6,35 +6,43 @@ import {
   TouchableOpacity,
   useWindowDimensions,
   Platform,
+  Pressable,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useButtonKeyboard } from "./provider";
+import Animated, {
+  useAnimatedReaction,
+  useDerivedValue,
+  useSharedValue,
+} from "react-native-reanimated";
 
 const KEY_HEIGHT = 50;
 const GAP = 12;
+const TIMEOUT = 600;
 
 const SYMBOLS = [".", ",", "?", "!", "@", "#"];
 
 type KeyConfig = {
-  number: string;
   letters: string[];
   removeLetters?: boolean;
 };
 
-const KEYS: KeyConfig[] = [
-  { number: "1", letters: SYMBOLS, removeLetters: true },
-  { number: "2", letters: ["A", "B", "C"] },
-  { number: "3", letters: ["D", "E", "F"] },
-  { number: "4", letters: ["G", "H", "I"] },
-  { number: "5", letters: ["J", "K", "L"] },
-  { number: "6", letters: ["M", "N", "O"] },
-  { number: "7", letters: ["P", "Q", "R", "S"] },
-  { number: "8", letters: ["T", "U", "V"] },
-  { number: "9", letters: ["W", "X", "Y", "Z"] },
-  { number: "*", letters: [] },
-  { number: "0", letters: ["+"] },
-  { number: "#", letters: [] },
-];
+const KEYS: Record<string, KeyConfig> = {
+  "1": { letters: SYMBOLS, removeLetters: true },
+  "2": { letters: ["A", "B", "C"] },
+  "3": { letters: ["D", "E", "F"] },
+  "4": { letters: ["G", "H", "I"] },
+  "5": { letters: ["J", "K", "L"] },
+  "6": { letters: ["M", "N", "O"] },
+  "7": { letters: ["P", "Q", "R", "S"] },
+  "8": { letters: ["T", "U", "V"] },
+  "9": { letters: ["W", "X", "Y", "Z"] },
+  "*": { letters: [] },
+  "0": { letters: [" ", "+"] },
+  "#": { letters: [] },
+};
+
+const KEY_ORDER = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"];
 
 export default function Pad() {
   const { bottom } = useSafeAreaInsets();
@@ -42,27 +50,86 @@ export default function Pad() {
   return (
     <View style={[styles.padContainer, { paddingBottom: bottom + GAP }]}>
       <View style={styles.keypad}>
-        {KEYS.map((key, index) => (
-          <Key
-            key={index}
-            letters={key.letters}
-            number={key.number}
-            removeLetters={key.removeLetters}
-          />
-        ))}
+        {KEY_ORDER.map((number) => {
+          const key = KEYS[number];
+
+          return (
+            <Key
+              key={number}
+              letters={key.letters}
+              number={number}
+              removeLetters={key.removeLetters}
+            />
+          );
+        })}
       </View>
     </View>
   );
 }
 
-const Key = ({ letters, number, removeLetters }: KeyConfig) => {
+const Key = ({
+  letters,
+  number,
+  removeLetters,
+}: KeyConfig & { number: string }) => {
   const { width } = useWindowDimensions();
-  const {} = useButtonKeyboard();
+  const { value, isChanging } = useButtonKeyboard();
+  const lastKey = useRef<string | undefined>(undefined);
+  const lastTap = useRef(0);
+  const index = useRef(0);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const v = useSharedValue("");
+
+  useAnimatedReaction(
+    () => value.value,
+    (val, prev) => {
+      if (val === prev) return;
+      if (isChanging.value) {
+        v.value = v.value.slice(0, -1) + val;
+      } else {
+        v.set(v.get() + val);
+      }
+      console.log(v.value);
+    },
+  );
+
+  const commitLetter = () => {
+    if (!value.value) return;
+    isChanging.set(false);
+    value.set("");
+    lastKey.current = undefined;
+    index.current = 0;
+  };
+
+  const handleKeyPress = () => {
+    const key = number;
+    const now = Date.now();
+    const letters = KEYS[key].letters;
+
+    if (!letters) return;
+
+    if (key === lastKey.current && now - lastTap.current < TIMEOUT) {
+      isChanging.set(true);
+      index.current = (index.current + 1) % letters.length;
+    } else {
+      commitLetter();
+      index.current = 0;
+    }
+    value.set(letters[index.current]);
+    lastKey.current = key;
+    lastTap.current = now;
+
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      commitLetter();
+    }, TIMEOUT);
+  };
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
+    <Pressable
       style={[styles.keyButton, { width: (width - GAP * 4) / 3 }]}
+      onPressOut={handleKeyPress}
     >
       <View style={styles.keyContent}>
         <Text style={styles.number}>{number}</Text>
@@ -74,7 +141,7 @@ const Key = ({ letters, number, removeLetters }: KeyConfig) => {
           )}
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
