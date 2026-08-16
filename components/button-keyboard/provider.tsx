@@ -17,6 +17,7 @@ export type ProviderProps = {
 export function Provider({ children }: ProviderProps) {
   const value = useSharedValue("");
   const isChanging = useSharedValue(false);
+
   return (
     <ButtonKeyboardContext.Provider value={{ value, isChanging }}>
       {children}

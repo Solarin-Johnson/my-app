@@ -8,6 +8,7 @@ import {
   Platform,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useButtonKeyboard } from "./provider";
 
 const KEY_HEIGHT = 50;
 const GAP = 12;
@@ -39,7 +40,7 @@ export default function Pad() {
   const { bottom } = useSafeAreaInsets();
 
   return (
-    <View style={[styles.padContainer, { paddingBottom: bottom }]}>
+    <View style={[styles.padContainer, { paddingBottom: bottom + GAP }]}>
       <View style={styles.keypad}>
         {KEYS.map((key, index) => (
           <Key
@@ -56,6 +57,7 @@ export default function Pad() {
 
 const Key = ({ letters, number, removeLetters }: KeyConfig) => {
   const { width } = useWindowDimensions();
+  const {} = useButtonKeyboard();
 
   return (
     <TouchableOpacity
@@ -89,8 +91,7 @@ const styles = StyleSheet.create({
     paddingTop: GAP,
     position: "absolute",
     bottom: 0,
-    borderTopRightRadius: 22,
-    borderTopLeftRadius: 22,
+    borderRadius: 24,
     borderCurve: "continuous",
   },
   keypad: {
