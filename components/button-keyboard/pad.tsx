@@ -1,8 +1,16 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  Platform,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const KEY_HEIGHT = 50;
+const GAP = 12;
 
 const SYMBOLS = [".", ",", "?", "!", "@", "#"];
 
@@ -47,8 +55,13 @@ export default function Pad() {
 }
 
 const Key = ({ letters, number, removeLetters }: KeyConfig) => {
+  const { width } = useWindowDimensions();
+
   return (
-    <TouchableOpacity activeOpacity={0.8} style={styles.keyButton}>
+    <TouchableOpacity
+      activeOpacity={0.8}
+      style={[styles.keyButton, { width: (width - GAP * 4) / 3 }]}
+    >
       <View style={styles.keyContent}>
         <Text style={styles.number}>{number}</Text>
         <View style={styles.letter}>
@@ -63,30 +76,38 @@ const Key = ({ letters, number, removeLetters }: KeyConfig) => {
   );
 };
 
+const fontFamily = Platform.select({
+  ios: "ui-monospace",
+  default: "monospace",
+});
+
 const styles = StyleSheet.create({
   padContainer: {
     width: "100%",
     backgroundColor: "#f5f5f5",
-    paddingHorizontal: 12,
-    paddingTop: 12,
+    paddingHorizontal: GAP,
+    paddingTop: GAP,
     position: "absolute",
     bottom: 0,
+    borderTopRightRadius: 22,
+    borderTopLeftRadius: 22,
+    borderCurve: "continuous",
   },
   keypad: {
     width: "100%",
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-evenly",
-    gap: 12,
+    gap: GAP,
   },
   keyButton: {
-    width: "30%",
     height: KEY_HEIGHT,
     borderRadius: 12,
+    borderCurve: "continuous",
     backgroundColor: "#ffffff",
     justifyContent: "center",
     alignItems: "center",
-    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.06)",
+    boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.05)",
   },
   keyContent: {
     justifyContent: "space-evenly",
@@ -94,11 +115,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   letters: {
-    fontSize: 10,
-    color: "#666",
-    textAlign: "center",
-    width: 42,
+    fontSize: 13,
+    opacity: 0.8,
+    letterSpacing: -2.5,
+    textAlign: "left",
+    width: 48,
+    fontWeight: "500",
     fontVariant: ["tabular-nums"],
+    fontFamily: fontFamily,
   },
   number: {
     fontSize: 24,
@@ -106,9 +130,10 @@ const styles = StyleSheet.create({
     color: "#111",
     width: 24,
     fontVariant: ["tabular-nums"],
+    fontFamily: fontFamily,
   },
   letter: {
-    width: 32,
+    width: 38,
     // backgroundColor: "red",
   },
 });
