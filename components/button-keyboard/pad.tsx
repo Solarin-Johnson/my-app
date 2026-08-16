@@ -51,9 +51,9 @@ const Key = ({ letters, number, removeLetters }: KeyConfig) => {
     <TouchableOpacity activeOpacity={0.8} style={styles.keyButton}>
       <View style={styles.keyContent}>
         <Text style={styles.number}>{number}</Text>
-        <View>
+        <View style={styles.letter}>
           {!removeLetters && (
-            <Text style={styles.letters}>
+            <Text style={styles.letters} numberOfLines={1}>
               {letters.length > 0 ? letters.join(" ") : " "}
             </Text>
           )}
@@ -69,12 +69,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
     paddingHorizontal: 12,
     paddingTop: 12,
+    position: "absolute",
+    bottom: 0,
   },
   keypad: {
     width: "100%",
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "center",
+    justifyContent: "space-evenly",
     gap: 12,
   },
   keyButton: {
@@ -84,11 +86,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.06)",
   },
   keyContent: {
     justifyContent: "space-evenly",
@@ -98,14 +96,19 @@ const styles = StyleSheet.create({
   letters: {
     fontSize: 10,
     color: "#666",
-    minHeight: 12,
     textAlign: "center",
-    marginBottom: 4,
+    width: 42,
+    fontVariant: ["tabular-nums"],
   },
   number: {
-    fontSize: 28,
-    fontWeight: "600",
+    fontSize: 24,
+    fontWeight: "500",
     color: "#111",
+    width: 24,
+    fontVariant: ["tabular-nums"],
   },
-  letter: {},
+  letter: {
+    width: 32,
+    // backgroundColor: "red",
+  },
 });
