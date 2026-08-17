@@ -25,21 +25,22 @@ const SYMBOLS = [".", ",", "?", "!", "@", "#"];
 type KeyConfig = {
   letters: string[];
   removeLetters?: boolean;
+  notCharacter?: boolean;
 };
 
 const KEYS: Record<string, KeyConfig> = {
   "1": { letters: SYMBOLS, removeLetters: true },
-  "2": { letters: ["A", "B", "C"] },
-  "3": { letters: ["D", "E", "F"] },
-  "4": { letters: ["G", "H", "I"] },
-  "5": { letters: ["J", "K", "L"] },
-  "6": { letters: ["M", "N", "O"] },
-  "7": { letters: ["P", "Q", "R", "S"] },
-  "8": { letters: ["T", "U", "V"] },
-  "9": { letters: ["W", "X", "Y", "Z"] },
-  "*": { letters: [] },
-  "0": { letters: [" ", "+"] },
-  "#": { letters: [] },
+  "2": { letters: ["A", "B", "C", "2"] },
+  "3": { letters: ["D", "E", "F", "3"] },
+  "4": { letters: ["G", "H", "I", "4"] },
+  "5": { letters: ["J", "K", "L", "5"] },
+  "6": { letters: ["M", "N", "O", "6"] },
+  "7": { letters: ["P", "Q", "R", "S", "7"] },
+  "8": { letters: ["T", "U", "V", "8"] },
+  "9": { letters: ["W", "X", "Y", "Z", "9"] },
+  "*": { letters: [], notCharacter: true },
+  "0": { letters: [" ", "0", "+"] },
+  "#": { letters: [], notCharacter: true },
 };
 
 const KEY_ORDER = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"];
@@ -57,7 +58,7 @@ export default function Pad() {
             <Key
               key={number}
               letters={key.letters}
-              number={number}
+              char={number}
               removeLetters={key.removeLetters}
             />
           );
@@ -69,9 +70,9 @@ export default function Pad() {
 
 const Key = ({
   letters,
-  number,
+  char,
   removeLetters,
-}: KeyConfig & { number: string }) => {
+}: KeyConfig & { char: string }) => {
   const { width } = useWindowDimensions();
   const { value, isChanging } = useButtonKeyboard();
   const lastKey = useRef<string | undefined>(undefined);
@@ -80,11 +81,11 @@ const Key = ({
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const v = useSharedValue("");
+  const keyLetters = letters.filter((letter) => letter !== char);
 
   useAnimatedReaction(
     () => value.value,
     (val, prev) => {
-      if (val === prev) return;
       if (isChanging.value) {
         v.value = v.value.slice(0, -1) + val;
       } else {
@@ -103,11 +104,11 @@ const Key = ({
   };
 
   const handleKeyPress = () => {
-    const key = number;
+    const key = char;
     const now = Date.now();
     const letters = KEYS[key].letters;
 
-    if (!letters) return;
+    if (!letters || KEYS[key].notCharacter) return;
 
     if (key === lastKey.current && now - lastTap.current < TIMEOUT) {
       isChanging.set(true);
@@ -126,17 +127,29 @@ const Key = ({
     }, TIMEOUT);
   };
 
+  const onLongPress = () => {
+    if (!letters || KEYS[char].notCharacter) return;
+
+    value.set(letters[letters.length - 1]);
+    setTimeout(() => {
+      commitLetter();
+    }, 1);
+  };
+
+  const subtext = keyLetters.length > 0 ? keyLetters.join("") : " ";
+
   return (
     <Pressable
       style={[styles.keyButton, { width: (width - GAP * 4) / 3 }]}
-      onPressOut={handleKeyPress}
+      onPress={handleKeyPress}
+      onLongPress={onLongPress}
     >
       <View style={styles.keyContent}>
-        <Text style={styles.number}>{number}</Text>
+        <Text style={styles.number}>{char}</Text>
         <View style={styles.letter}>
           {!removeLetters && (
             <Text style={styles.letters} numberOfLines={1}>
-              {letters.length > 0 ? letters.join(" ") : " "}
+              {subtext}
             </Text>
           )}
         </View>
@@ -185,7 +198,7 @@ const styles = StyleSheet.create({
   letters: {
     fontSize: 13,
     opacity: 0.8,
-    letterSpacing: -2.5,
+    letterSpacing: 1.5,
     textAlign: "left",
     width: 48,
     fontWeight: "500",
