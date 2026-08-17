@@ -11,16 +11,7 @@ import Animated, {
   useSharedValue,
   type SharedValue,
 } from "react-native-reanimated";
-
-export type ButtonKeyboardContextValue = {
-  value: SharedValue<string>;
-  charValue: SharedValue<string>;
-  isChanging: SharedValue<boolean>;
-  // registerField: (id: string, ref: FieldRef) => () => void;
-  closeKeyboard: () => void;
-  openKeyboard: () => void;
-  isKeyboardOpened: SharedValue<boolean>;
-};
+import { ButtonKeyboardContextValue } from "./types";
 
 const ButtonKeyboardContext = createContext<ButtonKeyboardContextValue | null>(
   null,

@@ -7,13 +7,26 @@ import Animated, {
 } from "react-native-reanimated";
 import { FieldRef, useButtonKeyboard } from "./provider";
 import { useFocusEffect } from "expo-router";
-import { useCallback, useEffect, useId, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useImperativeHandle,
+  useRef,
+} from "react";
+import { ButtonKeyboardInputRef } from "./types";
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
-type ButtonKeyboardInputProps = TextInputProps & {};
+type ButtonKeyboardInputProps = TextInputProps & {
+  ref?: React.RefObject<ButtonKeyboardInputRef>;
+};
 
-export default function Input({ style, ...props }: ButtonKeyboardInputProps) {
+export default function Input({
+  style,
+  ref: inputRef,
+  ...props
+}: ButtonKeyboardInputProps) {
   const inputVal = useSharedValue("");
   const { isChanging, value, closeKeyboard, openKeyboard } =
     useButtonKeyboard();
@@ -46,8 +59,29 @@ export default function Input({ style, ...props }: ButtonKeyboardInputProps) {
     }, []),
   );
 
+  const focus = () => {
+    openKeyboard();
+  };
+  const blur = () => {
+    closeKeyboard();
+  };
+  const deleteChar = () => {
+    inputVal.set(inputVal.get().slice(0, -1));
+  };
+  const deleteAll = () => {
+    inputVal.set("");
+  };
+
+  useImperativeHandle(inputRef, () => ({
+    focus,
+    blur,
+    delete: deleteChar,
+    deleteAll,
+  }));
+
   return (
     <AnimatedTextInput
+      multiline
       {...props}
       ref={ref}
       underlineColorAndroid="transparent"
@@ -55,7 +89,6 @@ export default function Input({ style, ...props }: ButtonKeyboardInputProps) {
       pointerEvents={"none"}
       animatedProps={animatedProps}
       style={[styles.input, style]}
-      multiline
     />
   );
 }
