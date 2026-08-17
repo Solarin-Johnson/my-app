@@ -1,9 +1,25 @@
-import React, { createContext, useContext } from "react";
-import { useSharedValue, type SharedValue } from "react-native-reanimated";
+import React, {
+  createContext,
+  RefObject,
+  useCallback,
+  useContext,
+  useRef,
+} from "react";
+import { findNodeHandle, TextInput, View } from "react-native";
+import Animated, {
+  AnimatedRef,
+  useSharedValue,
+  type SharedValue,
+} from "react-native-reanimated";
 
 export type ButtonKeyboardContextValue = {
   value: SharedValue<string>;
+  charValue: SharedValue<string>;
   isChanging: SharedValue<boolean>;
+  // registerField: (id: string, ref: FieldRef) => () => void;
+  closeKeyboard: () => void;
+  openKeyboard: () => void;
+  isKeyboardOpened: SharedValue<boolean>;
 };
 
 const ButtonKeyboardContext = createContext<ButtonKeyboardContextValue | null>(
@@ -14,12 +30,33 @@ export type ProviderProps = {
   children: React.ReactNode;
 };
 
+export type FieldRef = AnimatedRef<TextInput>;
+
 export function Provider({ children }: ProviderProps) {
   const value = useSharedValue("");
+  const charValue = useSharedValue("");
   const isChanging = useSharedValue(false);
+  const isKeyboardOpened = useSharedValue(false);
+
+  const closeKeyboard = () => {
+    isKeyboardOpened.set(false);
+  };
+
+  const openKeyboard = () => {
+    isKeyboardOpened.set(true);
+  };
 
   return (
-    <ButtonKeyboardContext.Provider value={{ value, isChanging }}>
+    <ButtonKeyboardContext.Provider
+      value={{
+        value,
+        charValue,
+        isChanging,
+        closeKeyboard,
+        openKeyboard,
+        isKeyboardOpened,
+      }}
+    >
       {children}
     </ButtonKeyboardContext.Provider>
   );

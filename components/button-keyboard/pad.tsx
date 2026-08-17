@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { MutableRefObject, RefObject, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -11,10 +11,21 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useButtonKeyboard } from "./provider";
 import Animated, {
+  measure,
   useAnimatedReaction,
+  useAnimatedRef,
+  useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
+import {
+  GestureDetector,
+  useLongPressGesture,
+  useSimultaneousGestures,
+  useTapGesture,
+} from "react-native-gesture-handler";
+import { runOnJS, scheduleOnRN } from "react-native-worklets";
 
 const KEY_HEIGHT = 50;
 const GAP = 12;
@@ -45,11 +56,54 @@ const KEYS: Record<string, KeyConfig> = {
 
 const KEY_ORDER = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"];
 
+export const SPRING_CONFIG = {
+  damping: 30,
+  mass: 0.45,
+  stiffness: 150,
+  overshootClamping: true,
+};
+
 export default function Pad() {
   const { bottom } = useSafeAreaInsets();
+  const { height: windowHeight } = useWindowDimensions();
+  const { isKeyboardOpened } = useButtonKeyboard();
+  const height = useSharedValue<number>(0);
+  const ref = useAnimatedRef<View>();
+  const lastKey = useRef<string | undefined>(undefined);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTap = useRef(0);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    console.log(height.value);
+
+    return {
+      // transform: [{ translateY: isKeyboardOpened.value ? 0 : height.value }],
+      top: withSpring(
+        isKeyboardOpened.value ? windowHeight - height.value : windowHeight,
+        SPRING_CONFIG,
+      ),
+    };
+  });
+
+  useDerivedValue(() => {
+    if (ref) {
+      const measurement = measure(ref);
+      console.log(measurement);
+      if (measurement) {
+        height.set(measurement.height);
+      }
+    }
+  });
 
   return (
-    <View style={[styles.padContainer, { paddingBottom: bottom + GAP }]}>
+    <Animated.View
+      style={[
+        styles.padContainer,
+        { paddingBottom: bottom + GAP },
+        animatedStyle,
+      ]}
+      ref={ref}
+    >
       <View style={styles.keypad}>
         {KEY_ORDER.map((number) => {
           const key = KEYS[number];
@@ -60,11 +114,14 @@ export default function Pad() {
               letters={key.letters}
               char={number}
               removeLetters={key.removeLetters}
+              lastKey={lastKey}
+              timer={timer}
+              lastTap={lastTap}
             />
           );
         })}
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -72,28 +129,20 @@ const Key = ({
   letters,
   char,
   removeLetters,
-}: KeyConfig & { char: string }) => {
+  lastKey,
+  timer,
+  lastTap,
+}: KeyConfig & {
+  char: string;
+  lastKey: React.RefObject<string | undefined>;
+  timer: RefObject<ReturnType<typeof setTimeout> | null>;
+  lastTap: RefObject<number>;
+}) => {
   const { width } = useWindowDimensions();
-  const { value, isChanging } = useButtonKeyboard();
-  const lastKey = useRef<string | undefined>(undefined);
-  const lastTap = useRef(0);
+  const { value, isChanging, charValue } = useButtonKeyboard();
   const index = useRef(0);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const v = useSharedValue("");
   const keyLetters = letters.filter((letter) => letter !== char);
-
-  useAnimatedReaction(
-    () => value.value,
-    (val, prev) => {
-      if (isChanging.value) {
-        v.value = v.value.slice(0, -1) + val;
-      } else {
-        v.set(v.get() + val);
-      }
-      console.log(v.value);
-    },
-  );
 
   const commitLetter = () => {
     if (!value.value) return;
@@ -110,14 +159,17 @@ const Key = ({
 
     if (!letters || KEYS[key].notCharacter) return;
 
+    console.log("key", key, lastKey.current);
+
+    charValue.set(key);
     if (key === lastKey.current && now - lastTap.current < TIMEOUT) {
       isChanging.set(true);
       index.current = (index.current + 1) % letters.length;
     } else {
       commitLetter();
-      index.current = 0;
     }
     value.set(letters[index.current]);
+
     lastKey.current = key;
     lastTap.current = now;
 
@@ -129,32 +181,48 @@ const Key = ({
 
   const onLongPress = () => {
     if (!letters || KEYS[char].notCharacter) return;
-
+    isChanging.set(true);
     value.set(char);
     setTimeout(() => {
       commitLetter();
     }, 1);
   };
 
+  const tapGesture = useTapGesture({
+    onTouchesDown: () => {
+      scheduleOnRN(handleKeyPress);
+    },
+  });
+
+  const longPressGesture = useLongPressGesture({
+    onActivate: () => {
+      scheduleOnRN(onLongPress);
+    },
+  });
+
+  const gesture = useSimultaneousGestures(tapGesture, longPressGesture);
+
   const subtext = keyLetters.length > 0 ? keyLetters.join("") : " ";
 
   return (
-    <Pressable
-      style={[styles.keyButton, { width: (width - GAP * 4) / 3 }]}
-      onPress={handleKeyPress}
-      onLongPress={onLongPress}
-    >
-      <View style={styles.keyContent}>
-        <Text style={styles.number}>{char}</Text>
-        <View style={styles.letter}>
-          {!removeLetters && (
-            <Text style={styles.letters} numberOfLines={1}>
-              {subtext}
-            </Text>
-          )}
+    <GestureDetector gesture={gesture}>
+      <View
+        style={[styles.keyButton, { width: (width - GAP * 4) / 3 }]}
+        // onPressIn={handleKeyPress}
+        // onLongPress={onLongPress}
+      >
+        <View style={styles.keyContent}>
+          <Text style={styles.number}>{char}</Text>
+          <View style={styles.letter}>
+            {!removeLetters && (
+              <Text style={styles.letters} numberOfLines={1}>
+                {subtext}
+              </Text>
+            )}
+          </View>
         </View>
       </View>
-    </Pressable>
+    </GestureDetector>
   );
 };
 
@@ -170,7 +238,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: GAP,
     paddingTop: GAP,
     position: "absolute",
-    bottom: 0,
     borderRadius: 24,
     borderCurve: "continuous",
   },
