@@ -130,7 +130,7 @@ const Key = ({
   const onLongPress = () => {
     if (!letters || KEYS[char].notCharacter) return;
 
-    value.set(letters[letters.length - 1]);
+    value.set(char);
     setTimeout(() => {
       commitLetter();
     }, 1);
