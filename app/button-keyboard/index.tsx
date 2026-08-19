@@ -10,6 +10,7 @@ import { useFocusEffect } from "expo-router";
 
 export default function ButtonKeyboardPage() {
   const inputRef = useRef<ButtonKeyboardInputRef>(null!);
+  const { isKeyboardOpened, keyboardHeight } = useButtonKeyboard();
 
   return (
     <SafeAreaView
@@ -24,7 +25,11 @@ export default function ButtonKeyboardPage() {
           // backgroundColor: "#00000010",
         }}
       >
-        <ButtonKeyboard.Input ref={inputRef} placeholder="@username" />
+        <ButtonKeyboard.Input
+          ref={inputRef}
+          placeholder="@username"
+          autoFocus
+        />
       </ThemedTextWrapper>
       {/* <ThemedTextWrapper>
         <ButtonKeyboard.Input placeholder="@username" />

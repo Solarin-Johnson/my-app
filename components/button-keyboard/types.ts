@@ -20,6 +20,7 @@ export type ButtonKeyboardContextValue = {
   isKeyboardOpened: SharedValue<boolean>;
   toggleHashState: () => void;
   hashState: SharedValue<HashToggleTypes>;
+  keyboardHeight: SharedValue<number>;
 };
 
 export type HashToggleTypes =

@@ -76,8 +76,7 @@ export default function Pad({
 }: PadProps) {
   const { bottom } = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
-  const { isKeyboardOpened } = useButtonKeyboard();
-  const height = useSharedValue<number>(0);
+  const { isKeyboardOpened, keyboardHeight } = useButtonKeyboard();
   const ref = useAnimatedRef<View>();
   const lastKey = useRef<string | undefined>(undefined);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -87,7 +86,9 @@ export default function Pad({
     return {
       // transform: [{ translateY: isKeyboardOpened.value ? 0 : height.value }],
       top: withSpring(
-        isKeyboardOpened.value ? windowHeight - height.value : windowHeight,
+        isKeyboardOpened.value
+          ? windowHeight - keyboardHeight.value
+          : windowHeight,
         SPRING_CONFIG,
       ),
     };
@@ -97,7 +98,7 @@ export default function Pad({
     if (ref) {
       const measurement = measure(ref);
       if (measurement) {
-        height.set(measurement.height);
+        keyboardHeight.set(measurement.height);
       }
     }
   });

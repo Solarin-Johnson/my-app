@@ -43,6 +43,7 @@ export function Provider({ children }: ProviderProps) {
   const isChanging = useSharedValue(false);
   const isKeyboardOpened = useSharedValue(false);
   const hashState = useSharedValue<HashToggleTypes>("CAPITALIZE");
+  const keyboardHeight = useSharedValue(0);
 
   const closeKeyboard = () => {
     scheduleOnUI(() => {
@@ -77,6 +78,7 @@ export function Provider({ children }: ProviderProps) {
         isKeyboardOpened,
         toggleHashState,
         hashState,
+        keyboardHeight,
       }}
     >
       {children}
