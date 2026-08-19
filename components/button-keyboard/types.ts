@@ -1,5 +1,6 @@
 // @internal
 
+import { StyleProp, TextStyle, ViewStyle } from "react-native";
 import { SharedValue } from "react-native-reanimated";
 
 export type ButtonKeyboardInputRef = {
@@ -26,3 +27,10 @@ export type HashToggleTypes =
   | "UPPERCASE"
   | "LOWERCASE"
   | "NUMBERS";
+
+export type PadProps = {
+  padStyle?: StyleProp<ViewStyle>;
+  keyStyle?: StyleProp<ViewStyle>;
+  charStyle?: StyleProp<TextStyle>;
+  letterStyle?: StyleProp<TextStyle>;
+};

@@ -47,12 +47,10 @@ export default function RootLayout() {
           <ThemeProvider
             value={colorScheme === "dark" ? DarkTheme : LightTheme}
           >
-            <ButtonKeyboard.Provider>
-              <NotifyProvider>
-                <NavigationDrawer />
-                <StatusBar style="auto" />
-              </NotifyProvider>
-            </ButtonKeyboard.Provider>
+            <NotifyProvider>
+              <NavigationDrawer />
+              <StatusBar style="auto" />
+            </NotifyProvider>
           </ThemeProvider>
         </SafeAreaProvider>
       </KeyboardProvider>

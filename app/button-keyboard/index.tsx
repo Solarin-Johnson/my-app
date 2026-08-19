@@ -29,7 +29,7 @@ export default function ButtonKeyboardPage() {
       {/* <ThemedTextWrapper>
         <ButtonKeyboard.Input placeholder="@username" />
       </ThemedTextWrapper> */}
-      <Pressable onPress={() => inputRef.current.delete()}>
+      {/* <Pressable onPress={() => inputRef.current.delete()}>
         <ThemedText>delete</ThemedText>
       </Pressable>
       <Pressable onPress={() => inputRef.current.deleteAll()}>
@@ -40,7 +40,7 @@ export default function ButtonKeyboardPage() {
       </Pressable>
       <Pressable onPress={() => inputRef.current.focus()}>
         <ThemedText>focus</ThemedText>
-      </Pressable>
+      </Pressable> */}
     </SafeAreaView>
   );
 }

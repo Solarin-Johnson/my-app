@@ -5,9 +5,9 @@ export type * from "./types";
 
 const PadProvider = ({ children, ...props }: ProviderProps) => {
   return (
-    <Provider {...props}>
+    <Provider>
       {children}
-      <Pad />
+      <Pad {...props} />
     </Provider>
   );
 };

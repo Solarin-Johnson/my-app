@@ -5,20 +5,26 @@ import React, {
   useContext,
   useRef,
 } from "react";
-import { findNodeHandle, TextInput, View } from "react-native";
+import {
+  findNodeHandle,
+  TextInput,
+  View,
+  ViewStyle,
+  StyleProp,
+} from "react-native";
 import Animated, {
   AnimatedRef,
   useSharedValue,
   type SharedValue,
 } from "react-native-reanimated";
-import { ButtonKeyboardContextValue, HashToggleTypes } from "./types";
+import { ButtonKeyboardContextValue, HashToggleTypes, PadProps } from "./types";
 import { scheduleOnUI } from "react-native-worklets";
 
 const ButtonKeyboardContext = createContext<ButtonKeyboardContextValue | null>(
   null,
 );
 
-export type ProviderProps = {
+export type ProviderProps = PadProps & {
   children: React.ReactNode;
 };
 

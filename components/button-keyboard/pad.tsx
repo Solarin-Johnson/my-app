@@ -7,6 +7,9 @@ import {
   useWindowDimensions,
   Platform,
   Pressable,
+  StyleProp,
+  ViewStyle,
+  TextStyle,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useButtonKeyboard } from "./provider";
@@ -26,9 +29,10 @@ import {
   useTapGesture,
 } from "react-native-gesture-handler";
 import { runOnJS, scheduleOnRN } from "react-native-worklets";
+import { PadProps } from "./types";
 
-const KEY_HEIGHT = 50;
-const GAP = 12;
+const KEY_HEIGHT = 54;
+const GAP = 2.5;
 const TIMEOUT = 600;
 
 const SYMBOLS = [".", ",", "?", "!", "@", "#"];
@@ -37,10 +41,11 @@ type KeyConfig = {
   letters: string[];
   removeLetters?: boolean;
   notCharacter?: boolean;
+  maxNumberOfLetters?: number;
 };
 
 const KEYS: Record<string, KeyConfig> = {
-  "1": { letters: SYMBOLS, removeLetters: true },
+  "1": { letters: SYMBOLS, maxNumberOfLetters: 1 },
   "2": { letters: ["A", "B", "C", "2"] },
   "3": { letters: ["D", "E", "F", "3"] },
   "4": { letters: ["G", "H", "I", "4"] },
@@ -63,7 +68,12 @@ export const SPRING_CONFIG = {
   overshootClamping: true,
 };
 
-export default function Pad() {
+export default function Pad({
+  padStyle,
+  keyStyle,
+  charStyle,
+  letterStyle,
+}: PadProps) {
   const { bottom } = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
   const { isKeyboardOpened } = useButtonKeyboard();
@@ -95,6 +105,8 @@ export default function Pad() {
   return (
     <Animated.View
       style={[
+        styles.padDefaultStyle,
+        padStyle,
         styles.padContainer,
         { paddingBottom: bottom + GAP },
         animatedStyle,
@@ -114,13 +126,33 @@ export default function Pad() {
               lastKey={lastKey}
               timer={timer}
               lastTap={lastTap}
+              keyStyle={keyStyle}
+              charStyle={charStyle}
+              letterStyle={letterStyle}
+              maxNumberOfLetters={key.maxNumberOfLetters}
             />
           );
         })}
       </View>
+      <View
+        style={[
+          styles.keyButton,
+          keyStyle,
+          styles.bottomBar,
+          { height: bottom },
+        ]}
+      />
     </Animated.View>
   );
 }
+
+type KeyProps = KeyConfig &
+  Pick<PadProps, "keyStyle" | "charStyle" | "letterStyle"> & {
+    char: string;
+    lastKey: React.RefObject<string | undefined>;
+    timer: RefObject<ReturnType<typeof setTimeout> | null>;
+    lastTap: RefObject<number>;
+  };
 
 const Key = ({
   letters,
@@ -129,12 +161,11 @@ const Key = ({
   lastKey,
   timer,
   lastTap,
-}: KeyConfig & {
-  char: string;
-  lastKey: React.RefObject<string | undefined>;
-  timer: RefObject<ReturnType<typeof setTimeout> | null>;
-  lastTap: RefObject<number>;
-}) => {
+  keyStyle,
+  charStyle,
+  letterStyle,
+  maxNumberOfLetters,
+}: KeyProps) => {
   const { width } = useWindowDimensions();
   const { value, isChanging, toggleHashState, hashState } = useButtonKeyboard();
   const index = useRef(0);
@@ -210,20 +241,24 @@ const Key = ({
 
   const gesture = useSimultaneousGestures(tapGesture, longPressGesture);
 
-  const subtext = keyLetters.length > 0 ? keyLetters.join("") : " ";
+  const visibleLetters = maxNumberOfLetters
+    ? keyLetters.slice(0, maxNumberOfLetters)
+    : keyLetters;
+  const subtext = visibleLetters.length > 0 ? visibleLetters.join("") : " ";
 
   return (
     <GestureDetector gesture={gesture}>
       <View
-        style={[styles.keyButton, { width: (width - GAP * 4) / 3 }]}
-        // onPressIn={handleKeyPress}
-        // onLongPress={onLongPress}
+        style={[styles.keyButton, keyStyle, { width: (width - GAP * 4) / 3 }]}
       >
         <View style={styles.keyContent}>
-          <Text style={styles.number}>{char}</Text>
+          <Text style={[styles.number, charStyle]}>{char}</Text>
           <View style={styles.letter}>
             {!removeLetters && (
-              <Text style={styles.letters} numberOfLines={1}>
+              <Text
+                style={[styles.letters, charStyle, letterStyle]}
+                numberOfLines={1}
+              >
                 {subtext}
               </Text>
             )}
@@ -242,12 +277,15 @@ const fontFamily = Platform.select({
 const styles = StyleSheet.create({
   padContainer: {
     width: "100%",
-    backgroundColor: "#f5f5f5",
+    position: "absolute",
     paddingHorizontal: GAP,
     paddingTop: GAP,
-    position: "absolute",
-    borderRadius: 24,
-    borderCurve: "continuous",
+    overflow: "hidden",
+  },
+  padDefaultStyle: {
+    backgroundColor: "#f5f5f5",
+    // borderRadius: 24,
+    // borderCurve: "continuous",
   },
   keypad: {
     width: "100%",
@@ -258,12 +296,11 @@ const styles = StyleSheet.create({
   },
   keyButton: {
     height: KEY_HEIGHT,
-    borderRadius: 12,
-    borderCurve: "continuous",
-    backgroundColor: "#ffffff",
+    // borderRadius: 12,
+    // borderCurve: "continuous",
+    backgroundColor: "#888888",
     justifyContent: "center",
     alignItems: "center",
-    boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.05)",
   },
   keyContent: {
     justifyContent: "space-evenly",
@@ -279,11 +316,12 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontVariant: ["tabular-nums"],
     fontFamily: fontFamily,
+    color: "#fff",
   },
   number: {
     fontSize: 24,
     fontWeight: "500",
-    color: "#111",
+    color: "#fff",
     width: 24,
     fontVariant: ["tabular-nums"],
     fontFamily: fontFamily,
@@ -291,5 +329,9 @@ const styles = StyleSheet.create({
   letter: {
     width: 38,
     // backgroundColor: "red",
+  },
+  bottomBar: {
+    ...StyleSheet.absoluteFill,
+    top: "auto",
   },
 });
