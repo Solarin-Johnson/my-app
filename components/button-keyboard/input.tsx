@@ -3,51 +3,47 @@ import Animated, {
   SharedValue,
   useAnimatedProps,
   useAnimatedReaction,
-  useAnimatedRef,
   useSharedValue,
 } from "react-native-reanimated";
-import { FieldRef, useButtonKeyboard } from "./provider";
-import { useFocusEffect } from "expo-router";
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useImperativeHandle,
-  useRef,
-} from "react";
+import { useButtonKeyboard } from "./provider";
+import { useImperativeHandle } from "react";
 import { ButtonKeyboardInputRef } from "./types";
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 type ButtonKeyboardInputProps = TextInputProps & {
   ref?: React.RefObject<ButtonKeyboardInputRef>;
+  inputValue?: SharedValue<string>;
 };
 
 export default function Input({
   style,
   ref: inputRef,
+  inputValue: _inputValue,
   ...props
 }: ButtonKeyboardInputProps) {
-  const ref = useAnimatedRef<TextInput>();
+  // const ref = useAnimatedRef<TextInput>();
 
   const { isChanging, value, closeKeyboard, openKeyboard } =
     useButtonKeyboard();
-  const inputVal = useSharedValue("");
+  const __inputValue = useSharedValue("");
+  const inputValue = _inputValue || __inputValue;
 
   useAnimatedReaction(
     () => value.value,
     (val, prev) => {
       if (isChanging.value) {
-        inputVal.value = inputVal.value.slice(0, -1) + val;
+        inputValue.value = inputValue.value.slice(0, -1) + val;
       } else {
-        inputVal.set(inputVal.get() + val);
+        inputValue.set(inputValue.get() + val);
       }
     },
   );
 
   const animatedProps = useAnimatedProps(() => {
     return {
-      text: inputVal.value,
+      text: inputValue.value,
+      value: inputValue.value,
     } as any;
   });
 
@@ -58,10 +54,10 @@ export default function Input({
     closeKeyboard();
   };
   const deleteChar = () => {
-    inputVal.set(inputVal.get().slice(0, -1));
+    inputValue.set(inputValue.get().slice(0, -1));
   };
   const deleteAll = () => {
-    inputVal.set("");
+    inputValue.set("");
   };
 
   useImperativeHandle(inputRef, () => ({

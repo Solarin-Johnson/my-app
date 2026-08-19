@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ButtonKeyboard, {
   ButtonKeyboardInputRef,
@@ -6,14 +6,20 @@ import ButtonKeyboard, {
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { useButtonKeyboard } from "@/components/button-keyboard/provider";
 import { Pressable, Text } from "react-native";
+import { useFocusEffect } from "expo-router";
 
 export default function ButtonKeyboardPage() {
-  const { openKeyboard } = useButtonKeyboard();
+  const { openKeyboard, closeKeyboard } = useButtonKeyboard();
   const inputRef = useRef<ButtonKeyboardInputRef>(null!);
 
-  useEffect(() => {
-    openKeyboard();
-  }, [openKeyboard]);
+  useFocusEffect(
+    useCallback(() => {
+      openKeyboard();
+      return () => {
+        closeKeyboard();
+      };
+    }, []),
+  );
 
   return (
     <SafeAreaView
