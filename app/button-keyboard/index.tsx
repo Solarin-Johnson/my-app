@@ -9,17 +9,7 @@ import { Pressable, Text } from "react-native";
 import { useFocusEffect } from "expo-router";
 
 export default function ButtonKeyboardPage() {
-  const { openKeyboard, closeKeyboard } = useButtonKeyboard();
   const inputRef = useRef<ButtonKeyboardInputRef>(null!);
-
-  useFocusEffect(
-    useCallback(() => {
-      openKeyboard();
-      return () => {
-        closeKeyboard();
-      };
-    }, []),
-  );
 
   return (
     <SafeAreaView
@@ -32,11 +22,13 @@ export default function ButtonKeyboardPage() {
           fontSize: 36,
           textAlign: "center",
           // backgroundColor: "#00000010",
-          backgroundColor: "red",
         }}
       >
-        <ButtonKeyboard.Input ref={inputRef} />
+        <ButtonKeyboard.Input ref={inputRef} placeholder="@username" />
       </ThemedTextWrapper>
+      {/* <ThemedTextWrapper>
+        <ButtonKeyboard.Input placeholder="@username" />
+      </ThemedTextWrapper> */}
       <Pressable onPress={() => inputRef.current.delete()}>
         <ThemedText>delete</ThemedText>
       </Pressable>

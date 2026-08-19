@@ -3,6 +3,7 @@ import Animated, {
   SharedValue,
   useAnimatedProps,
   useAnimatedReaction,
+  useAnimatedRef,
   useSharedValue,
 } from "react-native-reanimated";
 import { useButtonKeyboard } from "./provider";
@@ -22,33 +23,41 @@ export default function Input({
   inputValue: _inputValue,
   ...props
 }: ButtonKeyboardInputProps) {
-  // const ref = useAnimatedRef<TextInput>();
+  const ref = useAnimatedRef<TextInput>();
 
   const { isChanging, value, closeKeyboard, openKeyboard, hashState } =
     useButtonKeyboard();
   const __inputValue = useSharedValue("");
   const inputValue = _inputValue || __inputValue;
+  const isFocused = useSharedValue(false);
 
   const applyHashState = (value: string, state: HashToggleTypes) => {
     "worklet";
-    if (state === "CAPITALIZE") {
-      if (inputValue.value.length === 0) {
-        return value.toUpperCase();
-      } else {
-        return value.toLowerCase();
-      }
-    } else if (state === "UPPERCASE") {
+    if (state === "UPPERCASE") {
       return value.toUpperCase();
-    } else if (state === "LOWERCASE") {
+    }
+    if (state === "LOWERCASE") {
       return value.toLowerCase();
     }
+    if (state === "CAPITALIZE") {
+      const input = inputValue.value;
+      const length = input.length;
+
+      const shouldCapitalize =
+        input.endsWith(" ") ||
+        (isChanging.value && (input[length - 2] === " " || length === 1)) ||
+        (!isChanging.value && length === 0);
+
+      return shouldCapitalize ? value.toUpperCase() : value.toLowerCase();
+    }
+
     return value;
   };
 
   useAnimatedReaction(
     () => value.value,
     (val, prev) => {
-      console.log(hashState.value);
+      if (!isFocused.value) return;
 
       if (isChanging.value) {
         inputValue.value =
@@ -91,12 +100,26 @@ export default function Input({
     <AnimatedTextInput
       multiline
       {...props}
-      // ref={ref}
+      ref={ref}
       underlineColorAndroid="transparent"
-      editable={false}
-      pointerEvents={"none"}
+      // editable={false}
+      // pointerEvents={"none"}
       animatedProps={animatedProps}
+      caretHidden={true}
+      showSoftInputOnFocus={false}
+      selectTextOnFocus={false}
+      contextMenuHidden={true}
+      autoCorrect={false}
       style={[styles.input, style]}
+      onFocus={() => {
+        isFocused.set(true);
+        openKeyboard();
+      }}
+      onBlur={() => {
+        isFocused.set(false);
+        closeKeyboard();
+      }}
+      keyboardType="web-search"
     />
   );
 }

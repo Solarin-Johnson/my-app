@@ -12,6 +12,7 @@ import Animated, {
   type SharedValue,
 } from "react-native-reanimated";
 import { ButtonKeyboardContextValue, HashToggleTypes } from "./types";
+import { scheduleOnUI } from "react-native-worklets";
 
 const ButtonKeyboardContext = createContext<ButtonKeyboardContextValue | null>(
   null,
@@ -35,16 +36,20 @@ export function Provider({ children }: ProviderProps) {
   const charValue = useSharedValue("");
   const isChanging = useSharedValue(false);
   const isKeyboardOpened = useSharedValue(false);
-  const hashState = useSharedValue<HashToggleTypes>("NUMBERS");
+  const hashState = useSharedValue<HashToggleTypes>("CAPITALIZE");
 
   const closeKeyboard = () => {
-    if (!isKeyboardOpened.value) return;
-    isKeyboardOpened.set(false);
+    scheduleOnUI(() => {
+      if (!isKeyboardOpened.value) return;
+      isKeyboardOpened.set(false);
+    });
   };
 
   const openKeyboard = () => {
-    if (isKeyboardOpened.value) return;
-    isKeyboardOpened.set(true);
+    scheduleOnUI(() => {
+      if (isKeyboardOpened.value) return;
+      isKeyboardOpened.set(true);
+    });
   };
 
   const toggleHashState = useCallback(() => {
