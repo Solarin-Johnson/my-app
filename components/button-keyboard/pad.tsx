@@ -74,8 +74,6 @@ export default function Pad() {
   const lastTap = useRef(0);
 
   const animatedStyle = useAnimatedStyle(() => {
-    console.log(height.value);
-
     return {
       // transform: [{ translateY: isKeyboardOpened.value ? 0 : height.value }],
       top: withSpring(
@@ -88,7 +86,6 @@ export default function Pad() {
   useDerivedValue(() => {
     if (ref) {
       const measurement = measure(ref);
-      console.log(measurement);
       if (measurement) {
         height.set(measurement.height);
       }
@@ -158,8 +155,6 @@ const Key = ({
     const letters = KEYS[key].letters;
 
     if (!letters || KEYS[key].notCharacter) return;
-
-    console.log("key", key, lastKey.current);
 
     charValue.set(key);
     if (key === lastKey.current && now - lastTap.current < TIMEOUT) {
@@ -263,11 +258,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   letters: {
-    fontSize: 13,
+    fontSize: 18,
     opacity: 0.8,
     letterSpacing: 1.5,
     textAlign: "left",
-    width: 48,
+    width: 52,
     fontWeight: "500",
     fontVariant: ["tabular-nums"],
     fontFamily: fontFamily,

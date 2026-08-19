@@ -1,5 +1,6 @@
 import { StyleSheet, TextInput, TextInputProps, View } from "react-native";
 import Animated, {
+  SharedValue,
   useAnimatedProps,
   useAnimatedReaction,
   useAnimatedRef,
@@ -27,11 +28,11 @@ export default function Input({
   ref: inputRef,
   ...props
 }: ButtonKeyboardInputProps) {
-  const inputVal = useSharedValue("");
+  const ref = useAnimatedRef<TextInput>();
+
   const { isChanging, value, closeKeyboard, openKeyboard } =
     useButtonKeyboard();
-
-  const ref = useAnimatedRef<TextInput>();
+  const inputVal = useSharedValue("");
 
   useAnimatedReaction(
     () => value.value,
@@ -41,7 +42,6 @@ export default function Input({
       } else {
         inputVal.set(inputVal.get() + val);
       }
-      console.log(inputVal.value);
     },
   );
 
@@ -50,14 +50,6 @@ export default function Input({
       text: inputVal.value,
     } as any;
   });
-
-  useFocusEffect(
-    useCallback(() => {
-      inputVal.value = "";
-      value.value = "";
-      isChanging.value = false;
-    }, []),
-  );
 
   const focus = () => {
     openKeyboard();
@@ -83,7 +75,7 @@ export default function Input({
     <AnimatedTextInput
       multiline
       {...props}
-      ref={ref}
+      // ref={ref}
       underlineColorAndroid="transparent"
       editable={false}
       pointerEvents={"none"}

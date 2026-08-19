@@ -3,9 +3,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import ButtonKeyboard, {
   ButtonKeyboardInputRef,
 } from "@/components/button-keyboard";
-import { ThemedTextWrapper } from "@/components/ThemedText";
+import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { useButtonKeyboard } from "@/components/button-keyboard/provider";
-import { Button } from "react-native";
+import { Pressable, Text } from "react-native";
 
 export default function ButtonKeyboardPage() {
   const { openKeyboard } = useButtonKeyboard();
@@ -14,6 +14,7 @@ export default function ButtonKeyboardPage() {
   useEffect(() => {
     openKeyboard();
   }, [openKeyboard]);
+
   return (
     <SafeAreaView
       style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
@@ -24,13 +25,24 @@ export default function ButtonKeyboardPage() {
         style={{
           fontSize: 36,
           textAlign: "center",
-          backgroundColor: "#00000010",
+          // backgroundColor: "#00000010",
+          backgroundColor: "red",
         }}
       >
         <ButtonKeyboard.Input ref={inputRef} />
       </ThemedTextWrapper>
-      <Button title="delete" onPress={() => inputRef.current.delete()} />
-      <Button title="delete all" onPress={() => inputRef.current.deleteAll()} />
+      <Pressable onPress={() => inputRef.current.delete()}>
+        <ThemedText>delete</ThemedText>
+      </Pressable>
+      <Pressable onPress={() => inputRef.current.deleteAll()}>
+        <ThemedText>delete all</ThemedText>
+      </Pressable>
+      <Pressable onPress={() => inputRef.current.blur()}>
+        <ThemedText>blur</ThemedText>
+      </Pressable>
+      <Pressable onPress={() => inputRef.current.focus()}>
+        <ThemedText>focus</ThemedText>
+      </Pressable>
     </SafeAreaView>
   );
 }

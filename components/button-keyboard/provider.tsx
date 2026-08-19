@@ -30,10 +30,12 @@ export function Provider({ children }: ProviderProps) {
   const isKeyboardOpened = useSharedValue(false);
 
   const closeKeyboard = () => {
+    if (!isKeyboardOpened.value) return;
     isKeyboardOpened.set(false);
   };
 
   const openKeyboard = () => {
+    if (isKeyboardOpened.value) return;
     isKeyboardOpened.set(true);
   };
 
