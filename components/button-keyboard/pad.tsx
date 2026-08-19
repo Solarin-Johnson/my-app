@@ -136,7 +136,7 @@ const Key = ({
   lastTap: RefObject<number>;
 }) => {
   const { width } = useWindowDimensions();
-  const { value, isChanging, charValue } = useButtonKeyboard();
+  const { value, isChanging, toggleHashState, hashState } = useButtonKeyboard();
   const index = useRef(0);
 
   const keyLetters = letters.filter((letter) => letter !== char);
@@ -154,9 +154,22 @@ const Key = ({
     const now = Date.now();
     const letters = KEYS[key].letters;
 
-    if (!letters || KEYS[key].notCharacter) return;
+    if (!letters || KEYS[key].notCharacter) {
+      if (char === "#") {
+        toggleHashState();
+      }
+      return;
+    }
 
-    charValue.set(key);
+    if (hashState.value === "NUMBERS") {
+      isChanging.set(false);
+      value.set(key);
+      setTimeout(() => {
+        commitLetter();
+      }, 1);
+      return;
+    }
+
     if (key === lastKey.current && now - lastTap.current < TIMEOUT) {
       isChanging.set(true);
       index.current = (index.current + 1) % letters.length;

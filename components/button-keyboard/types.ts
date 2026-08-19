@@ -17,4 +17,12 @@ export type ButtonKeyboardContextValue = {
   closeKeyboard: () => void;
   openKeyboard: () => void;
   isKeyboardOpened: SharedValue<boolean>;
+  toggleHashState: () => void;
+  hashState: SharedValue<HashToggleTypes>;
 };
+
+export type HashToggleTypes =
+  | "CAPITALIZE"
+  | "UPPERCASE"
+  | "LOWERCASE"
+  | "NUMBERS";

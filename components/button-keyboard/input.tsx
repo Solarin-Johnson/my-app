@@ -7,7 +7,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useButtonKeyboard } from "./provider";
 import { useImperativeHandle } from "react";
-import { ButtonKeyboardInputRef } from "./types";
+import { ButtonKeyboardInputRef, HashToggleTypes } from "./types";
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
@@ -24,26 +24,46 @@ export default function Input({
 }: ButtonKeyboardInputProps) {
   // const ref = useAnimatedRef<TextInput>();
 
-  const { isChanging, value, closeKeyboard, openKeyboard } =
+  const { isChanging, value, closeKeyboard, openKeyboard, hashState } =
     useButtonKeyboard();
   const __inputValue = useSharedValue("");
   const inputValue = _inputValue || __inputValue;
 
+  const applyHashState = (value: string, state: HashToggleTypes) => {
+    "worklet";
+    if (state === "CAPITALIZE") {
+      if (inputValue.value.length === 0) {
+        return value.toUpperCase();
+      } else {
+        return value.toLowerCase();
+      }
+    } else if (state === "UPPERCASE") {
+      return value.toUpperCase();
+    } else if (state === "LOWERCASE") {
+      return value.toLowerCase();
+    }
+    return value;
+  };
+
   useAnimatedReaction(
     () => value.value,
     (val, prev) => {
+      console.log(hashState.value);
+
       if (isChanging.value) {
-        inputValue.value = inputValue.value.slice(0, -1) + val;
+        inputValue.value =
+          inputValue.value.slice(0, -1) + applyHashState(val, hashState.value);
       } else {
-        inputValue.set(inputValue.get() + val);
+        inputValue.set(inputValue.get() + applyHashState(val, hashState.value));
       }
     },
   );
 
   const animatedProps = useAnimatedProps(() => {
+    const val = inputValue.value;
     return {
-      text: inputValue.value,
-      value: inputValue.value,
+      text: val,
+      value: val,
     } as any;
   });
 
