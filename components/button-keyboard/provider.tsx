@@ -32,8 +32,8 @@ export type FieldRef = AnimatedRef<TextInput>;
 
 export const HASH_STATES: HashToggleTypes[] = [
   "CAPITALIZE",
-  "UPPERCASE",
   "LOWERCASE",
+  "UPPERCASE",
   "NUMBERS",
 ];
 

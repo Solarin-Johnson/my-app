@@ -4,11 +4,13 @@ import Animated, {
   useAnimatedProps,
   useAnimatedReaction,
   useAnimatedRef,
+  useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
 import { useButtonKeyboard } from "./provider";
 import { useImperativeHandle } from "react";
 import { ButtonKeyboardInputRef, HashToggleTypes } from "./types";
+import { point } from "@shopify/react-native-skia";
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
@@ -76,11 +78,27 @@ export default function Input({
     } as any;
   });
 
-  const focus = () => {
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      pointerEvents: isFocused.value ? "none" : "auto",
+    };
+  });
+
+  const onFocus = () => {
+    isFocused.set(true);
     openKeyboard();
   };
-  const blur = () => {
+
+  const onBlur = () => {
+    isFocused.set(false);
     closeKeyboard();
+  };
+
+  const focus = () => {
+    ref.current?.focus();
+  };
+  const blur = () => {
+    ref.current?.blur();
   };
   const deleteChar = () => {
     inputValue.set(inputValue.get().slice(0, -1));
@@ -111,14 +129,8 @@ export default function Input({
       contextMenuHidden={true}
       autoCorrect={false}
       style={[styles.input, style]}
-      onFocus={() => {
-        isFocused.set(true);
-        openKeyboard();
-      }}
-      onBlur={() => {
-        isFocused.set(false);
-        closeKeyboard();
-      }}
+      onFocus={onFocus}
+      onBlur={onBlur}
       keyboardType="web-search"
     />
   );
