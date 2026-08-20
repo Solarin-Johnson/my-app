@@ -15,9 +15,10 @@ import {
   useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated";
-import { Delete, PencilLine } from "lucide-react-native";
+import { ArrowRight, Delete, PencilLine } from "lucide-react-native";
 import PressableBounce from "@/components/PresableBounce";
 import { AnimatedText } from "@/components/ui/animated-text";
+import { ThemedViewWrapper } from "@/components/ThemedView";
 
 export default function ButtonKeyboardPage() {
   const inputValue = useSharedValue("");
@@ -38,14 +39,13 @@ export default function ButtonKeyboardPage() {
 
   return (
     <>
-      <TopBar inputValue={inputValue} />
       <ButtonKeyboard.AvoidingView style={{ flex: 1, marginVertical: 64 }}>
         <SafeAreaView style={styles.container}>
           <ThemedTextWrapper
             type="italic"
             ignoreStyle={false}
             style={{
-              fontSize: 38,
+              fontSize: 40,
               textAlign: "center",
               // backgroundColor: "#00000010",
             }}
@@ -83,6 +83,7 @@ export default function ButtonKeyboardPage() {
           handleDeleteAll={handleDeleteAll}
         />
       </ButtonKeyboard.Toolbar>
+      <TopBar inputValue={inputValue} />
     </>
   );
 }
@@ -150,6 +151,13 @@ const TopBar = ({ inputValue }: { inputValue: SharedValue<string> }) => {
       <ThemedTextWrapper>
         <AnimatedText text={value} style={styles.lengthText} />
       </ThemedTextWrapper>
+      <ThemedViewWrapper colorName="text">
+        <PressableBounce style={styles.doneBtn}>
+          <ThemedText colorName="background" style={styles.doneText}>
+            Done
+          </ThemedText>
+        </PressableBounce>
+      </ThemedViewWrapper>
     </View>
   );
 };
@@ -204,9 +212,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2.5,
     borderColor: "#88888888",
     paddingHorizontal: 16,
+    zIndex: 1000,
   },
   lengthText: {
     flex: 1,
+    fontSize: 20,
+    fontFamily: "ui-monospace",
+    fontWeight: "500",
+  },
+  doneBtn: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+  },
+  doneText: {
     fontSize: 20,
     fontFamily: "ui-monospace",
     fontWeight: "500",
