@@ -1,5 +1,6 @@
 import { TextInput } from "react-native";
 import Animated, {
+  isSharedValue,
   SharedValue,
   useAnimatedProps,
 } from "react-native-reanimated";
@@ -12,21 +13,13 @@ interface TextProps extends Omit<TextInputProps, "value"> {
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
-const isSharedValue = (
-  text: TextProps["text"],
-): text is SharedValue<string> | SharedValue<number> => {
-  return typeof text === "object" && text !== null && "value" in text;
-};
-
 export const AnimatedText = (props: TextProps) => {
   const { text, ...rest } = props;
-  const textValue = isSharedValue(text)
-    ? String((text as SharedValue<string | number>).value)
-    : String(text);
+  const textValue = isSharedValue(text) ? String(text.value) : String(text);
 
   const animatedProps = useAnimatedProps(() => {
     return {
-      text: textValue,
+      text: isSharedValue(text) ? text.value : textValue,
     } as any;
   });
 

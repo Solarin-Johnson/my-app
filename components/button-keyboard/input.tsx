@@ -1,16 +1,14 @@
-import { StyleSheet, TextInput, TextInputProps, View } from "react-native";
+import { StyleSheet, TextInput, TextInputProps } from "react-native";
 import Animated, {
   SharedValue,
   useAnimatedProps,
   useAnimatedReaction,
   useAnimatedRef,
-  useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
 import { useButtonKeyboard } from "./provider";
 import { useImperativeHandle } from "react";
 import { ButtonKeyboardInputRef, HashToggleTypes } from "./types";
-import { point } from "@shopify/react-native-skia";
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
@@ -25,6 +23,7 @@ export default function Input({
   ref: inputRef,
   inputValue: _inputValue,
   fixedPretext,
+  maxLength,
   ...props
 }: ButtonKeyboardInputProps) {
   const ref = useAnimatedRef<TextInput>();
@@ -61,7 +60,11 @@ export default function Input({
   useAnimatedReaction(
     () => value.value,
     (val, prev) => {
-      if (!isFocused.value) return;
+      if (
+        !isFocused.value ||
+        inputValue.value.length >= (maxLength || Infinity)
+      )
+        return;
 
       if (isChanging.value) {
         inputValue.value =
@@ -80,12 +83,6 @@ export default function Input({
       text: val,
       value: val,
     } as any;
-  });
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      pointerEvents: isFocused.value ? "none" : "auto",
-    };
   });
 
   const onFocus = () => {

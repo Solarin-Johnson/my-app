@@ -7,12 +7,26 @@ import Animated, {
 import { useButtonKeyboard } from "./provider";
 import { SPRING_CONFIG } from "./pad";
 
-export default function AvoidingView({ children, style, ...props }: ViewProps) {
+type AvoidingViewProps = ViewProps & {
+  bottomOffset?: number;
+};
+
+export default function AvoidingView({
+  children,
+  style,
+  bottomOffset = 0,
+  ...props
+}: AvoidingViewProps) {
   const { keyboardHeight, isKeyboardOpened } = useButtonKeyboard();
+  const flattenedStyle = StyleSheet.flatten(style);
   const animatedStyle = useAnimatedStyle(() => {
     return {
       marginBottom: withSpring(
-        isKeyboardOpened.value ? keyboardHeight.value : 0,
+        isKeyboardOpened.value
+          ? keyboardHeight.value + bottomOffset
+          : Number(
+              flattenedStyle?.marginBottom || flattenedStyle?.marginVertical,
+            ) || 0,
         SPRING_CONFIG,
       ),
     };

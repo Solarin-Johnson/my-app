@@ -1,25 +1,18 @@
-import React, { MutableRefObject, RefObject, useEffect, useRef } from "react";
+import React, { RefObject, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   useWindowDimensions,
   Platform,
-  Pressable,
-  StyleProp,
-  ViewStyle,
-  TextStyle,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useButtonKeyboard } from "./provider";
 import Animated, {
   measure,
-  useAnimatedReaction,
   useAnimatedRef,
   useAnimatedStyle,
   useDerivedValue,
-  useSharedValue,
   withSpring,
 } from "react-native-reanimated";
 import {
@@ -28,7 +21,7 @@ import {
   useSimultaneousGestures,
   useTapGesture,
 } from "react-native-gesture-handler";
-import { runOnJS, scheduleOnRN } from "react-native-worklets";
+import { scheduleOnRN } from "react-native-worklets";
 import { PadProps } from "./types";
 
 const KEY_HEIGHT = 54;

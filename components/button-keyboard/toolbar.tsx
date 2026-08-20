@@ -39,6 +39,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     left: 0,
     right: 0,
-    backgroundColor: "#00000010",
+    backgroundColor: "#88888820",
   },
 });

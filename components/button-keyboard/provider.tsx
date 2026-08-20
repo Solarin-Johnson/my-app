@@ -1,22 +1,6 @@
-import React, {
-  createContext,
-  RefObject,
-  useCallback,
-  useContext,
-  useRef,
-} from "react";
-import {
-  findNodeHandle,
-  TextInput,
-  View,
-  ViewStyle,
-  StyleProp,
-} from "react-native";
-import Animated, {
-  AnimatedRef,
-  useSharedValue,
-  type SharedValue,
-} from "react-native-reanimated";
+import React, { createContext, useCallback, useContext } from "react";
+import { TextInput } from "react-native";
+import { AnimatedRef, useSharedValue } from "react-native-reanimated";
 import { ButtonKeyboardContextValue, HashToggleTypes, PadProps } from "./types";
 import { scheduleOnUI } from "react-native-worklets";
 

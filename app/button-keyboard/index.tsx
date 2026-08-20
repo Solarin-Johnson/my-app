@@ -1,5 +1,8 @@
 import React, { useRef } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import ButtonKeyboard, {
   ButtonKeyboardInputRef,
 } from "@/components/button-keyboard";
@@ -7,12 +10,19 @@ import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { useButtonKeyboard } from "@/components/button-keyboard/provider";
 import { Pressable, StyleSheet, View } from "react-native";
 import { UIConditionalRender } from "@/components/UIConditionalRender";
-import { useDerivedValue } from "react-native-reanimated";
+import {
+  SharedValue,
+  useDerivedValue,
+  useSharedValue,
+} from "react-native-reanimated";
 import { Delete, PencilLine } from "lucide-react-native";
 import PressableBounce from "@/components/PresableBounce";
+import { AnimatedText } from "@/components/ui/animated-text";
 
 export default function ButtonKeyboardPage() {
+  const inputValue = useSharedValue("");
   const inputRef = useRef<ButtonKeyboardInputRef>(null!);
+  const { top } = useSafeAreaInsets();
 
   const blurInput = () => {
     inputRef.current.blur();
@@ -28,13 +38,14 @@ export default function ButtonKeyboardPage() {
 
   return (
     <>
-      <ButtonKeyboard.AvoidingView style={{ flex: 1 }}>
+      <TopBar inputValue={inputValue} />
+      <ButtonKeyboard.AvoidingView style={{ flex: 1, marginVertical: 64 }}>
         <SafeAreaView style={styles.container}>
           <ThemedTextWrapper
             type="italic"
             ignoreStyle={false}
             style={{
-              fontSize: 36,
+              fontSize: 38,
               textAlign: "center",
               // backgroundColor: "#00000010",
             }}
@@ -44,6 +55,8 @@ export default function ButtonKeyboardPage() {
               placeholder="@username"
               autoFocus
               fixedPretext="@"
+              inputValue={inputValue}
+              maxLength={16}
             />
           </ThemedTextWrapper>
           {/* <ThemedTextWrapper>
@@ -125,6 +138,22 @@ const HashStatePreview = ({
   );
 };
 
+const TopBar = ({ inputValue }: { inputValue: SharedValue<string> }) => {
+  const { top } = useSafeAreaInsets();
+
+  const value = useDerivedValue(() => {
+    const v = inputValue.value;
+    return `${v.length}/16`;
+  });
+  return (
+    <View style={[styles.topBar, { height: top + 64, paddingTop: top }]}>
+      <ThemedTextWrapper>
+        <AnimatedText text={value} style={styles.lengthText} />
+      </ThemedTextWrapper>
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -161,5 +190,25 @@ const styles = StyleSheet.create({
   arrows: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  topBar: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#88888820",
+    height: 54,
+    borderBottomWidth: 2.5,
+    borderColor: "#88888888",
+    paddingHorizontal: 16,
+  },
+  lengthText: {
+    flex: 1,
+    fontSize: 20,
+    fontFamily: "ui-monospace",
+    fontWeight: "500",
   },
 });
