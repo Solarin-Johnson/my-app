@@ -22,27 +22,34 @@ export default function ButtonKeyboardPage() {
     inputRef.current.delete();
   };
 
+  const handleDeleteAll = () => {
+    inputRef.current.deleteAll();
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <ThemedTextWrapper
-        type="italic"
-        ignoreStyle={false}
-        style={{
-          fontSize: 36,
-          textAlign: "center",
-          // backgroundColor: "#00000010",
-        }}
-      >
-        <ButtonKeyboard.Input
-          ref={inputRef}
-          placeholder="@username"
-          autoFocus
-        />
-      </ThemedTextWrapper>
-      {/* <ThemedTextWrapper>
+    <>
+      <ButtonKeyboard.AvoidingView style={{ flex: 1 }}>
+        <SafeAreaView style={styles.container}>
+          <ThemedTextWrapper
+            type="italic"
+            ignoreStyle={false}
+            style={{
+              fontSize: 36,
+              textAlign: "center",
+              // backgroundColor: "#00000010",
+            }}
+          >
+            <ButtonKeyboard.Input
+              ref={inputRef}
+              placeholder="@username"
+              autoFocus
+              fixedPretext="@"
+            />
+          </ThemedTextWrapper>
+          {/* <ThemedTextWrapper>
         <ButtonKeyboard.Input placeholder="@username" />
       </ThemedTextWrapper> */}
-      {/* <Pressable onPress={() => inputRef.current.delete()}>
+          {/* <Pressable onPress={() => inputRef.current.delete()}>
         <ThemedText>delete</ThemedText>
       </Pressable>
       <Pressable onPress={() => inputRef.current.deleteAll()}>
@@ -54,19 +61,27 @@ export default function ButtonKeyboardPage() {
       <Pressable onPress={() => inputRef.current.focus()}>
         <ThemedText>focus</ThemedText>
       </Pressable> */}
+        </SafeAreaView>
+      </ButtonKeyboard.AvoidingView>
       <ButtonKeyboard.Toolbar style={[styles.toolbar, {}]}>
-        <HashStatePreview blurInput={blurInput} handleDelete={handleDelete} />
+        <HashStatePreview
+          blurInput={blurInput}
+          handleDelete={handleDelete}
+          handleDeleteAll={handleDeleteAll}
+        />
       </ButtonKeyboard.Toolbar>
-    </SafeAreaView>
+    </>
   );
 }
 
 const HashStatePreview = ({
   blurInput,
   handleDelete,
+  handleDeleteAll,
 }: {
   blurInput: () => void;
   handleDelete: () => void;
+  handleDeleteAll: () => void;
 }) => {
   const { hashState } = useButtonKeyboard();
 
@@ -101,13 +116,11 @@ const HashStatePreview = ({
           ]}
         />
       </Pressable>
-      <View style={styles.arrows}>
-        <PressableBounce onPress={handleDelete}>
-          <ThemedTextWrapper>
-            <Delete size={30} strokeWidth={1.8} />
-          </ThemedTextWrapper>
-        </PressableBounce>
-      </View>
+      <PressableBounce onPress={handleDelete} onLongPress={handleDeleteAll}>
+        <ThemedTextWrapper>
+          <Delete size={30} strokeWidth={1.8} />
+        </ThemedTextWrapper>
+      </PressableBounce>
     </View>
   );
 };
@@ -123,14 +136,16 @@ const styles = StyleSheet.create({
     borderWidth: 2.5,
     borderBottomWidth: 0,
     borderColor: "#88888888",
-    paddingHorizontal: 12,
     overflow: "hidden",
   },
   text: {
     fontSize: 20,
+    fontFamily: "ui-monospace",
+    fontWeight: "500",
   },
   preview: {
-    width: "100%",
+    flex: 1,
+    paddingHorizontal: 12,
     justifyContent: "space-between",
     flexDirection: "row",
     alignItems: "center",
@@ -145,5 +160,6 @@ const styles = StyleSheet.create({
   },
   arrows: {
     flexDirection: "row",
+    alignItems: "center",
   },
 });

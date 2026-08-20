@@ -17,12 +17,14 @@ const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 type ButtonKeyboardInputProps = TextInputProps & {
   ref?: React.RefObject<ButtonKeyboardInputRef>;
   inputValue?: SharedValue<string>;
+  fixedPretext?: string;
 };
 
 export default function Input({
   style,
   ref: inputRef,
   inputValue: _inputValue,
+  fixedPretext,
   ...props
 }: ButtonKeyboardInputProps) {
   const ref = useAnimatedRef<TextInput>();
@@ -71,7 +73,9 @@ export default function Input({
   );
 
   const animatedProps = useAnimatedProps(() => {
-    const val = inputValue.value;
+    const v = inputValue.value;
+    const pre = fixedPretext ? fixedPretext : "";
+    const val = v === "" || !fixedPretext ? v : pre + v;
     return {
       text: val,
       value: val,
@@ -102,9 +106,13 @@ export default function Input({
   };
   const deleteChar = () => {
     inputValue.set(inputValue.get().slice(0, -1));
+    isChanging.set(false);
+    value.set("");
   };
   const deleteAll = () => {
     inputValue.set("");
+    isChanging.set(false);
+    value.set("");
   };
 
   useImperativeHandle(inputRef, () => ({

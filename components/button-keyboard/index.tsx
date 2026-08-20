@@ -1,3 +1,4 @@
+import AvoidingView from "./avoiding-view";
 import Input from "./input";
 import Pad from "./pad";
 import { Provider, type ProviderProps } from "./provider";
@@ -17,6 +18,7 @@ const ButtonKeyboard = {
   Provider: PadProvider,
   Input,
   Toolbar,
+  AvoidingView,
 };
 
 export default ButtonKeyboard;
