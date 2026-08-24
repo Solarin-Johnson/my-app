@@ -19,11 +19,13 @@ import { ArrowRight, Delete, PencilLine } from "lucide-react-native";
 import PressableBounce from "@/components/PresableBounce";
 import { AnimatedText } from "@/components/ui/animated-text";
 import { ThemedViewWrapper } from "@/components/ThemedView";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 export default function ButtonKeyboardPage() {
   const inputValue = useSharedValue("");
   const inputRef = useRef<ButtonKeyboardInputRef>(null!);
   const { top } = useSafeAreaInsets();
+  const textColor = useThemeColor("text");
 
   const blurInput = () => {
     inputRef.current.blur();
@@ -83,7 +85,7 @@ export default function ButtonKeyboardPage() {
           handleDeleteAll={handleDeleteAll}
         />
       </ButtonKeyboard.Toolbar>
-      <TopBar inputValue={inputValue} />
+      <TopBar inputValue={inputValue} onSubmit={blurInput} />
     </>
   );
 }
@@ -139,7 +141,13 @@ const HashStatePreview = ({
   );
 };
 
-const TopBar = ({ inputValue }: { inputValue: SharedValue<string> }) => {
+const TopBar = ({
+  inputValue,
+  onSubmit,
+}: {
+  inputValue: SharedValue<string>;
+  onSubmit: () => void;
+}) => {
   const { top } = useSafeAreaInsets();
 
   const value = useDerivedValue(() => {
@@ -152,7 +160,7 @@ const TopBar = ({ inputValue }: { inputValue: SharedValue<string> }) => {
         <AnimatedText text={value} style={styles.lengthText} />
       </ThemedTextWrapper>
       <ThemedViewWrapper colorName="text">
-        <PressableBounce style={styles.doneBtn}>
+        <PressableBounce style={styles.doneBtn} onPress={onSubmit}>
           <ThemedText colorName="background" style={styles.doneText}>
             Done
           </ThemedText>

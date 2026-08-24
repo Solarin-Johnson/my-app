@@ -13,6 +13,7 @@ import Animated, {
   useAnimatedRef,
   useAnimatedStyle,
   useDerivedValue,
+  useSharedValue,
   withSpring,
 } from "react-native-reanimated";
 import {
@@ -55,10 +56,12 @@ const KEYS: Record<string, KeyConfig> = {
 const KEY_ORDER = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"];
 
 export const SPRING_CONFIG = {
-  damping: 30,
-  mass: 0.45,
-  stiffness: 150,
+  stiffness: 175,
+  damping: 32,
+  mass: 0.5,
   overshootClamping: true,
+  restSpeedThreshold: 0.0001,
+  restDisplacementThreshold: 0.0001,
 };
 
 export default function Pad({
@@ -163,6 +166,7 @@ const Key = ({
   const { width } = useWindowDimensions();
   const { value, isChanging, toggleHashState, hashState } = useButtonKeyboard();
   const index = useRef(0);
+  const tapIn = useSharedValue(false);
 
   const keyLetters = letters.filter((letter) => letter !== char);
 
@@ -178,6 +182,7 @@ const Key = ({
     const key = char;
     const now = Date.now();
     const letters = KEYS[key].letters;
+    tapIn.set(true);
 
     if (!letters || KEYS[key].notCharacter) {
       if (char === "#") {
@@ -225,11 +230,17 @@ const Key = ({
     onTouchesDown: () => {
       scheduleOnRN(handleKeyPress);
     },
+    onDeactivate: () => {
+      tapIn.set(false);
+    },
   });
 
   const longPressGesture = useLongPressGesture({
     onActivate: () => {
       scheduleOnRN(onLongPress);
+    },
+    onFinalize: () => {
+      tapIn.set(false);
     },
   });
 
@@ -240,10 +251,26 @@ const Key = ({
     : keyLetters;
   const subtext = visibleLetters.length > 0 ? visibleLetters.join("") : " ";
 
+  const animatedKeyStyle = useAnimatedStyle(() => {
+    return {
+      opacity: tapIn.value ? 0.7 : 1,
+      transform: [
+        {
+          scale: withSpring(tapIn.value ? 0.98 : 1, SPRING_CONFIG),
+        },
+      ],
+    };
+  });
+
   return (
     <GestureDetector gesture={gesture}>
-      <View
-        style={[styles.keyButton, keyStyle, { width: (width - GAP * 4) / 3 }]}
+      <Animated.View
+        style={[
+          styles.keyButton,
+          keyStyle,
+          { width: (width - GAP * 4) / 3 },
+          animatedKeyStyle,
+        ]}
       >
         <View style={styles.keyContent}>
           <Text style={[styles.number, charStyle]}>{char}</Text>
@@ -258,7 +285,7 @@ const Key = ({
             )}
           </View>
         </View>
-      </View>
+      </Animated.View>
     </GestureDetector>
   );
 };
