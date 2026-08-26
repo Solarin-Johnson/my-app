@@ -11,6 +11,7 @@ import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import Slider from "@/components/Slider";
 import Demo from "@/components/Demo";
 import { StatusBar } from "expo-status-bar";
+import HoverPad from "@/components/hover-pad";
 
 export default function Index() {
   const text = useThemeColor("text");
@@ -58,6 +59,7 @@ export default function Index() {
             onPress={() => navigation.openDrawer()}
           />
         </View>
+        <HoverPad></HoverPad>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
