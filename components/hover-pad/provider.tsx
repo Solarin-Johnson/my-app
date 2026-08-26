@@ -19,7 +19,11 @@ export const useHoverPad = () => {
   return ctx;
 };
 
-const HoverPadProvider = ({ children, onItemHover }: ProviderType) => {
+const HoverPadProvider = ({
+  children,
+  onItemHover,
+  ...props
+}: ProviderType) => {
   const position = useSharedValue<PositionType>({ x: null, y: null });
   const state = useSharedValue<StateType>("idle");
   const hoveredIndex = useSharedValue<number | null>(null);
@@ -54,7 +58,7 @@ const HoverPadProvider = ({ children, onItemHover }: ProviderType) => {
         setTotalItems,
       }}
     >
-      <Pad>{children}</Pad>
+      {children}
     </HoverPadContext.Provider>
   );
 };

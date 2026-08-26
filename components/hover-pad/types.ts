@@ -1,13 +1,11 @@
-//@internal
-
-import { Dispatch, ReactNode } from "react";
+import { Dispatch, ReactElement, ReactNode } from "react";
 import { ViewProps } from "react-native";
 import { SharedValue } from "react-native-reanimated";
 
 export type ProviderType = {
   children?: ReactNode;
   onItemHover?: () => void;
-} & ViewProps;
+};
 
 export type PositionType = {
   x: number | null;
@@ -29,4 +27,23 @@ export interface HoverPadContextValue {
 export type UpdatePositionType = {
   absoluteX: number;
   absoluteY: number;
+};
+
+export type BoundsType = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export type ItemType = ViewProps & {
+  onPress?: () => void;
+  index?: number;
+  children?: ReactElement;
+};
+
+export type ItemChildType = {
+  hovered: SharedValue<boolean>;
+  active: SharedValue<boolean>;
+  index: number;
 };

@@ -1,12 +1,21 @@
 import { View, Text, ViewProps, StyleSheet } from "react-native";
-import React from "react";
+import React, {
+  Children,
+  cloneElement,
+  isValidElement,
+  ReactElement,
+} from "react";
 import { GestureDetector, usePanGesture } from "react-native-gesture-handler";
-import { useHoverPad } from "./provider";
-import { UpdatePositionType } from "./types";
+import { ItemChildType, UpdatePositionType } from "./types";
 import { scheduleOnRN } from "react-native-worklets";
 import { useDerivedValue } from "react-native-reanimated";
+import { useHoverPad } from "./provider";
 
-export default function Pad({ style = styles.default, ...props }: ViewProps) {
+export default function Pad({
+  children,
+  style = styles.default,
+  ...props
+}: ViewProps) {
   const { state, position, resetPosition } = useHoverPad();
 
   const updatePosition = (e: UpdatePositionType) => {
@@ -38,14 +47,18 @@ export default function Pad({ style = styles.default, ...props }: ViewProps) {
     minDistance: 0,
   });
 
-  useDerivedValue(() => {
-    console.log(state.value, position.value);
-  });
+  //   useDerivedValue(() => {
+  //     console.log(state.value, position.value);
+  //   });
 
   return (
     <GestureDetector gesture={panGesture}>
       <View {...props} style={style}>
-        <Text>Pad</Text>
+        {Children.map(children, (child, index) =>
+          isValidElement(child)
+            ? cloneElement(child as ReactElement<ItemChildType>, { index })
+            : child,
+        )}
       </View>
     </GestureDetector>
   );
@@ -53,8 +66,7 @@ export default function Pad({ style = styles.default, ...props }: ViewProps) {
 
 const styles = StyleSheet.create({
   default: {
-    width: 100,
-    height: 100,
-    backgroundColor: "red",
+    flex: 1,
+    // backgroundColor: "red",
   },
 });
