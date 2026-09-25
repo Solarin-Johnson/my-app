@@ -59,21 +59,6 @@ export default function Index() {
             onPress={() => navigation.openDrawer()}
           />
         </View>
-        <HoverPad>
-          <HoverPad.Pad>
-            <HoverPad.Item
-              style={{ width: 100, height: 100, backgroundColor: "blue" }}
-            />
-            <HoverPad.Item
-              style={{
-                margin: 20,
-                width: 100,
-                height: 100,
-                backgroundColor: "blue",
-              }}
-            />
-          </HoverPad.Pad>
-        </HoverPad>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
