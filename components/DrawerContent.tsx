@@ -14,7 +14,7 @@ import { DrawerItemList } from "./drawer/DrawerItemList";
 import {
   DrawerContentComponentProps,
   useDrawerStatus,
-} from "expo-router/build/react-navigation/drawer";
+} from "expo-router/drawer";
 
 const DrawerContent = memo((props: DrawerContentComponentProps) => {
   const demos = (props.state?.routes?.length || 0) - 1 || 0;

@@ -7,7 +7,7 @@ import * as React from "react";
 
 import { DrawerItem } from "./DrawerItem";
 import { Href } from "expo-router";
-import { DrawerContentComponentProps } from "expo-router/build/react-navigation/drawer";
+import { DrawerContentComponentProps } from "expo-router/drawer";
 
 /**
  * Component that renders the navigation list in the drawer.
@@ -73,10 +73,10 @@ export function DrawerItemList({
         }
         icon={drawerIcon}
         focused={focused}
-        activeTintColor={drawerActiveTintColor}
-        inactiveTintColor={drawerInactiveTintColor}
-        activeBackgroundColor={drawerActiveBackgroundColor}
-        inactiveBackgroundColor={drawerInactiveBackgroundColor}
+        activeTintColor={drawerActiveTintColor as string}
+        inactiveTintColor={drawerInactiveTintColor as string}
+        activeBackgroundColor={drawerActiveBackgroundColor as string}
+        inactiveBackgroundColor={drawerInactiveBackgroundColor as string}
         allowFontScaling={drawerAllowFontScaling}
         labelStyle={drawerLabelStyle}
         style={drawerItemStyle}
