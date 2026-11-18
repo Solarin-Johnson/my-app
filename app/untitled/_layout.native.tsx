@@ -1,25 +1,7 @@
 import { ThemedView } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import type {
-  ParamListBase,
-  StackNavigationState,
-} from "expo-router/react-navigation";
-import { withLayoutContext } from "expo-router";
 import { interpolate } from "react-native-reanimated";
-import {
-  createBlankStackNavigator,
-  type BlankStackNavigationEventMap,
-  type BlankStackNavigationOptions,
-} from "react-native-screen-transitions/blank-stack";
-
-const { Navigator } = createBlankStackNavigator();
-
-export const Stack = withLayoutContext<
-  BlankStackNavigationOptions,
-  typeof Navigator,
-  StackNavigationState<ParamListBase>,
-  BlankStackNavigationEventMap
->(Navigator);
+import { BlankStack } from "react-native-screen-transitions/expo-router";
 
 const SPRING_CONFIG = {
   damping: 50,
@@ -37,9 +19,9 @@ export default function Layout() {
   const bg = useThemeColor("untitledBg");
   return (
     <ThemedView style={{ flex: 1 }} colorName={"untitledBg"}>
-      <Stack screenOptions={{}}>
-        <Stack.Screen name="index" />
-        <Stack.Screen
+      <BlankStack screenOptions={{}}>
+        <BlankStack.Screen name="index" />
+        <BlankStack.Screen
           name="[id]"
           options={{
             gestureEnabled: true,
@@ -67,7 +49,7 @@ export default function Layout() {
             },
           }}
         />
-      </Stack>
+      </BlankStack>
     </ThemedView>
   );
 }
