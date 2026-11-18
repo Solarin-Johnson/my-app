@@ -2,7 +2,6 @@ import { PlatformPressable, Text } from "expo-router/react-navigation";
 import { type Route, useTheme } from "expo-router/react-navigation";
 import * as React from "react";
 import {
-  AnimatableNumericValue,
   Pressable,
   type StyleProp,
   StyleSheet,
@@ -129,7 +128,6 @@ export function DrawerItem(props: Props) {
     ...rest
   } = props;
 
-  const { borderRadius = 56 } = StyleSheet.flatten(style || {});
   const color = (focused ? activeTintColor : inactiveTintColor) as string;
   const backgroundColor = focused
     ? activeBackgroundColor
@@ -167,7 +165,7 @@ export function DrawerItem(props: Props) {
             {...rest}
             style={StyleSheet.flatten([
               styles.container,
-              { borderRadius, backgroundColor },
+              { borderRadius: 56, backgroundColor },
               style,
             ])}
             // onPress={onPress}
@@ -185,7 +183,7 @@ export function DrawerItem(props: Props) {
               label={label as string}
             >
               <Item
-                borderRadius={borderRadius}
+                borderRadius={"56"}
                 color={color}
                 focused={focused}
                 iconNode={iconNode}
@@ -221,7 +219,7 @@ const Item = ({
   focused: boolean;
   fonts: { medium: TextStyle };
   labelStyle?: StyleProp<TextStyle>;
-  borderRadius: string | AnimatableNumericValue;
+  borderRadius: string;
 }) => {
   return (
     <View style={[styles.wrapper, { borderRadius }]}>
