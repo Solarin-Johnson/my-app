@@ -1,9 +1,6 @@
 // layouts/blank-stack.tsx
 import "react-native-reanimated";
-import type {
-  ParamListBase,
-  StackNavigationState,
-} from "@react-navigation/native";
+import type { StackNavigationState } from "expo-router";
 import { withLayoutContext } from "expo-router";
 import type { ComponentProps } from "react";
 import { Platform } from "react-native";
@@ -21,7 +18,5 @@ function BlankStackNavigator(props: ComponentProps<typeof Navigator>) {
 
 export const BlankStack = withLayoutContext<
   BlankStackNavigationOptions,
-  typeof BlankStackNavigator,
-  StackNavigationState<ParamListBase>,
-  BlankStackNavigationEventMap
+  typeof BlankStackNavigator
 >(BlankStackNavigator);
