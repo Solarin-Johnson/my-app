@@ -162,12 +162,12 @@ const RecordingVisualization: React.FC<RecordingVisualizationProps> = ({
   }, [size.width]);
 
   const waveformPath = useDerivedValue(() => {
-    const path = Skia.Path.Make();
+    const path = Skia.PathBuilder.Make();
     const currentHeights = barHeights.value;
     const canvasHeight = size.height;
 
     if (currentHeights.length === 0 || canvasHeight === 0) {
-      return path;
+      return path.build();
     }
 
     currentHeights.forEach((height, index) => {
@@ -185,7 +185,7 @@ const RecordingVisualization: React.FC<RecordingVisualizationProps> = ({
       path.lineTo(x, y2);
     });
 
-    return path;
+    return path.build();
   }, [size, numBars]);
 
   useEffect(() => {

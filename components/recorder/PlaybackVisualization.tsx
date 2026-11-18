@@ -64,7 +64,7 @@ const PlaybackVisualization: React.FC<PlaybackVisualizationProps> = (props) => {
   }, [buffer, size.height, size.width]);
 
   const bgPath = useMemo(() => {
-    const path = Skia.Path.Make();
+    const path = Skia.PathBuilder.Make();
 
     bufferWaveform.forEach((bar) => {
       path.moveTo(bar.x, bar.y);
@@ -72,11 +72,11 @@ const PlaybackVisualization: React.FC<PlaybackVisualizationProps> = (props) => {
     });
 
     path.close();
-    return path;
+    return path.build();
   }, [bufferWaveform]);
 
   const progressPath = useDerivedValue(() => {
-    const path = Skia.Path.Make();
+    const path = Skia.PathBuilder.Make();
 
     const totalBars = bufferWaveform.length;
     const currentBar = Math.floor(
@@ -90,7 +90,7 @@ const PlaybackVisualization: React.FC<PlaybackVisualizationProps> = (props) => {
     }
 
     path.close();
-    return path;
+    return path.build();
   }, [bufferWaveform, buffer]);
 
   if (!buffer) {

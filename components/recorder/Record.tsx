@@ -92,7 +92,7 @@ const Record = React.forwardRef<RecordHandle, RecordProps>(
       });
 
       try {
-        success = await AudioManager.setAudioSessionActivity(true);
+        AudioManager.setAudioSessionActivity(true);
       } catch (error) {
         console.error(error);
         Alert.alert("Error", "Failed to activate audio session for recording.");
@@ -100,20 +100,14 @@ const Record = React.forwardRef<RecordHandle, RecordProps>(
         return;
       }
 
-      if (!success) {
-        Alert.alert("Error", "Failed to activate audio session for recording.");
-        setState(RecordingState.Idle);
-        return;
-      }
-
-      const result = Recorder.start({
+      const result = await Recorder.start({
         fileNameOverride: `overridden_name_${Date.now()}`,
       });
 
       setupNotification(false);
 
       if (result.status === "success") {
-        console.log("Recording started, file path:", result.path);
+        console.log("Recording started successfully");
         setState(RecordingState.Recording);
         return;
       }
@@ -136,7 +130,7 @@ const Record = React.forwardRef<RecordHandle, RecordProps>(
     }, []);
 
     const onStopRecording = useCallback(async () => {
-      const info = Recorder.stop();
+      const info = await Recorder.stop();
       RecordingNotificationManager.hide();
       setState(RecordingState.Idle);
 
@@ -146,7 +140,7 @@ const Record = React.forwardRef<RecordHandle, RecordProps>(
         return;
       }
 
-      const audioBuffer = await audioContext.decodeAudioData(info.path);
+      const audioBuffer = await audioContext.decodeAudioData(info.paths[0]);
       setRecordedBuffer(audioBuffer);
     }, []);
 
