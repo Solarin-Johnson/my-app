@@ -91,6 +91,12 @@ export function NavigationDrawer() {
       drawerContent={(props) => <DrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="dummy-balance"
+        options={{
+          drawerLabel: "Dummy Balance",
+        }}
+      />
+      <Drawer.Screen
         name="button-keyboard"
         options={{
           drawerLabel: "Button Keyboard",
