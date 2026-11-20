@@ -33,6 +33,8 @@ export default function RootLayout() {
     InterSemiBold: require("../assets/fonts/Inter-SemiBold.ttf"),
     InterBold: require("../assets/fonts/Inter-Bold.ttf"),
     LoraMediumItalic: require("../assets/fonts/Lora-MediumItalic.ttf"),
+    KodeMonoSemiBold: require("../assets/fonts/KodeMono-SemiBold.ttf"),
+    KodeMonoMedium: require("../assets/fonts/KodeMono-Medium.ttf"),
   });
 
   if (!loaded) {

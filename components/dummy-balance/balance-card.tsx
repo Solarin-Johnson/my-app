@@ -145,7 +145,7 @@ const ItemWrapper = ({
   const itemStyle = { borderColor: text + "24" };
   return (
     <ThemedView
-      colorName="text"
+      colorName="invertedTheme"
       style={[styles.itemStyle, itemStyle, style]}
       pointerEvents="none"
     >
@@ -162,21 +162,19 @@ const ItemWrapper = ({
 
 const FrontContent = ({ goForward }: { goForward: () => void }) => (
   <ItemWrapper face="front" style={styles.frontCard}>
-    <Text>Front Content</Text>
-    <ThemedText
-      style={{ fontFamily: "ui-monospace", fontWeight: 700 }}
-      colorName="black"
-      type="title"
-    >
-      USD 14,580.00
+    <ThemedText style={styles.frontLabel} colorName="background">
+      Balance
     </ThemedText>
-    <Text onPress={goForward}>Go to Back</Text>
+    <ThemedText style={styles.frontBalance} colorName="background">
+      USD 12,480.00
+    </ThemedText>
+    {/* <Text onPress={goForward}>Go to Back</Text> */}
   </ItemWrapper>
 );
 
 const BackContent = ({ goBack }: { goBack: () => void }) => (
   <ItemWrapper face="back" style={styles.backCard}>
-    <Text>Back Content</Text>
+    <ThemedText colorName="background">Back Content</ThemedText>
     <Text onPress={goBack}>Go to Front</Text>
   </ItemWrapper>
 );
@@ -191,8 +189,21 @@ const styles = StyleSheet.create({
   frontCard: {
     flex: 1,
     // backgroundColor: "lightblue",
-    alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-end",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+  },
+  frontLabel: {
+    fontSize: 13,
+    fontWeight: "500",
+    fontFamily: "ui-monospace",
+    lineHeight: 20,
+    opacity: 0.75,
+  },
+  frontBalance: {
+    fontSize: 28,
+    fontFamily: "KodeMonoSemiBold",
+    fontVariant: ["tabular-nums"],
   },
   backCard: {
     flex: 1,
@@ -212,6 +223,8 @@ const styles = StyleSheet.create({
   underlay: {
     ...StyleSheet.absoluteFill,
     experimental_backgroundImage:
-      "linear-gradient(135deg, rgba(255,255,255,0.1) 5%, rgba(0,0,0,0.1) 95%)",
+      "linear-gradient(50deg, transparent 10%, #88888850 100%)",
+    // backgroundImage:
+    //   "linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.1) 50%, red 95%)",
   },
 });
