@@ -75,7 +75,7 @@ export default function Rotate3d({
   const flipCard = () => {
     progress.value = withSpring(
       Math.round(progress.value) === 0 ? 1 : 0,
-      SPRING_CONFIG
+      SPRING_CONFIG,
     );
     Feedback.soft();
   };
@@ -92,7 +92,7 @@ export default function Rotate3d({
       flip: flipCard,
       flipTo,
     }),
-    [flipCard]
+    [flipCard],
   );
 
   return (
