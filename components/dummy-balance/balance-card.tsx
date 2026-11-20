@@ -8,7 +8,6 @@ import {
 import { useRef, useState } from "react";
 import Rotate3d, { Rotate3dHandle } from "@/components/3dRotate";
 import {
-  SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { ThemedText } from "@/components/ThemedText";
@@ -19,16 +18,22 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  WithSpringConfig,
 } from "react-native-reanimated";
 import { scheduleOnUI } from "react-native-worklets";
 import { ThemedView, ThemedViewWrapper } from "@/components/ThemedView";
-import { SPRING_CONFIG } from "@/constants";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const HEIGHT = 180;
-const TELEPORTED_HEIGHT = 240;
+const TELEPORTED_HEIGHT = 280;
+
+const SPRING_CONFIG: WithSpringConfig = {
+  damping: 45,
+  stiffness: 320,
+  mass: 2.5,
+};
 
 export default function BalanceCard() {
   const rotateRef = useRef<Rotate3dHandle>(null);
@@ -37,9 +42,6 @@ export default function BalanceCard() {
   const cord = useSharedValue({ x: 0, y: 0, width: 0, height: 0 });
   const { height } = useWindowDimensions();
   const { top, bottom } = useSafeAreaInsets();
-
-  const TELEPORTED_TOP_MARGIN =
-    height / 2 - TELEPORTED_HEIGHT / 2 - (bottom + top);
 
   const measureCard = () => {
     scheduleOnUI(() => {
@@ -66,11 +68,13 @@ export default function BalanceCard() {
       left: cord.value.x,
       top: cord.value.y,
       width: cord.value.width,
-      height: cord.value.height,
+      height: HEIGHT,
     };
   });
 
   const cardInnerAnimatedStyle = useAnimatedStyle(() => {
+    const TELEPORTED_TOP_MARGIN =
+      height / 2 - cord.value.y - HEIGHT / 2 - bottom;
     return {
       marginTop: withSpring(
         teleport ? TELEPORTED_TOP_MARGIN : 0,
@@ -80,6 +84,7 @@ export default function BalanceCard() {
   });
 
   const openContext = () => {
+    if (teleport) return;
     measureCard();
     rotateRef.current?.flipTo("back");
     setTeleport(true);
@@ -110,13 +115,13 @@ export default function BalanceCard() {
         <Animated.View style={cardInnerAnimatedStyle}>
           <Rotate3d
             axis="y"
-            perspective={700}
             rtl={!teleport}
             ref={rotateRef}
             style={styles.rotateCard}
             itemStyle={styles.itemStyle}
             frontHeight={HEIGHT}
             backHeight={TELEPORTED_HEIGHT}
+            springConfig={SPRING_CONFIG}
             frontContent={
               <FrontContent
                 goForward={() => rotateRef.current?.flipTo("back")}
@@ -147,7 +152,6 @@ const ItemWrapper = ({
     <ThemedView
       colorName="invertedTheme"
       style={[styles.itemStyle, itemStyle, style]}
-      pointerEvents="none"
     >
       <View
         style={[

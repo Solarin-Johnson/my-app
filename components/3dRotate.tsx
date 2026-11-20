@@ -8,6 +8,7 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
   withSpring,
+  WithSpringConfig,
 } from "react-native-reanimated";
 import { Feedback } from "@/functions";
 
@@ -28,6 +29,7 @@ export type Rotate3dProps = {
   axis?: "x" | "y"; // <-- Add axis prop
   frontHeight?: number;
   backHeight?: number;
+  springConfig?: WithSpringConfig;
 };
 
 const SPRING_CONFIG = {
@@ -48,6 +50,7 @@ export default function Rotate3d({
   axis = "x",
   frontHeight = 180,
   backHeight = 180,
+  springConfig = SPRING_CONFIG,
 }: Rotate3dProps) {
   const __progress = useSharedValue(0);
   const progress = _progress ?? __progress;
@@ -93,14 +96,14 @@ export default function Rotate3d({
   const flipCard = () => {
     progress.value = withSpring(
       Math.round(progress.value) === 0 ? 1 : 0,
-      SPRING_CONFIG,
+      springConfig,
     );
     Feedback.soft();
   };
 
   const flipTo = (to: "front" | "back") => {
     const targetValue = to === "front" ? 0 : 1;
-    progress.value = withSpring(targetValue, SPRING_CONFIG);
+    progress.value = withSpring(targetValue, springConfig);
     Feedback.soft();
   };
 
