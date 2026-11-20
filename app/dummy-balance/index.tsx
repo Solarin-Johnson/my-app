@@ -13,6 +13,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { scheduleOnUI } from "react-native-worklets";
 import { ThemedViewWrapper } from "@/components/ThemedView";
+import { SPRING_CONFIG } from "@/constants";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -36,12 +37,14 @@ export default function index() {
     });
   };
 
-  useEffect(() => {
-    measureCard();
-  }, []);
-
   const cardAnimatedStyle = useAnimatedStyle(() => {
-    if (!teleport) return {};
+    if (!teleport)
+      return {
+        left: 0,
+        top: 0,
+        width: "auto",
+        height: 180,
+      };
     return {
       left: cord.value.x,
       top: cord.value.y,
@@ -52,21 +55,31 @@ export default function index() {
 
   const cardInnerAnimatedStyle = useAnimatedStyle(() => {
     return {
-      marginTop: withSpring(teleport ? 200 : 0),
+      marginTop: withSpring(teleport ? 200 : 0, SPRING_CONFIG),
     };
   });
+
+  const openContext = () => {
+    measureCard();
+    rotateRef.current?.flipTo("back");
+    setTeleport(true);
+  };
+
+  const closeContext = () => {
+    rotateRef.current?.flipTo("front");
+    setTeleport(false);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <ThemedText>index</ThemedText>
       <Portal hostName={teleport ? "dummy-balance-overlay" : undefined}>
         <ThemedViewWrapper>
-          <Animated.View style={styles.overlay} />
+          <AnimatedPressable style={styles.overlay} onPress={closeContext} />
         </ThemedViewWrapper>
         <AnimatedPressable
           ref={cardRef}
-          onPressIn={measureCard}
-          onLongPress={() => !teleport && setTeleport(true)}
+          onLongPress={openContext}
           style={[
             cardAnimatedStyle,
             {
@@ -74,10 +87,13 @@ export default function index() {
               position: teleport ? "absolute" : "relative",
             },
           ]}
+          pointerEvents={teleport ? "box-none" : "auto"}
         >
           <Animated.View style={cardInnerAnimatedStyle}>
             <Rotate3d
               axis="y"
+              perspective={900}
+              rtl={false}
               ref={rotateRef}
               style={styles.rotateCard}
               itemStyle={styles.itemStyle}
