@@ -1,6 +1,8 @@
 import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import React, { useImperativeHandle } from "react";
 import Animated, {
+  Extrapolation,
+  interpolate,
   SharedValue,
   useAnimatedStyle,
   useDerivedValue,
@@ -24,6 +26,8 @@ export type Rotate3dProps = {
   perspective?: number;
   rtl?: boolean;
   axis?: "x" | "y"; // <-- Add axis prop
+  frontHeight?: number;
+  backHeight?: number;
 };
 
 const SPRING_CONFIG = {
@@ -42,6 +46,8 @@ export default function Rotate3d({
   perspective = 800,
   rtl = true,
   axis = "x",
+  frontHeight = 180,
+  backHeight = 180,
 }: Rotate3dProps) {
   const __progress = useSharedValue(0);
   const progress = _progress ?? __progress;
@@ -58,6 +64,12 @@ export default function Rotate3d({
     return {
       transform: [{ perspective }, rotateTransform],
       pointerEvents: Math.abs(rotation.value) > 90 ? "none" : "auto",
+      height: interpolate(
+        progress.value,
+        [0, 1],
+        [frontHeight, backHeight],
+        Extrapolation.CLAMP,
+      ),
     };
   });
 
@@ -69,6 +81,12 @@ export default function Rotate3d({
     return {
       transform: [{ perspective }, rotateTransform],
       pointerEvents: Math.abs(rotation.value) <= 90 ? "none" : "auto",
+      height: interpolate(
+        progress.value,
+        [0, 1],
+        [frontHeight, backHeight],
+        Extrapolation.CLAMP,
+      ),
     };
   });
 

@@ -1,7 +1,16 @@
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  useWindowDimensions,
+} from "react-native";
 import { useRef, useState } from "react";
 import Rotate3d, { Rotate3dHandle } from "@/components/3dRotate";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { ThemedText } from "@/components/ThemedText";
 import { Portal } from "react-native-teleport";
 import Animated, {
@@ -12,16 +21,25 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { scheduleOnUI } from "react-native-worklets";
-import { ThemedViewWrapper } from "@/components/ThemedView";
+import { ThemedView, ThemedViewWrapper } from "@/components/ThemedView";
 import { SPRING_CONFIG } from "@/constants";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+const HEIGHT = 180;
+const TELEPORTED_HEIGHT = 240;
 
 export default function BalanceCard() {
   const rotateRef = useRef<Rotate3dHandle>(null);
   const [teleport, setTeleport] = useState(false);
   const cardRef = useAnimatedRef();
   const cord = useSharedValue({ x: 0, y: 0, width: 0, height: 0 });
+  const { height } = useWindowDimensions();
+  const { top, bottom } = useSafeAreaInsets();
+
+  const TELEPORTED_TOP_MARGIN =
+    height / 2 - TELEPORTED_HEIGHT / 2 - (bottom + top);
 
   const measureCard = () => {
     scheduleOnUI(() => {
@@ -43,7 +61,6 @@ export default function BalanceCard() {
         left: 0,
         top: 0,
         width: "auto",
-        height: 180,
       };
     return {
       left: cord.value.x,
@@ -55,7 +72,10 @@ export default function BalanceCard() {
 
   const cardInnerAnimatedStyle = useAnimatedStyle(() => {
     return {
-      marginTop: withSpring(teleport ? 200 : 0, SPRING_CONFIG),
+      marginTop: withSpring(
+        teleport ? TELEPORTED_TOP_MARGIN : 0,
+        SPRING_CONFIG,
+      ),
     };
   });
 
@@ -90,11 +110,13 @@ export default function BalanceCard() {
         <Animated.View style={cardInnerAnimatedStyle}>
           <Rotate3d
             axis="y"
-            perspective={900}
-            rtl={false}
+            perspective={700}
+            rtl={!teleport}
             ref={rotateRef}
             style={styles.rotateCard}
             itemStyle={styles.itemStyle}
+            frontHeight={HEIGHT}
+            backHeight={TELEPORTED_HEIGHT}
             frontContent={
               <FrontContent
                 goForward={() => rotateRef.current?.flipTo("back")}
@@ -110,8 +132,36 @@ export default function BalanceCard() {
   );
 }
 
+const ItemWrapper = ({
+  children,
+  style,
+  face = "front",
+}: {
+  children?: React.ReactNode;
+  style?: any;
+  face?: "front" | "back";
+}) => {
+  const text = useThemeColor("text");
+  const itemStyle = { borderColor: text + "24" };
+  return (
+    <ThemedView
+      colorName="text"
+      style={[styles.itemStyle, itemStyle, style]}
+      pointerEvents="none"
+    >
+      <View
+        style={[
+          styles.underlay,
+          { transform: [{ rotateY: face === "front" ? "0deg" : "180deg" }] },
+        ]}
+      />
+      {children}
+    </ThemedView>
+  );
+};
+
 const FrontContent = ({ goForward }: { goForward: () => void }) => (
-  <View style={styles.frontCard}>
+  <ItemWrapper face="front" style={styles.frontCard}>
     <Text>Front Content</Text>
     <ThemedText
       style={{ fontFamily: "ui-monospace", fontWeight: 700 }}
@@ -121,14 +171,14 @@ const FrontContent = ({ goForward }: { goForward: () => void }) => (
       USD 14,580.00
     </ThemedText>
     <Text onPress={goForward}>Go to Back</Text>
-  </View>
+  </ItemWrapper>
 );
 
 const BackContent = ({ goBack }: { goBack: () => void }) => (
-  <View style={styles.backCard}>
+  <ItemWrapper face="back" style={styles.backCard}>
     <Text>Back Content</Text>
     <Text onPress={goBack}>Go to Front</Text>
-  </View>
+  </ItemWrapper>
 );
 
 const styles = StyleSheet.create({
@@ -140,23 +190,28 @@ const styles = StyleSheet.create({
   },
   frontCard: {
     flex: 1,
-    backgroundColor: "lightblue",
+    // backgroundColor: "lightblue",
     alignItems: "center",
     justifyContent: "center",
   },
   backCard: {
     flex: 1,
-    backgroundColor: "lightcoral",
+    // backgroundColor: "lightcoral",
     alignItems: "center",
     justifyContent: "center",
   },
   itemStyle: {
     overflow: "hidden",
-    borderRadius: 18,
+    borderRadius: 24,
     borderCurve: "continuous",
   },
   overlay: {
     ...StyleSheet.absoluteFill,
     opacity: 0.25,
+  },
+  underlay: {
+    ...StyleSheet.absoluteFill,
+    experimental_backgroundImage:
+      "linear-gradient(135deg, rgba(255,255,255,0.1) 5%, rgba(0,0,0,0.1) 95%)",
   },
 });
