@@ -7,9 +7,7 @@ import {
 } from "react-native";
 import { useRef, useState } from "react";
 import Rotate3d, { Rotate3dHandle } from "@/components/3dRotate";
-import {
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedText } from "@/components/ThemedText";
 import { Portal } from "react-native-teleport";
 import Animated, {
@@ -31,7 +29,7 @@ const TELEPORTED_HEIGHT = 280;
 
 const SPRING_CONFIG: WithSpringConfig = {
   damping: 45,
-  stiffness: 320,
+  stiffness: 300,
   mass: 2.5,
 };
 
@@ -96,44 +94,48 @@ export default function BalanceCard() {
   };
 
   return (
-    <Portal hostName={teleport ? "dummy-balance-overlay" : undefined}>
-      <ThemedViewWrapper>
-        <AnimatedPressable style={styles.overlay} onPress={closeContext} />
-      </ThemedViewWrapper>
-      <AnimatedPressable
-        ref={cardRef}
-        onLongPress={openContext}
-        style={[
-          cardAnimatedStyle,
-          {
-            zIndex: 999,
-            position: teleport ? "absolute" : "relative",
-          },
-        ]}
-        pointerEvents={teleport ? "box-none" : "auto"}
-      >
-        <Animated.View style={cardInnerAnimatedStyle}>
-          <Rotate3d
-            axis="y"
-            rtl={!teleport}
-            ref={rotateRef}
-            style={styles.rotateCard}
-            itemStyle={styles.itemStyle}
-            frontHeight={HEIGHT}
-            backHeight={TELEPORTED_HEIGHT}
-            springConfig={SPRING_CONFIG}
-            frontContent={
-              <FrontContent
-                goForward={() => rotateRef.current?.flipTo("back")}
-              />
-            }
-            backContent={
-              <BackContent goBack={() => rotateRef.current?.flipTo("front")} />
-            }
-          />
-        </Animated.View>
-      </AnimatedPressable>
-    </Portal>
+    <View style={{ height: HEIGHT }}>
+      <Portal hostName={teleport ? "dummy-balance-overlay" : undefined}>
+        <ThemedViewWrapper>
+          <AnimatedPressable style={styles.overlay} onPress={closeContext} />
+        </ThemedViewWrapper>
+        <AnimatedPressable
+          ref={cardRef}
+          onLongPress={openContext}
+          style={[
+            cardAnimatedStyle,
+            {
+              zIndex: 999,
+              position: teleport ? "absolute" : "relative",
+            },
+          ]}
+          pointerEvents={teleport ? "box-none" : "auto"}
+        >
+          <Animated.View style={cardInnerAnimatedStyle}>
+            <Rotate3d
+              axis="y"
+              rtl={!teleport}
+              ref={rotateRef}
+              style={styles.rotateCard}
+              itemStyle={styles.itemStyle}
+              frontHeight={HEIGHT}
+              backHeight={TELEPORTED_HEIGHT}
+              springConfig={SPRING_CONFIG}
+              frontContent={
+                <FrontContent
+                  goForward={() => rotateRef.current?.flipTo("back")}
+                />
+              }
+              backContent={
+                <BackContent
+                  goBack={() => rotateRef.current?.flipTo("front")}
+                />
+              }
+            />
+          </Animated.View>
+        </AnimatedPressable>
+      </Portal>
+    </View>
   );
 }
 
