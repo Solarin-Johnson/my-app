@@ -166,7 +166,6 @@ export function NavigationDrawer() {
           drawerLabel: "[untitled]",
           swipeEdgeWidth: isIos ? 10 : width,
         }}
-        initialParams={{ noPreview: true }}
       />
       <Drawer.Screen
         name="custom-back"
@@ -270,7 +269,6 @@ export function NavigationDrawer() {
           },
           overlayColor: "transparent",
         }}
-        initialParams={{ noPreview: true }}
       />
       <Drawer.Screen
         name="threads-pull-refresh"
@@ -298,7 +296,6 @@ export function NavigationDrawer() {
       />
       <Drawer.Screen
         name="index"
-        initialParams={{ userId: "default-user", showBio: false }}
         options={{
           drawerLabel: "Home",
           drawerItemStyle: { display: "none" },

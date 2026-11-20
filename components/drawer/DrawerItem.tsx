@@ -84,7 +84,7 @@ type Props = {
   /**
    * Style object for the wrapper element.
    */
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle> | StyleProp<any>;
   /**
    * Whether label font should scale to respect Text Size accessibility settings.
    */
@@ -103,6 +103,9 @@ type Props = {
 /**
  * A component used to show an action item with an icon and a label in a navigation drawer.
  */
+
+const NO_PREVIEW_ROUTES = ["button-keyboard", "grok-sidebar", "untitled"];
+
 export function DrawerItem(props: Props) {
   const { colors, fonts } = useTheme();
   const [isConfirming, setIsConfirming] = React.useState(false);
@@ -128,13 +131,15 @@ export function DrawerItem(props: Props) {
     ...rest
   } = props;
 
+  const flattenedStyle = StyleSheet.flatten(style) as ViewStyle | undefined;
+  const { borderRadius = 56 } = flattenedStyle ?? {};
   const color = (focused ? activeTintColor : inactiveTintColor) as string;
   const backgroundColor = focused
     ? activeBackgroundColor
     : inactiveBackgroundColor;
 
   const iconNode = icon ? icon({ size: 24, focused, color }) : null;
-  const noPreview = (route?.params as any)?.noPreview || false;
+  const noPreview = route ? NO_PREVIEW_ROUTES.includes(route.name) : false;
   const bg = useThemeColor("barColor");
   return (
     <>
@@ -165,7 +170,7 @@ export function DrawerItem(props: Props) {
             {...rest}
             style={StyleSheet.flatten([
               styles.container,
-              { borderRadius: 56, backgroundColor },
+              { borderRadius, backgroundColor },
               style,
             ])}
             // onPress={onPress}
@@ -183,7 +188,7 @@ export function DrawerItem(props: Props) {
               label={label as string}
             >
               <Item
-                borderRadius={"56"}
+                borderRadius={borderRadius}
                 color={color}
                 focused={focused}
                 iconNode={iconNode}
@@ -219,7 +224,7 @@ const Item = ({
   focused: boolean;
   fonts: { medium: TextStyle };
   labelStyle?: StyleProp<TextStyle>;
-  borderRadius: string;
+  borderRadius: string | number;
 }) => {
   return (
     <View style={[styles.wrapper, { borderRadius }]}>
