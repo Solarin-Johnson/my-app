@@ -47,19 +47,26 @@ export function ThemedTextWrapper({
 }: ThemedTextProps & {
   children: ReactElement<any>;
   ignoreStyle?: boolean;
-  attribute?: string;
+  attribute?: string | string[];
 }) {
   const color = useThemeColor(colorName, {
     light: lightColor,
     dark: darkColor,
   });
-  const textColor = { color, [attribute]: color };
+  const textColor = { color };
+  const attributeProps = (
+    Array.isArray(attribute) ? attribute : [attribute]
+  ).reduce(
+    (props, name) => ({ ...props, [name]: color }),
+    {} as Record<string, string>,
+  );
 
   const combinedStyle = [textColor, !ignoreStyle && styles[type], style];
 
   return cloneElement(children, {
     style: [(children.props as any).style ?? {}, ...combinedStyle],
     ...textColor,
+    ...attributeProps,
     ...rest,
   });
 }

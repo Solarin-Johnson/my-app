@@ -5,11 +5,12 @@ import {
   Pressable,
   useWindowDimensions,
   Switch,
+  TextInput,
 } from "react-native";
 import { useRef, useState } from "react";
 import Rotate3d, { Rotate3dHandle } from "@/components/3dRotate";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ThemedText } from "@/components/ThemedText";
+import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { Portal } from "react-native-teleport";
 import Animated, {
   measure,
@@ -26,7 +27,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const HEIGHT = 180;
-const TELEPORTED_HEIGHT = 280;
+const TELEPORTED_HEIGHT = 250;
 
 const SPRING_CONFIG: WithSpringConfig = {
   damping: 45,
@@ -183,16 +184,22 @@ const FrontContent = ({ goForward }: { goForward: () => void }) => (
 
 const BackContent = ({ goBack }: { goBack: () => void }) => (
   <ItemWrapper face="back" style={styles.backCard}>
+    {/* <Section title="Dummy Balance">
+      <Switch value={true} onValueChange={() => {}} />
+    </Section> */}
+    <ThemedText
+      style={[styles.sectionLabel, { textAlign: "center" }]}
+      colorName="background"
+    >
+      Dummy Balance
+    </ThemedText>
+    <Divider />
+    <Screen />
+    <Divider />
     <Section title="Balance">
       <ThemedText colorName="background" style={styles.backBalance}>
         USD 12,480.00
       </ThemedText>
-    </Section>
-    <Divider />
-    <Screen />
-    <Divider />
-    <Section title="Dummy Balance">
-      <Switch value={true} onValueChange={() => {}} />
     </Section>
     {/* <Text onPress={goBack}>Go to Front</Text> */}
   </ItemWrapper>
@@ -224,25 +231,35 @@ const Divider = () => (
   />
 );
 
-const Screen = () => (
-  <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-    <ThemedText>Dummy Balance Card</ThemedText>
-  </View>
-);
+const Screen = () => {
+  const bg = useThemeColor("background");
+
+  return (
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <ThemedTextWrapper style={styles.screenText} colorName="background">
+        <TextInput
+          placeholder="0.00"
+          selectionColor={"red"}
+          keyboardType="decimal-pad"
+          maxLength={10}
+          placeholderTextColor={bg + "60"}
+        />
+      </ThemedTextWrapper>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   rotateCard: {
     width: "100%",
     height: 180,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: "flex-start",
   },
   frontCard: {
-    flex: 1,
-    // backgroundColor: "lightblue",
     justifyContent: "flex-end",
     paddingVertical: 16,
     paddingHorizontal: 24,
+    height: HEIGHT,
   },
   frontLabel: {
     fontSize: 13,
@@ -257,9 +274,8 @@ const styles = StyleSheet.create({
     fontVariant: ["tabular-nums"],
   },
   backCard: {
-    flex: 1,
     paddingVertical: 18,
-    paddingHorizontal: 20,
+    height: TELEPORTED_HEIGHT,
   },
   itemStyle: {
     overflow: "hidden",
@@ -278,6 +294,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 18,
   },
   sectionLabel: {
     fontSize: 14,
@@ -290,5 +307,14 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontFamily: "ui-monospace",
     fontVariant: ["tabular-nums"],
+    opacity: 0.7,
+  },
+  screenText: {
+    fontFamily: "KodeMonoSemiBold",
+    fontVariant: ["tabular-nums"],
+    fontSize: 54,
+    textAlign: "center",
+    width: "100%",
+    height: "100%",
   },
 });

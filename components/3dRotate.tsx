@@ -48,8 +48,8 @@ export default function Rotate3d({
   perspective = 800,
   rtl = true,
   axis = "x",
-  frontHeight = 180,
-  backHeight = 180,
+  frontHeight,
+  backHeight,
   springConfig = SPRING_CONFIG,
 }: Rotate3dProps) {
   const __progress = useSharedValue(0);
@@ -67,12 +67,15 @@ export default function Rotate3d({
     return {
       transform: [{ perspective }, rotateTransform],
       pointerEvents: Math.abs(rotation.value) > 90 ? "none" : "auto",
-      height: interpolate(
-        progress.value,
-        [0, 1],
-        [frontHeight, backHeight],
-        Extrapolation.CLAMP,
-      ),
+      ...(frontHeight &&
+        backHeight && {
+          height: interpolate(
+            progress.value,
+            [0, 1],
+            [frontHeight, backHeight],
+            Extrapolation.CLAMP,
+          ),
+        }),
     };
   });
 
@@ -84,12 +87,15 @@ export default function Rotate3d({
     return {
       transform: [{ perspective }, rotateTransform],
       pointerEvents: Math.abs(rotation.value) <= 90 ? "none" : "auto",
-      height: interpolate(
-        progress.value,
-        [0, 1],
-        [frontHeight, backHeight],
-        Extrapolation.CLAMP,
-      ),
+      ...(frontHeight &&
+        backHeight && {
+          height: interpolate(
+            progress.value,
+            [0, 1],
+            [frontHeight, backHeight],
+            Extrapolation.CLAMP,
+          ),
+        }),
     };
   });
 
