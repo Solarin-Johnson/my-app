@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Pressable,
   useWindowDimensions,
+  Switch,
 } from "react-native";
 import { useRef, useState } from "react";
 import Rotate3d, { Rotate3dHandle } from "@/components/3dRotate";
@@ -174,15 +175,59 @@ const FrontContent = ({ goForward }: { goForward: () => void }) => (
     <ThemedText style={styles.frontBalance} colorName="background">
       USD 12,480.00
     </ThemedText>
-    {/* <Text onPress={goForward}>Go to Back</Text> */}
+    {/* <ThemedText onPress={goForward} colorName="background">
+      Go to Back
+    </ThemedText> */}
   </ItemWrapper>
 );
 
 const BackContent = ({ goBack }: { goBack: () => void }) => (
   <ItemWrapper face="back" style={styles.backCard}>
-    <ThemedText colorName="background">Back Content</ThemedText>
-    <Text onPress={goBack}>Go to Front</Text>
+    <Section title="Balance">
+      <ThemedText colorName="background" style={styles.backBalance}>
+        USD 12,480.00
+      </ThemedText>
+    </Section>
+    <Divider />
+    <Screen />
+    <Divider />
+    <Section title="Dummy Balance">
+      <Switch value={true} onValueChange={() => {}} />
+    </Section>
+    {/* <Text onPress={goBack}>Go to Front</Text> */}
   </ItemWrapper>
+);
+
+const Section = ({
+  title,
+  children,
+}: {
+  title: string;
+  children?: React.ReactNode;
+}) => (
+  <View style={styles.section}>
+    <ThemedText style={styles.sectionLabel} colorName="background">
+      {title}
+    </ThemedText>
+    {children}
+  </View>
+);
+
+const Divider = () => (
+  <ThemedView
+    style={{
+      height: 1,
+      marginVertical: 12,
+    }}
+    colorName="background"
+    alphaHex="30"
+  />
+);
+
+const Screen = () => (
+  <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <ThemedText>Dummy Balance Card</ThemedText>
+  </View>
 );
 
 const styles = StyleSheet.create({
@@ -213,9 +258,8 @@ const styles = StyleSheet.create({
   },
   backCard: {
     flex: 1,
-    // backgroundColor: "lightcoral",
-    alignItems: "center",
-    justifyContent: "center",
+    paddingVertical: 18,
+    paddingHorizontal: 20,
   },
   itemStyle: {
     overflow: "hidden",
@@ -228,9 +272,23 @@ const styles = StyleSheet.create({
   },
   underlay: {
     ...StyleSheet.absoluteFill,
-    experimental_backgroundImage:
-      "linear-gradient(50deg, transparent 10%, #88888850 100%)",
-    // backgroundImage:
-    //   "linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.1) 50%, red 95%)",
+    backgroundImage: "linear-gradient(50deg, transparent 10%, #88888850 100%)",
+  },
+  section: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  sectionLabel: {
+    fontSize: 14,
+    fontFamily: "ui-monospace",
+    fontWeight: "500",
+    opacity: 0.7,
+  },
+  backBalance: {
+    fontSize: 14,
+    fontWeight: "500",
+    fontFamily: "ui-monospace",
+    fontVariant: ["tabular-nums"],
   },
 });
