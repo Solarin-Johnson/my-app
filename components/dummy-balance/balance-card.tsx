@@ -75,13 +75,9 @@ export default function BalanceCard() {
   const cardAnimatedStyle = useAnimatedStyle(() => {
     if (!animating && !teleport)
       return {
-        // marginLeft: 0,
-        // marginTop: 0,
         width: "auto",
       };
     return {
-      //   marginLeft: cord.value.x,
-      //   marginTop: cord.value.y,
       width: cord.value.width,
     };
   });
@@ -127,7 +123,6 @@ export default function BalanceCard() {
   );
 
   const blurIntensity = useDerivedValue(() => {
-    if (!teleport) return 0;
     return rotateProgress.value * 8;
   });
 
@@ -166,8 +161,6 @@ export default function BalanceCard() {
             {
               zIndex: 999,
               height: HEIGHT,
-
-              //   position: teleport ? "absolute" : "relative",
             },
           ]}
           pointerEvents={teleport ? "box-none" : "auto"}
@@ -244,9 +237,6 @@ const FrontContent = ({
       <ThemedTextWrapper style={styles.frontBalance} colorName="background">
         <Animated.Text>{visibleBalance}</Animated.Text>
       </ThemedTextWrapper>
-      {/* <ThemedText onPress={goForward} colorName="background">
-      Go to Back
-    </ThemedText> */}
     </ItemWrapper>
   );
 };

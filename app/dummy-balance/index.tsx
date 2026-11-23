@@ -1,15 +1,38 @@
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BalanceCard from "@/components/dummy-balance/balance-card";
-import { ThemedText } from "@/components/ThemedText";
 import ActionSection from "@/components/dummy-balance/action-section";
+import { useDummyBalPortalContext } from "@/components/dummy-balance/dummybal-portal-context";
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 
 export default function index() {
+  const { rotateProgress } = useDummyBalPortalContext();
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          scale: interpolate(
+            rotateProgress.value,
+            [0.05, 1],
+            [1, 0.95],
+            Extrapolation.CLAMP,
+          ),
+        },
+      ],
+    };
+  });
+
   return (
-    <SafeAreaView style={styles.container}>
-      <BalanceCard />
-      <ActionSection />
-    </SafeAreaView>
+    <Animated.View style={[{ flex: 1 }, animatedStyle]}>
+      <SafeAreaView style={styles.container}>
+        <BalanceCard />
+        <ActionSection />
+      </SafeAreaView>
+    </Animated.View>
   );
 }
 
