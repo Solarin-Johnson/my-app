@@ -17,6 +17,7 @@ import Animated, {
   measure,
   useAnimatedRef,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withSpring,
   WithSpringConfig,
@@ -24,11 +25,15 @@ import Animated, {
 import { scheduleOnUI } from "react-native-worklets";
 import { ThemedView, ThemedViewWrapper } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import {
+  useKeyboardAnimation,
+  useKeyboardState,
+} from "react-native-keyboard-controller";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const HEIGHT = 180;
-const TELEPORTED_HEIGHT = 250;
+const TELEPORTED_HEIGHT = 240;
 
 const SPRING_CONFIG: WithSpringConfig = {
   damping: 45,
@@ -39,11 +44,12 @@ const SPRING_CONFIG: WithSpringConfig = {
 export default function BalanceCard() {
   const rotateRef = useRef<Rotate3dHandle>(null);
   const [teleport, setTeleport] = useState(false);
-  const sharedTeleport = useSharedValue(false);
   const cardRef = useAnimatedRef();
   const cord = useSharedValue({ x: 0, y: 0, width: 0, height: 0 });
   const { height } = useWindowDimensions();
-  const { top, bottom } = useSafeAreaInsets();
+  const { bottom } = useSafeAreaInsets();
+  const { isVisible: keyboardVisible, height: keyboardHeight } =
+    useKeyboardState();
 
   const measureCard = () => {
     scheduleOnUI(() => {
@@ -60,19 +66,17 @@ export default function BalanceCard() {
   };
 
   const cardAnimatedStyle = useAnimatedStyle(() => {
-    if (!sharedTeleport.value)
+    if (!teleport)
       return {
         left: 0,
         top: 0,
         width: "auto",
-        position: "relative",
       };
     return {
       left: cord.value.x,
       top: cord.value.y,
       width: cord.value.width,
       height: HEIGHT,
-      position: "absolute",
     };
   });
 
@@ -81,7 +85,9 @@ export default function BalanceCard() {
       height / 2 - cord.value.y - HEIGHT / 2 - bottom;
     return {
       marginTop: withSpring(
-        sharedTeleport.value ? TELEPORTED_TOP_MARGIN : 0,
+        teleport
+          ? TELEPORTED_TOP_MARGIN - (keyboardVisible ? keyboardHeight / 3 : 0)
+          : 0,
         SPRING_CONFIG,
       ),
     };
@@ -92,21 +98,21 @@ export default function BalanceCard() {
     measureCard();
     rotateRef.current?.flipTo("back");
     setTeleport(true);
-    sharedTeleport.set(true);
   };
 
   const closeContext = () => {
     rotateRef.current?.flipTo("front");
     setTeleport(false);
-    sharedTeleport.set(false);
   };
 
   return (
     <View style={{ height: HEIGHT }}>
       <Portal hostName={teleport ? "dummy-balance-overlay" : undefined}>
-        <ThemedViewWrapper>
-          <AnimatedPressable style={styles.overlay} onPress={closeContext} />
-        </ThemedViewWrapper>
+        {
+          <ThemedViewWrapper>
+            <AnimatedPressable style={styles.overlay} onPress={closeContext} />
+          </ThemedViewWrapper>
+        }
         <AnimatedPressable
           ref={cardRef}
           onLongPress={openContext}
@@ -114,6 +120,7 @@ export default function BalanceCard() {
             cardAnimatedStyle,
             {
               zIndex: 999,
+              position: teleport ? "absolute" : "relative",
             },
           ]}
           pointerEvents={teleport ? "box-none" : "auto"}
@@ -313,7 +320,6 @@ const Screen = () => {
         placeholderTextColor={bg + "60"}
         onChangeText={handleChangeText}
         style={styles.screenTextInput}
-        collapsable={false}
       />
     </Pressable>
   );
