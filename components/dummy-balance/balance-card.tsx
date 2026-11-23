@@ -8,13 +8,14 @@ import {
   TextInput,
   TextInputInstance,
 } from "react-native";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Rotate3d, { Rotate3dHandle } from "@/components/3dRotate";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { Portal } from "react-native-teleport";
 import Animated, {
   measure,
+  SharedValue,
   useAnimatedRef,
   useAnimatedStyle,
   useDerivedValue,
@@ -29,6 +30,7 @@ import {
   useKeyboardAnimation,
   useKeyboardState,
 } from "react-native-keyboard-controller";
+import { AnimatedText } from "../ui/animated-text";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -41,9 +43,12 @@ const SPRING_CONFIG: WithSpringConfig = {
   mass: 2.5,
 };
 
+const BALANCE = 12480;
+
 export default function BalanceCard() {
   const rotateRef = useRef<Rotate3dHandle>(null);
   const [teleport, setTeleport] = useState(false);
+  const dummyBalance = useSharedValue<string | null>(null);
   const cardRef = useAnimatedRef();
   const cord = useSharedValue({ x: 0, y: 0, width: 0, height: 0 });
   const { height } = useWindowDimensions();
@@ -81,8 +86,7 @@ export default function BalanceCard() {
   });
 
   const cardInnerAnimatedStyle = useAnimatedStyle(() => {
-    const TELEPORTED_TOP_MARGIN =
-      height / 2 - cord.value.y - HEIGHT / 2 - bottom;
+    const TELEPORTED_TOP_MARGIN = height / 2 - cord.value.y - HEIGHT / 2;
     return {
       marginTop: withSpring(
         teleport
@@ -135,15 +139,9 @@ export default function BalanceCard() {
               frontHeight={HEIGHT}
               backHeight={TELEPORTED_HEIGHT}
               springConfig={SPRING_CONFIG}
-              frontContent={
-                <FrontContent
-                  goForward={() => rotateRef.current?.flipTo("back")}
-                />
-              }
+              frontContent={<FrontContent dummyBalance={dummyBalance} />}
               backContent={
-                <BackContent
-                  goBack={() => rotateRef.current?.flipTo("front")}
-                />
+                <BackContent teleport={teleport} dummyBalance={dummyBalance} />
               }
             />
           </Animated.View>
@@ -180,21 +178,42 @@ const ItemWrapper = ({
   );
 };
 
-const FrontContent = ({ goForward }: { goForward: () => void }) => (
-  <ItemWrapper face="front" style={styles.frontCard}>
-    <ThemedText style={styles.frontLabel} colorName="background">
-      Balance
-    </ThemedText>
-    <ThemedText style={styles.frontBalance} colorName="background">
-      USD 12,480.00
-    </ThemedText>
-    {/* <ThemedText onPress={goForward} colorName="background">
+const FrontContent = ({
+  dummyBalance,
+}: {
+  dummyBalance: SharedValue<string | null>;
+}) => {
+  const visibleBalance = useDerivedValue(() => {
+    const dv = dummyBalance.value;
+    return ((dv && Number(dv)) ?? BALANCE).toLocaleString("en-NG", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      currencyDisplay: "code",
+    });
+  });
+  return (
+    <ItemWrapper face="front" style={styles.frontCard}>
+      <ThemedText style={styles.frontLabel} colorName="background">
+        Balance
+      </ThemedText>
+      <ThemedTextWrapper style={styles.frontBalance} colorName="background">
+        <Animated.Text>{visibleBalance}</Animated.Text>
+      </ThemedTextWrapper>
+      {/* <ThemedText onPress={goForward} colorName="background">
       Go to Back
     </ThemedText> */}
-  </ItemWrapper>
-);
+    </ItemWrapper>
+  );
+};
 
-const BackContent = ({ goBack }: { goBack: () => void }) => (
+const BackContent = ({
+  teleport,
+  dummyBalance,
+}: {
+  teleport: boolean;
+  dummyBalance: SharedValue<string | null>;
+}) => (
   <ItemWrapper face="back" style={styles.backCard}>
     {/* <Section title="Dummy Balance">
       <Switch value={true} onValueChange={() => {}} />
@@ -206,11 +225,15 @@ const BackContent = ({ goBack }: { goBack: () => void }) => (
       Dummy Balance
     </ThemedText>
     <Divider />
-    <Screen />
+    <Screen focus={teleport} dummyBalance={dummyBalance} />
     <Divider />
     <Section title="Balance">
       <ThemedText colorName="background" style={styles.backBalance}>
-        USD 12,480.00
+        {BALANCE.toLocaleString("en-NG", {
+          style: "currency",
+          currency: "USD",
+          minimumFractionDigits: 2,
+        })}
       </ThemedText>
     </Section>
     {/* <Text onPress={goBack}>Go to Front</Text> */}
@@ -243,13 +266,27 @@ const Divider = () => (
   />
 );
 
-const Screen = () => {
+const Screen = ({
+  focus,
+  dummyBalance,
+}: {
+  focus: boolean;
+  dummyBalance: SharedValue<string | null>;
+}) => {
   const bg = useThemeColor("background");
-  const [amount, setAmount] = useState("");
   const inputRef = useRef<TextInputInstance>(null);
+  const [amount, setAmount] = useState<string | null>(null);
+
+  console.log(amount);
 
   const handleChangeText = (text: string) => {
     const value = text.replace(/[^0-9.]/g, "");
+
+    if (!value) {
+      setAmount(null);
+      return;
+    }
+
     const [integer, ...decimals] = value.split(".");
 
     const whole = integer.slice(0, 6);
@@ -257,17 +294,39 @@ const Screen = () => {
 
     const formatted = new Intl.NumberFormat("en-NG", {
       maximumFractionDigits: 0,
-    }).format(Number(whole || 0));
+    }).format(Number(whole));
 
-    setAmount(value.includes(".") ? `${formatted}.${decimal}` : formatted);
+    const nextAmount = value.includes(".")
+      ? `${formatted}.${decimal}`
+      : formatted;
+
+    setAmount(nextAmount);
   };
 
-  const integer = amount.split(".")[0] || "0";
-  const decimal = amount.split(".")[1] || "";
+  const integer = amount?.split(".")[0];
+  const decimal = amount?.split(".")[1] || "";
 
   const tenth = decimal[0];
   const hundredth = decimal[1];
-  const hasDot = amount.includes(".");
+  const hasDot = amount?.includes(".");
+
+  useEffect(() => {
+    const autoFocus = () => {
+      if (focus) {
+        inputRef.current?.focus();
+      } else {
+        inputRef.current?.blur();
+      }
+    };
+    autoFocus();
+    return () => {
+      inputRef.current?.blur();
+    };
+  }, [focus]);
+
+  useEffect(() => {
+    dummyBalance.set(amount);
+  }, [amount]);
 
   return (
     <Pressable
@@ -282,11 +341,11 @@ const Screen = () => {
     >
       <View style={styles.screenTextWrapper}>
         <ThemedText
-          style={[styles.screenText, integer === "0" && styles.textFade]}
+          style={[styles.screenText, !integer && styles.textFade]}
           colorName="background"
           pointerEvents="none"
         >
-          {integer}
+          {integer || "0"}
         </ThemedText>
         <ThemedText
           style={[styles.screenText, !hasDot && styles.textFade]}
@@ -312,7 +371,7 @@ const Screen = () => {
       </View>
       <TextInput
         ref={inputRef}
-        value={amount}
+        value={amount || "0"}
         placeholder="0.00"
         selectionColor={"red"}
         keyboardType="decimal-pad"
