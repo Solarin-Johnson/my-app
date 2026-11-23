@@ -6,6 +6,7 @@ import {
   useWindowDimensions,
   Switch,
   TextInput,
+  TextInputInstance,
 } from "react-native";
 import { useRef, useState } from "react";
 import Rotate3d, { Rotate3dHandle } from "@/components/3dRotate";
@@ -38,6 +39,7 @@ const SPRING_CONFIG: WithSpringConfig = {
 export default function BalanceCard() {
   const rotateRef = useRef<Rotate3dHandle>(null);
   const [teleport, setTeleport] = useState(false);
+  const sharedTeleport = useSharedValue(false);
   const cardRef = useAnimatedRef();
   const cord = useSharedValue({ x: 0, y: 0, width: 0, height: 0 });
   const { height } = useWindowDimensions();
@@ -58,17 +60,19 @@ export default function BalanceCard() {
   };
 
   const cardAnimatedStyle = useAnimatedStyle(() => {
-    if (!teleport)
+    if (!sharedTeleport.value)
       return {
         left: 0,
         top: 0,
         width: "auto",
+        position: "relative",
       };
     return {
       left: cord.value.x,
       top: cord.value.y,
       width: cord.value.width,
       height: HEIGHT,
+      position: "absolute",
     };
   });
 
@@ -77,7 +81,7 @@ export default function BalanceCard() {
       height / 2 - cord.value.y - HEIGHT / 2 - bottom;
     return {
       marginTop: withSpring(
-        teleport ? TELEPORTED_TOP_MARGIN : 0,
+        sharedTeleport.value ? TELEPORTED_TOP_MARGIN : 0,
         SPRING_CONFIG,
       ),
     };
@@ -88,11 +92,13 @@ export default function BalanceCard() {
     measureCard();
     rotateRef.current?.flipTo("back");
     setTeleport(true);
+    sharedTeleport.set(true);
   };
 
   const closeContext = () => {
     rotateRef.current?.flipTo("front");
     setTeleport(false);
+    sharedTeleport.set(false);
   };
 
   return (
@@ -108,7 +114,6 @@ export default function BalanceCard() {
             cardAnimatedStyle,
             {
               zIndex: 999,
-              position: teleport ? "absolute" : "relative",
             },
           ]}
           pointerEvents={teleport ? "box-none" : "auto"}
@@ -233,19 +238,84 @@ const Divider = () => (
 
 const Screen = () => {
   const bg = useThemeColor("background");
+  const [amount, setAmount] = useState("");
+  const inputRef = useRef<TextInputInstance>(null);
+
+  const handleChangeText = (text: string) => {
+    const value = text.replace(/[^0-9.]/g, "");
+    const [integer, ...decimals] = value.split(".");
+
+    const whole = integer.slice(0, 6);
+    const decimal = decimals.join("").slice(0, 2);
+
+    const formatted = new Intl.NumberFormat("en-NG", {
+      maximumFractionDigits: 0,
+    }).format(Number(whole || 0));
+
+    setAmount(value.includes(".") ? `${formatted}.${decimal}` : formatted);
+  };
+
+  const integer = amount.split(".")[0] || "0";
+  const decimal = amount.split(".")[1] || "";
+
+  const tenth = decimal[0];
+  const hundredth = decimal[1];
+  const hasDot = amount.includes(".");
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <ThemedTextWrapper style={styles.screenText} colorName="background">
-        <TextInput
-          placeholder="0.00"
-          selectionColor={"red"}
-          keyboardType="decimal-pad"
-          maxLength={10}
-          placeholderTextColor={bg + "60"}
-        />
-      </ThemedTextWrapper>
-    </View>
+    <Pressable
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+      onPress={() => {
+        inputRef.current?.focus();
+      }}
+    >
+      <View style={styles.screenTextWrapper}>
+        <ThemedText
+          style={[styles.screenText, integer === "0" && styles.textFade]}
+          colorName="background"
+          pointerEvents="none"
+        >
+          {integer}
+        </ThemedText>
+        <ThemedText
+          style={[styles.screenText, !hasDot && styles.textFade]}
+          colorName="background"
+          pointerEvents="none"
+        >
+          {"."}
+        </ThemedText>
+        <ThemedText
+          style={[styles.screenText, !tenth && styles.textFade]}
+          colorName="background"
+          pointerEvents="none"
+        >
+          {tenth ?? "0"}
+        </ThemedText>
+        <ThemedText
+          style={[styles.screenText, !hundredth && styles.textFade]}
+          colorName="background"
+          pointerEvents="none"
+        >
+          {hundredth ?? "0"}
+        </ThemedText>
+      </View>
+      <TextInput
+        ref={inputRef}
+        value={amount}
+        placeholder="0.00"
+        selectionColor={"red"}
+        keyboardType="decimal-pad"
+        maxLength={10}
+        placeholderTextColor={bg + "60"}
+        onChangeText={handleChangeText}
+        style={styles.screenTextInput}
+        collapsable={false}
+      />
+    </Pressable>
   );
 };
 
@@ -307,14 +377,29 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontFamily: "ui-monospace",
     fontVariant: ["tabular-nums"],
+    letterSpacing: -0.2,
     opacity: 0.7,
+  },
+  screenTextWrapper: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    alignSelf: "center",
+    flexDirection: "row",
+    justifyContent: "center",
   },
   screenText: {
     fontFamily: "KodeMonoSemiBold",
     fontVariant: ["tabular-nums"],
     fontSize: 54,
     textAlign: "center",
+  },
+  screenTextInput: {
     width: "100%",
     height: "100%",
+    opacity: 0,
+  },
+  textFade: {
+    opacity: 0.5,
   },
 });
