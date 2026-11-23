@@ -22,12 +22,14 @@ import Animated, {
   withSpring,
   WithSpringConfig,
 } from "react-native-reanimated";
-import { scheduleOnUI } from "react-native-worklets";
+import { scheduleOnRN, scheduleOnUI } from "react-native-worklets";
 import { ThemedView, ThemedViewWrapper } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useKeyboardState } from "react-native-keyboard-controller";
+import { BlurView } from "expo-blur";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
 const HEIGHT = 160;
 const TELEPORTED_HEIGHT = 240;
@@ -50,6 +52,8 @@ export default function BalanceCard() {
   const { bottom } = useSafeAreaInsets();
   const { isVisible: keyboardVisible, height: keyboardHeight } =
     useKeyboardState();
+  const rotateProgress = useSharedValue(0);
+  const [animating, setAnimating] = useState(false);
 
   const measureCard = () => {
     scheduleOnUI(() => {
@@ -66,7 +70,7 @@ export default function BalanceCard() {
   };
 
   const cardAnimatedStyle = useAnimatedStyle(() => {
-    if (!teleport)
+    if (!animating && !teleport)
       return {
         left: 0,
         top: 0,
@@ -98,21 +102,57 @@ export default function BalanceCard() {
     measureCard();
     rotateRef.current?.flipTo("back");
     setTeleport(true);
+    setAnimating(true);
   };
 
   const closeContext = () => {
     rotateRef.current?.flipTo("front");
     setTeleport(false);
+    setAnimating(true);
   };
+
+  useAnimatedReaction(
+    () => rotateProgress.value,
+    (progress) => {
+      if (teleport && progress > 0) {
+        scheduleOnRN(setAnimating, true);
+        return;
+      }
+      if (!teleport && progress < 0.02) {
+        scheduleOnRN(setAnimating, false);
+        console.log("animation complete");
+      }
+    },
+  );
+
+  const blurIntensity = useDerivedValue(() => {
+    if (!teleport) return 0;
+    return rotateProgress.value * 8;
+  });
+
+  const overlayAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: rotateProgress.value * 0.1,
+    };
+  });
 
   return (
     <View style={{ height: HEIGHT }}>
-      <Portal hostName={teleport ? "dummy-balance-overlay" : undefined}>
-        {
-          <ThemedViewWrapper>
-            <AnimatedPressable style={styles.overlay} onPress={closeContext} />
-          </ThemedViewWrapper>
-        }
+      <Portal hostName={animating ? "dummy-balance-overlay" : undefined}>
+        <ThemedViewWrapper style={styles.overlay}>
+          <Animated.View style={overlayAnimatedStyle} />
+        </ThemedViewWrapper>
+
+        <AnimatedPressable
+          style={StyleSheet.absoluteFill}
+          onPress={closeContext}
+        >
+          <AnimatedBlurView
+            style={StyleSheet.absoluteFill}
+            intensity={blurIntensity}
+          />
+        </AnimatedPressable>
+
         <AnimatedPressable
           ref={cardRef}
           onLongPress={openContext}
@@ -135,6 +175,7 @@ export default function BalanceCard() {
               frontHeight={HEIGHT}
               backHeight={TELEPORTED_HEIGHT}
               springConfig={SPRING_CONFIG}
+              progress={rotateProgress}
               frontContent={<FrontContent dummyBalance={dummyBalance} />}
               backContent={
                 <BackContent teleport={teleport} dummyBalance={dummyBalance} />
@@ -226,6 +267,7 @@ const BackContent = ({
           style: "currency",
           currency: "USD",
           minimumFractionDigits: 2,
+          currencyDisplay: "code",
         })}
       </ThemedText>
     </Section>
@@ -412,7 +454,6 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFill,
-    opacity: 0.25,
   },
   underlay: {
     ...StyleSheet.absoluteFill,
