@@ -86,7 +86,8 @@ export default function BalanceCard() {
   });
 
   const cardInnerAnimatedStyle = useAnimatedStyle(() => {
-    const TELEPORTED_TOP_MARGIN = height / 2 - cord.value.y - HEIGHT / 2;
+    const TELEPORTED_TOP_MARGIN =
+      height / 2 - cord.value.y - HEIGHT / 2 - bottom;
     return {
       marginTop: withSpring(
         teleport
@@ -312,7 +313,7 @@ const Screen = ({
 
   useEffect(() => {
     const autoFocus = () => {
-      if (focus) {
+      if (focus && amount === null) {
         inputRef.current?.focus();
       } else {
         inputRef.current?.blur();
