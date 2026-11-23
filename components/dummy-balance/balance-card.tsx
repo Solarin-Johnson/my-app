@@ -123,12 +123,12 @@ export default function BalanceCard() {
   );
 
   const blurIntensity = useDerivedValue(() => {
-    return rotateProgress.value * 8;
+    return rotateProgress.value * 12;
   });
 
   const overlayAnimatedStyle = useAnimatedStyle(() => {
     return {
-      opacity: rotateProgress.value * 0.1,
+      opacity: rotateProgress.value * 0.25,
     };
   });
 
