@@ -1,10 +1,8 @@
 import {
   View,
-  Text,
   StyleSheet,
   Pressable,
   useWindowDimensions,
-  Switch,
   TextInput,
   TextInputInstance,
 } from "react-native";
@@ -16,6 +14,7 @@ import { Portal } from "react-native-teleport";
 import Animated, {
   measure,
   SharedValue,
+  useAnimatedReaction,
   useAnimatedRef,
   useAnimatedStyle,
   useDerivedValue,
@@ -26,11 +25,7 @@ import Animated, {
 import { scheduleOnUI } from "react-native-worklets";
 import { ThemedView, ThemedViewWrapper } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import {
-  useKeyboardAnimation,
-  useKeyboardState,
-} from "react-native-keyboard-controller";
-import { AnimatedText } from "../ui/animated-text";
+import { useKeyboardState } from "react-native-keyboard-controller";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -216,9 +211,6 @@ const BackContent = ({
   dummyBalance: SharedValue<string | null>;
 }) => (
   <ItemWrapper face="back" style={styles.backCard}>
-    {/* <Section title="Dummy Balance">
-      <Switch value={true} onValueChange={() => {}} />
-    </Section> */}
     <ThemedText
       style={[styles.sectionLabel, { textAlign: "center" }]}
       colorName="background"
@@ -237,7 +229,6 @@ const BackContent = ({
         })}
       </ThemedText>
     </Section>
-    {/* <Text onPress={goBack}>Go to Front</Text> */}
   </ItemWrapper>
 );
 
@@ -326,8 +317,9 @@ const Screen = ({
   }, [focus]);
 
   useEffect(() => {
-    dummyBalance.set(amount);
-  }, [amount]);
+    const v = amount?.replace(/,/g, "");
+    dummyBalance.set(v ?? null);
+  }, [amount, focus]);
 
   return (
     <Pressable
