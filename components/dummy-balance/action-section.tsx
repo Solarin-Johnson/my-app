@@ -2,7 +2,8 @@ import { StyleSheet, Text, View } from "react-native";
 import { ThemedText, ThemedTextWrapper } from "../ThemedText";
 import { ReactElement } from "react";
 import { ArrowDownRight, ArrowUpRight, Plus } from "lucide-react-native";
-import { ThemedView } from "../ThemedView";
+import { ThemedView, ThemedViewWrapper } from "../ThemedView";
+import PressableBounce from "../PresableBounce";
 
 export default function ActionSection() {
   return (
@@ -15,12 +16,18 @@ export default function ActionSection() {
 
 const Item = ({ label, icon }: { label: string; icon: ReactElement<any> }) => {
   return (
-    <ThemedView style={styles.item} colorName="invertedTheme">
-      <ThemedTextWrapper colorName="background">{icon}</ThemedTextWrapper>
-      <ThemedText style={styles.label} colorName="background" numberOfLines={1}>
-        {label}
-      </ThemedText>
-    </ThemedView>
+    <ThemedViewWrapper style={styles.item} colorName="invertedTheme">
+      <PressableBounce>
+        <ThemedTextWrapper colorName="background">{icon}</ThemedTextWrapper>
+        <ThemedText
+          style={styles.label}
+          colorName="background"
+          numberOfLines={1}
+        >
+          {label}
+        </ThemedText>
+      </PressableBounce>
+    </ThemedViewWrapper>
   );
 };
 
