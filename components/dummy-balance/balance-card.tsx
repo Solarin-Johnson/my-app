@@ -29,7 +29,7 @@ import { useKeyboardState } from "react-native-keyboard-controller";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const HEIGHT = 180;
+const HEIGHT = 160;
 const TELEPORTED_HEIGHT = 240;
 
 const SPRING_CONFIG: WithSpringConfig = {
