@@ -104,6 +104,7 @@ export default function BalanceCard() {
   };
 
   const closeContext = () => {
+    if (!teleport) return;
     rotateRef.current?.flipTo("front");
     setTeleport(false);
     setAnimating(true);
@@ -135,24 +136,31 @@ export default function BalanceCard() {
   const offsetAnimatedStyle = useAnimatedStyle(() => {
     return {
       left: -cord.value.x,
+      top: -cord.value.y,
     };
   });
 
   return (
     <View style={{ height: HEIGHT }} ref={cardRef}>
       <Portal hostName={animating ? "dummy-balance-overlay" : undefined}>
-        <AnimatedPressable
-          style={[StyleSheet.absoluteFill, { width }, offsetAnimatedStyle]}
-          onPress={closeContext}
-        >
-          <ThemedViewWrapper style={styles.overlay}>
-            <Animated.View style={overlayAnimatedStyle} />
-          </ThemedViewWrapper>
-          <AnimatedBlurView
-            style={StyleSheet.absoluteFill}
-            intensity={blurIntensity}
-          />
-        </AnimatedPressable>
+        {teleport && (
+          <AnimatedPressable
+            style={[
+              StyleSheet.absoluteFill,
+              { width, height },
+              offsetAnimatedStyle,
+            ]}
+            onPress={closeContext}
+          >
+            <ThemedViewWrapper style={styles.overlay}>
+              <Animated.View style={overlayAnimatedStyle} />
+            </ThemedViewWrapper>
+            <AnimatedBlurView
+              style={StyleSheet.absoluteFill}
+              intensity={blurIntensity}
+            />
+          </AnimatedPressable>
+        )}
 
         <AnimatedPressable
           onLongPress={openContext}

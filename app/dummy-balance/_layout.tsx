@@ -26,7 +26,7 @@ const DummyPortalHost = () => {
   const animatedStyle = useAnimatedStyle(() => {
     return {
       top: cord.value.y,
-      marginHorizontal: cord.value.x,
+      left: cord.value.x,
     };
   });
 
