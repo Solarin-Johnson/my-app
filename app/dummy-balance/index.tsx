@@ -8,6 +8,7 @@ import Animated, {
   interpolate,
   useAnimatedStyle,
 } from "react-native-reanimated";
+import RecentsTransactions from "@/components/dummy-balance/recents";
 
 export default function index() {
   const { rotateProgress } = useDummyBalPortalContext();
@@ -31,6 +32,7 @@ export default function index() {
       <SafeAreaView style={styles.container}>
         <BalanceCard />
         <ActionSection />
+        <RecentsTransactions />
       </SafeAreaView>
     </Animated.View>
   );

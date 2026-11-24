@@ -128,7 +128,7 @@ export default function BalanceCard() {
 
   const overlayAnimatedStyle = useAnimatedStyle(() => {
     return {
-      opacity: rotateProgress.value * 0.25,
+      opacity: rotateProgress.value * 0.2,
     };
   });
 
@@ -446,6 +446,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderRadius: 24,
     borderCurve: "continuous",
+    boxShadow: "0px 2px 8px #00000030",
   },
   overlay: {
     ...StyleSheet.absoluteFill,
