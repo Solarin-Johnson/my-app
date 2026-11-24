@@ -56,3 +56,41 @@ export const SPRING_CONFIG = {
 
 export const isAndroid = Platform.OS === "android";
 export const isIos = Platform.OS === "ios";
+
+export const USERS_DUMMY_DATA = [
+  {
+    id: "1",
+    name: "Alice",
+    image: { uri: "https://api.dicebear.com/10.x/lorelei/svg?seed=1" },
+  },
+  {
+    id: "2",
+    name: "Bob Smith",
+    image: { uri: "https://api.dicebear.com/10.x/lorelei/svg?seed=2" },
+  },
+  {
+    id: "3",
+    name: "Taylor",
+    image: { uri: "https://api.dicebear.com/10.x/lorelei/svg?seed=3" },
+  },
+  {
+    id: "4",
+    name: "Dana Lee",
+    image: { uri: "https://api.dicebear.com/10.x/lorelei/svg?seed=4" },
+  },
+  {
+    id: "5",
+    name: "Evan",
+    image: { uri: "https://api.dicebear.com/10.x/lorelei/svg?seed=5" },
+  },
+  {
+    id: "6",
+    name: "Fiona Chen",
+    image: { uri: "https://api.dicebear.com/10.x/lorelei/svg?seed=6" },
+  },
+  {
+    id: "7",
+    name: "George King",
+    image: { uri: "https://api.dicebear.com/10.x/lorelei/svg?seed=7" },
+  },
+];

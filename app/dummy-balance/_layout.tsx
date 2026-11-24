@@ -27,6 +27,7 @@ const DummyPortalHost = () => {
     return {
       top: cord.value.y,
       left: cord.value.x,
+      right: cord.value.x,
     };
   });
 

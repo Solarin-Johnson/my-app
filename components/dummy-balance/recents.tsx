@@ -10,7 +10,10 @@ import {
   ShoppingBasket,
   TvMinimalPlay,
 } from "lucide-react-native";
-import { ThemedView } from "../ThemedView";
+import { ThemedView, ThemedViewWrapper } from "../ThemedView";
+import { USERS_DUMMY_DATA } from "@/constants";
+import { Image } from "expo-image";
+import PressableBounce from "../PresableBounce";
 
 const ITEMS = [
   {
@@ -105,7 +108,37 @@ const Item = ({
 export const QuickSend = () => {
   return (
     <View style={styles.container}>
-      <Header label="Quick Send" viewAll={false} />
+      <View
+        style={{
+          paddingHorizontal: 20,
+        }}
+      >
+        <Header label="Quick Send" viewAll={false} />
+      </View>
+      <ScrollView
+        contentContainerStyle={styles.quickSend}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+      >
+        <QuickReceipents />
+      </ScrollView>
+    </View>
+  );
+};
+
+const QuickReceipents = () => {
+  return (
+    <View style={styles.quickReceipents}>
+      {USERS_DUMMY_DATA.map((user) => (
+        <PressableBounce key={user.id} style={styles.receipent}>
+          <ThemedViewWrapper colorName="invertedTheme" alphaHex="12">
+            <Image source={user.image} style={styles.receipentImage} />
+          </ThemedViewWrapper>
+          <ThemedText style={styles.receipentName}>
+            {user.name.split(" ")[0]}
+          </ThemedText>
+        </PressableBounce>
+      ))}
     </View>
   );
 };
@@ -142,7 +175,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     gap: 12,
-    // backgroundColor: "red",
     height: 58,
   },
   iconWrapper: {
@@ -178,5 +210,29 @@ const styles = StyleSheet.create({
     fontWeight: 500,
     letterSpacing: -0.5,
     opacity: 0.5,
+  },
+  quickSend: {},
+  quickSendContent: {},
+  quickReceipents: {
+    gap: 12,
+    flexDirection: "row",
+    paddingHorizontal: 20,
+  },
+  receipent: {
+    alignItems: "center",
+    gap: 8,
+  },
+  receipentImage: {
+    width: 80,
+    aspectRatio: 1,
+    borderRadius: 24,
+  },
+  receipentName: {
+    fontSize: 14,
+    fontFamily: "ui-monospace",
+    fontWeight: 500,
+    letterSpacing: -0.5,
+    opacity: 0.75,
+    pointerEvents: "none",
   },
 });
