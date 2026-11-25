@@ -12,6 +12,7 @@ import { LinearGradient } from "expo-linear-gradient";
 export default function FloatingBar() {
   const { bottom } = useSafeAreaInsets();
   const background = useThemeColor("background");
+  const tint = useThemeColor("invertedTheme");
 
   return (
     <>
@@ -33,7 +34,7 @@ export default function FloatingBar() {
       />
       <GlassView
         style={[styles.container, { bottom }]}
-        //   tintColor={tint + "10"}
+        // tintColor={tint + "CC"}
         isInteractive
       >
         <View style={styles.content}>
@@ -42,8 +43,12 @@ export default function FloatingBar() {
             source={require("@/assets/images/dp.png")}
           />
           <View style={styles.contentText}>
-            <ThemedText style={styles.subLabel}>Welcome back</ThemedText>
-            <ThemedText style={styles.label}>Solarin</ThemedText>
+            <ThemedText style={styles.subLabel} colorName="invertedTheme">
+              Welcome back
+            </ThemedText>
+            <ThemedText style={styles.label} colorName="invertedTheme">
+              Solarin
+            </ThemedText>
           </View>
         </View>
         <ThemedViewWrapper
@@ -52,7 +57,7 @@ export default function FloatingBar() {
           alphaHex="16"
         >
           <Pressable>
-            <ThemedTextWrapper>
+            <ThemedTextWrapper colorName="invertedTheme">
               <Bell size={23} />
             </ThemedTextWrapper>
           </Pressable>
@@ -76,6 +81,7 @@ const styles = StyleSheet.create({
     zIndex: 999,
     borderCurve: "continuous",
     backgroundImage: "linear-gradient(50deg, transparent 0%, #88888820 100%)",
+    boxShadow: "0px 1px 24px #00000016",
   },
   avatar: {
     height: "100%",
@@ -101,7 +107,7 @@ const styles = StyleSheet.create({
     fontFamily: "ui-monospace",
     letterSpacing: -0.5,
     fontWeight: 400,
-    opacity: 0.5,
+    opacity: 0.6,
   },
   notificationIcon: {
     height: "100%",

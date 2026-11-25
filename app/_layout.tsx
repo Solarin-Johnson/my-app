@@ -96,6 +96,7 @@ export function NavigationDrawer() {
         name="dummy-balance"
         options={{
           drawerLabel: "Dummy Balance",
+          ...edgeSwipe,
         }}
       />
       <Drawer.Screen

@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { Portal } from "react-native-teleport";
 import Animated, {
+  interpolate,
   measure,
   SharedValue,
   useAnimatedReaction,
@@ -21,6 +22,7 @@ import Animated, {
   useSharedValue,
   withSpring,
   WithSpringConfig,
+  withTiming,
 } from "react-native-reanimated";
 import { scheduleOnRN, scheduleOnUI } from "react-native-worklets";
 import { ThemedView, ThemedViewWrapper } from "@/components/ThemedView";
@@ -28,6 +30,8 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { useKeyboardState } from "react-native-keyboard-controller";
 import { BlurView } from "expo-blur";
 import { useDummyBalPortalContext } from "./dummybal-portal-context";
+import PressableBounce from "../PresableBounce";
+import { Feedback } from "@/functions";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
@@ -55,6 +59,7 @@ export default function BalanceCard() {
     useKeyboardState();
   const [animating, setAnimating] = useState(false);
   const measured = useSharedValue(false);
+  const [rtl, setRtl] = useState(true);
 
   const measureCard = () => {
     if (measured.value) return;
@@ -97,7 +102,6 @@ export default function BalanceCard() {
 
   const openContext = () => {
     if (teleport) return;
-    measureCard();
     rotateRef.current?.flipTo("back");
     setTeleport(true);
     setAnimating(true);
@@ -108,6 +112,13 @@ export default function BalanceCard() {
     rotateRef.current?.flipTo("front");
     setTeleport(false);
     setAnimating(true);
+    setRtl(true);
+  };
+
+  const handlePressIn = () => {
+    setRtl(false);
+    if (teleport) return;
+    measureCard();
   };
 
   useAnimatedReaction(
@@ -140,30 +151,47 @@ export default function BalanceCard() {
     };
   });
 
+  const eyeAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(
+        rotateProgress.value,
+        [0, 0.25, 1],
+        [0, 0, 1],
+        "clamp",
+      ),
+    };
+  });
+
   return (
     <View style={{ height: HEIGHT }} ref={cardRef}>
+      <Animated.View
+        style={[styles.underPortal, eyeAnimatedStyle]}
+        // colorName="invertedTheme"
+        // alphaHex="10"
+      >
+        <ThemedText style={styles.underPortalText}>👀</ThemedText>
+      </Animated.View>
       <Portal hostName={animating ? "dummy-balance-overlay" : undefined}>
-        {teleport && (
-          <AnimatedPressable
-            style={[
-              StyleSheet.absoluteFill,
-              { width, height },
-              offsetAnimatedStyle,
-            ]}
-            onPress={closeContext}
-          >
-            <ThemedViewWrapper style={styles.overlay}>
-              <Animated.View style={overlayAnimatedStyle} />
-            </ThemedViewWrapper>
-            <AnimatedBlurView
-              style={StyleSheet.absoluteFill}
-              intensity={blurIntensity}
-            />
-          </AnimatedPressable>
-        )}
+        <AnimatedPressable
+          style={[
+            StyleSheet.absoluteFill,
+            { width, height },
+            offsetAnimatedStyle,
+          ]}
+          onPress={closeContext}
+        >
+          <ThemedViewWrapper style={styles.overlay}>
+            <Animated.View style={overlayAnimatedStyle} />
+          </ThemedViewWrapper>
+          <AnimatedBlurView
+            style={StyleSheet.absoluteFill}
+            intensity={blurIntensity}
+          />
+        </AnimatedPressable>
 
         <AnimatedPressable
           onLongPress={openContext}
+          onPressIn={handlePressIn}
           style={[
             cardAnimatedStyle,
             {
@@ -176,7 +204,7 @@ export default function BalanceCard() {
           <Animated.View style={cardInnerAnimatedStyle}>
             <Rotate3d
               axis="y"
-              rtl={!teleport}
+              rtl={rtl}
               ref={rotateRef}
               style={styles.rotateCard}
               itemStyle={styles.itemStyle}
@@ -206,12 +234,9 @@ const ItemWrapper = ({
   face?: "front" | "back";
 }) => {
   const text = useThemeColor("text");
-  const itemStyle = { borderColor: text + "24" };
+
   return (
-    <ThemedView
-      colorName="invertedTheme"
-      style={[styles.itemStyle, itemStyle, style]}
-    >
+    <ThemedView colorName="invertedTheme" style={[style]}>
       <View
         style={[
           styles.underlay,
@@ -454,7 +479,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderRadius: 24,
     borderCurve: "continuous",
-    boxShadow: "0px 2px 8px #00000030",
   },
   overlay: {
     ...StyleSheet.absoluteFill,
@@ -504,5 +528,15 @@ const styles = StyleSheet.create({
   },
   textFade: {
     opacity: 0.5,
+  },
+  underPortal: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: 24,
+    borderCurve: "continuous",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  underPortalText: {
+    fontSize: 36,
   },
 });

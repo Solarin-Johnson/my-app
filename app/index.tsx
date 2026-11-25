@@ -12,6 +12,7 @@ import Slider from "@/components/Slider";
 import Demo from "@/components/Demo";
 import { StatusBar } from "expo-status-bar";
 import HoverPad from "@/components/hover-pad";
+import { ThemedViewWrapper } from "@/components/ThemedView";
 
 export default function Index() {
   const text = useThemeColor("text");
@@ -19,13 +20,14 @@ export default function Index() {
   const navigation = useNavigation<any>();
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <SafeAreaView style={{ flex: 1 }}>
-        {/* <Demo /> */}
-        <View style={[styles.container, { backgroundColor: bg }]}>
-          <View style={styles.container}>
-            <Logo />
-            {/* <ThemedTextWrapper>
+    <ThemedViewWrapper>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+        <SafeAreaView style={{ flex: 1 }}>
+          {/* <Demo /> */}
+          <View style={[styles.container, { backgroundColor: bg }]}>
+            <View style={styles.container}>
+              <Logo />
+              {/* <ThemedTextWrapper>
               <TextArea
                 containerStyle={{
                   width: 300,
@@ -46,21 +48,22 @@ export default function Index() {
                 timingConfig={{ duration: 0 }}
               />
             </ThemedTextWrapper> */}
+            </View>
+            <Button
+              title="Start Exploring"
+              bgcolor={text}
+              color={bg}
+              style={{
+                width: "80%",
+                padding: 16,
+                marginBottom: 24,
+              }}
+              onPress={() => navigation.openDrawer()}
+            />
           </View>
-          <Button
-            title="Start Exploring"
-            bgcolor={text}
-            color={bg}
-            style={{
-              width: "80%",
-              padding: 16,
-              marginBottom: 24,
-            }}
-            onPress={() => navigation.openDrawer()}
-          />
-        </View>
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
+    </ThemedViewWrapper>
   );
 }
 
