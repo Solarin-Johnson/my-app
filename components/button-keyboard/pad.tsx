@@ -24,6 +24,7 @@ import {
 } from "react-native-gesture-handler";
 import { scheduleOnRN } from "react-native-worklets";
 import { PadProps } from "./types";
+import * as Haptics from "expo-haptics";
 
 const KEY_HEIGHT = 54;
 const GAP = 2.5;
@@ -54,6 +55,17 @@ const KEYS: Record<string, KeyConfig> = {
 };
 
 const KEY_ORDER = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"];
+
+const TapInFeedback = () => {
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+};
+const ReleaseFeedback = () => {
+  Haptics.selectionAsync();
+};
+
+const HoldFeedback = () => {
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+};
 
 export const SPRING_CONFIG = {
   stiffness: 175,
@@ -229,15 +241,18 @@ const Key = ({
   const tapGesture = useTapGesture({
     onTouchesDown: () => {
       scheduleOnRN(handleKeyPress);
+      scheduleOnRN(TapInFeedback);
     },
     onDeactivate: () => {
       tapIn.set(false);
+      scheduleOnRN(ReleaseFeedback);
     },
   });
 
   const longPressGesture = useLongPressGesture({
     onActivate: () => {
       scheduleOnRN(onLongPress);
+      scheduleOnRN(HoldFeedback);
     },
     onFinalize: () => {
       tapIn.set(false);

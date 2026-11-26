@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -10,8 +10,9 @@ import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
 import { useButtonKeyboard } from "@/components/button-keyboard/provider";
 import { Pressable, StyleSheet, View } from "react-native";
 import { UIConditionalRender } from "@/components/UIConditionalRender";
-import {
+import Animated, {
   SharedValue,
+  useAnimatedReaction,
   useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated";
@@ -20,6 +21,7 @@ import PressableBounce from "@/components/PresableBounce";
 import { AnimatedText } from "@/components/ui/animated-text";
 import { ThemedViewWrapper } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { scheduleOnRN } from "react-native-worklets";
 
 export default function ButtonKeyboardPage() {
   const inputValue = useSharedValue("");
@@ -149,16 +151,20 @@ const TopBar = ({
   onSubmit: () => void;
 }) => {
   const { top } = useSafeAreaInsets();
+  const [valLegth, setValLength] = useState(0);
 
-  const value = useDerivedValue(() => {
-    const v = inputValue.value;
-    return `${v.length}/16`;
-  });
+  useAnimatedReaction(
+    () => inputValue.value,
+    (v) => {
+      const l = v.length;
+      scheduleOnRN(setValLength, l);
+    },
+  );
   return (
     <View style={[styles.topBar, { height: top + 64, paddingTop: top }]}>
-      <ThemedTextWrapper>
-        <AnimatedText text={value} style={styles.lengthText} />
-      </ThemedTextWrapper>
+      <ThemedText
+        style={{ fontFamily: "ui-monospace", fontSize: 18, fontWeight: 500 }}
+      >{`${valLegth}/16`}</ThemedText>
       <ThemedViewWrapper colorName="text">
         <PressableBounce style={styles.doneBtn} onPress={onSubmit}>
           <ThemedText colorName="background" style={styles.doneText}>
