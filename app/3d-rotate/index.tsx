@@ -17,7 +17,7 @@ export default function IosIndex() {
           width: "100%",
         }}
       >
-        <Slider value={progress} max={1} />
+        {/* <Slider value={progress} max={1} /> */}
       </View>
     </Index>
   );

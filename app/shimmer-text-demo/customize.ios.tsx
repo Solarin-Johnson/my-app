@@ -13,6 +13,7 @@ import { useShimmerText } from "./_layout";
 import Slider from "@/components/Slider";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
+import { useCloseSheetOnDrawerOpen } from "@/hooks/useCloseSheet";
 // import { ColorPicker, Host } from "@expo/ui/swift-ui";
 
 const isIos = Platform.OS === "ios";
@@ -33,6 +34,7 @@ export default function CustomizeScreen() {
     setText,
   } = useShimmerText();
   const textColor = useThemeColor("text");
+  useCloseSheetOnDrawerOpen();
 
   return (
     <ScrollView style={styles.container} bounces={false}>

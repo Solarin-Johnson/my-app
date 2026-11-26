@@ -8,7 +8,7 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import Slider from "@/components/Slider";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText, ThemedTextWrapper } from "@/components/ThemedText";
@@ -17,11 +17,15 @@ import { useFancyText } from "./_layout";
 import Button from "@/components/ui/Button";
 import PressableBounce from "@/components/PresableBounce";
 import { ThemedViewWrapper } from "@/components/ThemedView";
+import { useDrawerStatus } from "expo-router/drawer";
+import { router } from "expo-router";
+import { useCloseSheetOnDrawerOpen } from "@/hooks/useCloseSheet";
 
 const isIos = Platform.OS === "ios";
 export default function CustomizeScreen() {
   const { bounce, setBounce, currentIndex } = useFancyText();
   const textColor = useThemeColor("text");
+  useCloseSheetOnDrawerOpen();
 
   return (
     <View style={styles.container}>
