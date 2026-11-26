@@ -156,7 +156,7 @@ export function DrawerItem(props: Props) {
             icon="trash"
             destructive
             onPress={() => {
-              setIsConfirming(true);
+              // setIsConfirming(true);
             }}
           >
             Delete
@@ -182,22 +182,22 @@ export function DrawerItem(props: Props) {
             hoverEffect={{ color }}
             // href={href}
           >
-            <ConfirmationDialogComponent
+            {/* <ConfirmationDialogComponent
               isPresented={isConfirming}
               onIsPresentedChange={setIsConfirming}
               label={label as string}
-            >
-              <Item
-                borderRadius={borderRadius}
-                color={color}
-                focused={focused}
-                iconNode={iconNode}
-                label={label}
-                allowFontScaling={allowFontScaling}
-                fonts={fonts}
-                labelStyle={labelStyle}
-              />
-            </ConfirmationDialogComponent>
+            > */}
+            <Item
+              borderRadius={borderRadius}
+              color={color}
+              focused={focused}
+              iconNode={iconNode}
+              label={label}
+              allowFontScaling={allowFontScaling}
+              fonts={fonts}
+              labelStyle={labelStyle}
+            />
+            {/* </ConfirmationDialogComponent> */}
           </PlatformPressable>
         </Link.Trigger>
       </Link>

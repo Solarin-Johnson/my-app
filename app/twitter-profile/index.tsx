@@ -25,7 +25,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 
 const isWeb = Platform.OS === "web";
 
-const FULL_HEADER_HEIGHT = 160;
+const FULL_HEADER_HEIGHT = 170;
 const COLLAPSED_HEADER_HEIGHT = isWeb ? 54 : 50;
 const PP_SIZE = isWeb ? 120 : 80;
 
@@ -35,7 +35,7 @@ const DATA = {
   profileImage:
     "https://pbs.twimg.com/profile_images/1840756205716635648/3HOkBe_W_400x400.jpg",
   coverImage:
-    "https://pbs.twimg.com/profile_banners/1674810013007659014/1752253038/1500x500",
+    "https://pbs.twimg.com/profile_banners/1674810013007659014/1769474050/1500x500",
   postCount: "491",
   bio: "18, I write design code —Web, Mobile",
   link: "github.com/Solarin-Johnson",
@@ -77,7 +77,8 @@ export default function TwitterProfile() {
 
 function Header({ scrollY }: { scrollY: SharedValue<number> }) {
   const { top } = useSafeAreaInsets();
-  const swapDistance = FULL_HEADER_HEIGHT - top - COLLAPSED_HEADER_HEIGHT;
+  const TOP = top + 12;
+  const swapDistance = FULL_HEADER_HEIGHT - TOP - COLLAPSED_HEADER_HEIGHT;
 
   const intensity = useDerivedValue<number | undefined>(() =>
     interpolate(
@@ -92,7 +93,7 @@ function Header({ scrollY }: { scrollY: SharedValue<number> }) {
     height: interpolate(
       scrollY.value,
       [0, swapDistance],
-      [FULL_HEADER_HEIGHT, COLLAPSED_HEADER_HEIGHT + top],
+      [FULL_HEADER_HEIGHT, COLLAPSED_HEADER_HEIGHT + TOP],
       Extrapolation.CLAMP,
     ),
     transform: [
@@ -115,7 +116,7 @@ function Header({ scrollY }: { scrollY: SharedValue<number> }) {
     opacity: scrollY.value < swapDistance ? 1 : 0,
   }));
 
-  const headerStyle = [styles.header, { paddingTop: top }, animatedStyle];
+  const headerStyle = [styles.header, { paddingTop: TOP }, animatedStyle];
 
   return (
     <>
@@ -131,7 +132,7 @@ function Header({ scrollY }: { scrollY: SharedValue<number> }) {
       <View
         style={[
           styles.headerNav,
-          { paddingTop: top * 0.85, height: COLLAPSED_HEADER_HEIGHT + top },
+          { paddingTop: TOP * 0.85, height: COLLAPSED_HEADER_HEIGHT + TOP },
         ]}
         pointerEvents="box-none"
       >
