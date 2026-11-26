@@ -216,13 +216,6 @@ export function NavigationDrawer() {
         }}
       />
       <Drawer.Screen
-        name="3d-card-scrolling"
-        options={{
-          drawerLabel: "3D Card Scrolling",
-          ...edgeSwipe,
-        }}
-      />
-      <Drawer.Screen
         name="slider-demo"
         options={{
           drawerLabel: "Slider Demo",

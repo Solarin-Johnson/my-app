@@ -16,6 +16,7 @@ export default function Layout() {
           headerBackVisible: false,
           headerTitleAlign: "center",
           headerShadowVisible: false,
+          headerTransparent: false,
         }}
       >
         <Stack.Screen name="index" options={{ title: "Home" }} />

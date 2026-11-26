@@ -5,7 +5,7 @@ import {
   SectionDivider,
   SectionItem,
 } from "@/components/custom-back/sections";
-import { ThemedView } from "@/components/ThemedView";
+import { ThemedView, ThemedViewWrapper } from "@/components/ThemedView";
 
 export default function Index() {
   return (
