@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   underlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     // backgroundColor: "red",
   },
 });

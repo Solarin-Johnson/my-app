@@ -144,7 +144,7 @@ export function DrawerItem(props: Props) {
   return (
     <>
       <Link href={href} asChild>
-        {!noPreview && <Link.Preview style={{ backgroundColor: bg }} />}
+        {/* {!noPreview && <Link.Preview style={{ backgroundColor: bg }} />} */}
         <Link.Menu>
           <Link.MenuAction icon="pin" onPress={() => {}}>
             Pin

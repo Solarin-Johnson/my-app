@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   expandedContainer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     margin: 1,
     overflow: "hidden",
     borderRadius: 24,

@@ -158,7 +158,7 @@ const CoverImage = ({
 }) => (
   <Animated.View
     style={[
-      StyleSheet.absoluteFillObject,
+      StyleSheet.absoluteFill,
       { height: FULL_HEADER_HEIGHT, overflow: "hidden" },
       style,
     ]}
@@ -166,13 +166,10 @@ const CoverImage = ({
   >
     <Image
       source={DATA.coverImage}
-      style={StyleSheet.absoluteFillObject}
+      style={StyleSheet.absoluteFill}
       contentFit="cover"
     />
-    <AnimatedBlurView
-      intensity={intensity}
-      style={StyleSheet.absoluteFillObject}
-    />
+    <AnimatedBlurView intensity={intensity} style={StyleSheet.absoluteFill} />
   </Animated.View>
 );
 

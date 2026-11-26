@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.25,
   },
   closeBtn: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: "center",
     alignItems: "center",
     paddingLeft: 6,

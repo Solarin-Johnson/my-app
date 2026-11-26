@@ -146,10 +146,10 @@ export default function Banner({
             if (finished) {
               hidden.value = true;
             }
-          }
+          },
         );
       }
-    }
+    },
   );
 
   useAnimatedReaction(
@@ -158,7 +158,7 @@ export default function Banner({
       if (current) {
         hasExceededThreshold.value = false;
       }
-    }
+    },
   );
 
   useAnimatedReaction(
@@ -173,7 +173,7 @@ export default function Banner({
         translateY.value = withSpring(0);
         toggleExpand(false);
       }
-    }
+    },
   );
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -240,7 +240,7 @@ export default function Banner({
   return (
     <>
       <AnimatedPressable
-        style={[StyleSheet.absoluteFillObject, overlayAnimatedStyle]}
+        style={[StyleSheet.absoluteFill, overlayAnimatedStyle]}
         onPress={() => {
           hidden.value = true;
         }}
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     // paddingBottom: HANDLE_HEIGHT / 2,
   },
   expanded: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     borderRadius: 24,
     borderCurve: "continuous",
     overflow: "hidden",
